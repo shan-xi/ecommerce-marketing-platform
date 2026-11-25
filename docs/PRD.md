@@ -2,7 +2,7 @@
 ## E-commerce Campaign & Coupon Engagement Platform
 
 **Document status:** Draft — under review  
-**Version:** 1.1  
+**Version:** 1.2  
 **Date:** 2026-11-25  
 **Product type:** Web-based campaign management and member engagement platform
 
@@ -287,7 +287,7 @@ For demonstration and testing, the project shall include seeded member records w
 | FR-COUP-08 | A member shall be able to view their successfully claimed coupons. | P0 |
 | FR-COUP-09 | The system shall prevent the same member from claiming the same campaign coupon more than once. | P0 |
 
-**Claim uniqueness:** a member may claim different coupons in the same campaign, but may successfully claim a specific campaign coupon only once. A suitable database constraint is `UNIQUE (campaign_id, coupon_id, member_id)`.
+**Claim uniqueness:** a member may claim different coupons in the same campaign, but may successfully claim a specific campaign coupon only once. A suitable database constraint is `UNIQUE (campaign_id, campaign_coupon_id, member_id)`.
 
 The claim operation must be safe under concurrent requests. Application-level checks alone are insufficient; database constraints and transactional inventory updates must protect correctness.
 
@@ -561,18 +561,17 @@ This is a logical starting point, not a mandatory physical schema.
 
 | Entity | Purpose | Important relationships |
 |---|---|---|
-| `members` | Member accounts and audience attributes | One member can receive messages and claim coupons |
-| `admins` | Administrator accounts | Creates and manages campaigns |
-| `audience_segments` | Reusable segment definitions and rules | Can be selected by many campaigns |
-| `campaigns` | Campaign definition and lifecycle | Has one audience snapshot, one message, and multiple campaign coupons |
+| `users` | Shared identity and authentication accounts for both administrators and members; `role` distinguishes `ADMIN` and `MEMBER` | Creates/manages campaigns when role is `ADMIN`; may have one member profile when role is `MEMBER` |
+| `members` | Member-only profile and audience attributes | One-to-one with `users`; one member can receive messages and claim coupons |
+| `audience_segments` | Reusable segment definitions and rules | Can be selected by many campaigns; records the creating user |
+| `campaigns` | Campaign definition and lifecycle | Has one audience snapshot, one message, and multiple campaign-owned coupons; records the creating user |
 | `campaign_audience_members` | Resolved audience snapshot | Joins campaigns and members; unique campaign/member pair |
-| `coupons` | Coupon/offer definition, if modeled separately | Can be associated with campaign coupon configuration |
-| `campaign_coupons` | Coupon configuration within a campaign | Joins campaigns and coupons; holds quantity and campaign-specific claim rules |
-| `coupon_claims` | Successful member coupon claims | References campaign, campaign coupon, and member |
+| `campaign_coupons` | Coupon/offer definition configured directly within a campaign; no separate global coupon master in the MVP | Belongs to one campaign; stores discount type/value, optional minimum order amount, quantity, validity, and per-member claim limit |
+| `coupon_claims` | Successful member coupon claims | References campaign, campaign coupon, and member; unique campaign/campaign-coupon/member combination |
 | `campaign_messages` | The campaign's single in-app message definition | One-to-one with campaign in the MVP |
 | `member_messages` | Per-member message delivery/inbox record | References campaign message and member; unique campaign/member delivery |
 | `campaign_events` | Delivery, impression, click, and landing-page events | References campaign, member, and relevant message/coupon identifiers |
-| `refresh_tokens` or equivalent | Refresh-token lifecycle and revocation | References the authenticated user/session |
+| `refresh_token_sessions` | Refresh-token lifecycle and revocation | References the shared `users` identity/session |
 
 ### 11.1 Important Data Integrity Rules
 

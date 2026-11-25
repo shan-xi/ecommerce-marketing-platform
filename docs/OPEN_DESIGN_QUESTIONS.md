@@ -14,10 +14,16 @@ The technical documents contain recommended defaults for most items below. The o
 | 7 | What is the exact publication consistency strategy for very large audiences? | Snapshot must be complete before delivery starts; use a resumable publication/snapshot state machine if one transaction is too large. | Avoids partial delivery or partially eligible campaigns. |
 | 8 | What happens to in-flight delivery when an admin pauses a campaign? | Stop scheduling new deliveries after pause is observed; already-created inbox messages remain. Coupon claims are rejected while paused. | Clarifies race behavior and user expectations. |
 | 9 | Should failed claim responses be persisted for idempotent replay? | Successful claims are always replayable by idempotency key; failed attempts may be recorded as events, but do not reserve inventory. | Defines retry behavior and support diagnostics. |
-| 10 | Which coupon discount types are required? | `FIXED_AMOUNT` and `PERCENTAGE` as metadata; redemption validation remains out of scope. | Defines admin form and database validation. |
 | 11 | Is `age` stored or derived? | Store `birth_date` in fictional seed data and derive age at evaluation time; define the age reference date. | Avoids stale age values. |
 | 12 | What is the retention policy for engagement events and refresh-token history? | Retain through MVP/demo; production retention requires an explicit policy. | Data lifecycle and privacy requirements. |
-| 13 | Are Admin and Member users in one identity table? | One `users` table with role and a one-to-one `members` profile for member-only attributes. | Simplifies authentication while preserving member-specific profile data. |
+
+## Decisions confirmed during owner review
+
+The following decisions have been confirmed and are no longer open questions. This does not mean the entire Design Pack has been approved or is ready for development.
+
+- **Coupon ownership:** A coupon belongs directly to one campaign through `campaign_coupons.campaign_id`. The MVP does not include a separate global reusable coupon master or a promotion-rule engine.
+- **Coupon discount metadata:** Support `FIXED_AMOUNT` and `PERCENTAGE`; `minimum_order_amount` remains optional and descriptive because checkout/redemption is out of scope.
+- **Identity model:** Administrators and members share `users`; `users.role` distinguishes `ADMIN` and `MEMBER`. Member-only attributes are stored in a one-to-one `members` profile.
 
 ## Ready-for-development checklist
 

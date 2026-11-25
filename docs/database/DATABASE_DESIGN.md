@@ -285,7 +285,14 @@ The unique constraint is the final guard against duplicate claims. Do not rely o
 
 ## 8. Open questions to resolve before schema implementation
 
-- Whether admins and members share one `users` table (recommended) or use separate tables. This design recommends one `users` table plus `members` profile.
+The following identity and coupon ownership decisions are the current design baseline (they are not open questions):
+
+- Administrators and members share the `users` identity table. The `role` column distinguishes `ADMIN` and `MEMBER`; member-only attributes live in the one-to-one `members` profile.
+- A coupon is owned by exactly one campaign through `campaign_coupons.campaign_id`. The MVP does not introduce a separate global reusable coupon master or promotion-rule engine.
+- MVP coupon discount metadata supports `FIXED_AMOUNT` and `PERCENTAGE`; `minimum_order_amount` is optional and descriptive because checkout/redemption is out of scope.
+
+Remaining open questions:
+
 - Exact campaign landing-page content schema.
 - Whether audience rule combination between saved segment and campaign-specific conditions is AND-only (recommended) or replacement semantics.
 - Whether a failed claim idempotency result is persisted or only successful claims are idempotently replayed.

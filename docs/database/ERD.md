@@ -113,6 +113,9 @@ erDiagram
 
 ## Cardinality and integrity notes
 
+- `users` is the shared identity table for both administrators and members; `users.role` distinguishes `ADMIN` and `MEMBER`. Only member users have a one-to-one `members` profile containing member-specific attributes.
+- `campaign_coupons` is campaign-owned through `campaign_id`. The MVP has no separate global coupon master or reusable promotion-rule entity; supported discount metadata is `FIXED_AMOUNT` or `PERCENTAGE`.
+
 - `campaign_messages.campaign_id` is unique: exactly one message per campaign in the MVP.
 - `campaign_delivery_jobs.campaign_id` is unique: one delivery job per campaign; retries update the same job.
 - `campaign_audience_members` has composite primary key `(campaign_id, member_id)`.
