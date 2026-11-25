@@ -1,0 +1,152 @@
+# System Architecture
+
+**Status:** Proposed — requires owner review  
+**Applies to:** MVP described in `docs/PRD.md`  
+**Implementation:** Not started
+
+## 1. Goals
+
+- Deliver the complete campaign-to-coupon-claim journey with a small operational footprint.
+- Keep business rules independent of Spring, persistence, and UI frameworks.
+- Provide explicit boundaries between Admin and Member capabilities.
+- Protect coupon inventory and claim uniqueness under concurrent requests.
+- Make message delivery and event ingestion retryable and idempotent.
+- Leave extension seams for future channels without implementing a generic plugin framework.
+
+## 2. Architecture decisions
+
+| Concern | MVP decision | Rationale |
+|---|---|---|
+| Architecture style | Modular monolith using Clean Architecture principles | One deployable backend, clear module boundaries, low operational complexity |
+| Backend | Java 21 + Spring Boot | Fits the Java backend project and supports Spring Security, validation, transactions, and observability |
+| Frontend | One React + TypeScript SPA | Two route-level experiences without maintaining two separate frontend builds |
+| Database | PostgreSQL | Transactions, unique constraints, conditional updates, JSONB rules, and relational reporting |
+| Authentication | Spring Security + JWT access/refresh tokens in HttpOnly cookies | Browser-oriented authentication with refresh/revocation support |
+| Message delivery | Database-backed asynchronous worker/outbox pattern | Retryable delivery without requiring Kafka for the MVP |
+| Event ingestion | REST endpoint + PostgreSQL persistence | Sufficient for MVP volume; idempotency enforced in DB |
+| Deployment | Backend and frontend built separately; PostgreSQL service | Simple local and demo deployment |
+
+## 3. High-level component view
+
+```mermaid
+flowchart TB
+  subgraph Browser[Browser]
+    Admin[Admin routes<br/>React + TypeScript]
+    Member[Member routes<br/>React + TypeScript]
+    Landing[Campaign landing route<br/>React + TypeScript]
+  end
+  Admin -->|HTTPS REST + cookies| API[Spring Boot REST API]
+  Member -->|HTTPS REST + cookies| API
+  Landing -->|HTTPS REST + cookies| API
+  subgraph Backend[Modular Monolith]
+    Identity[Identity]
+    Campaign[Campaign]
+    Audience[Audience]
+    Messaging[Messaging]
+    Coupon[Coupon]
+    Engagement[Engagement]
+    Analytics[Analytics]
+  end
+  API --> Identity
+  API --> Campaign
+  API --> Audience
+  API --> Messaging
+  API --> Coupon
+  API --> Engagement
+  API --> Analytics
+  Identity --> DB[(PostgreSQL)]
+  Campaign --> DB
+  Audience --> DB
+  Messaging --> DB
+  Coupon --> DB
+  Engagement --> DB
+  Analytics --> DB
+  Worker[Delivery worker] --> DB
+  Worker -->|creates inbox rows in batches| Messaging
+```
+
+The diagram is logical, not a deployment topology. Modules share one application process and one PostgreSQL database, but must not bypass one another's public application interfaces to manipulate another module's tables.
+
+## 4. Runtime flows
+
+### 4.1 Campaign publication and immediate message delivery
+
+1. Admin calls the publish endpoint.
+2. Application validates the draft campaign, its date range, one configured message, coupon configuration, and audience definition.
+3. In one publication transaction, the application resolves the audience and persists the member snapshot, changes campaign status, and writes a delivery job/outbox record.
+4. A worker claims pending delivery work in bounded batches.
+5. For each snapshot member, it creates a member inbox record using a unique campaign/member key. Re-running a batch is safe.
+6. The worker marks the batch/job progress. Failed work remains retryable and observable.
+
+The publish HTTP request must not synchronously create every inbox record. “Immediate” means delivery processing is initiated immediately after successful publication; actual inbox materialization may complete asynchronously.
+
+### 4.2 Coupon claim
+
+1. Member submits a claim request with an authenticated session and an idempotency key.
+2. Application checks campaign status/window, audience snapshot membership, coupon window, and request idempotency.
+3. In a single PostgreSQL transaction, the system conditionally increments claimed quantity only if inventory remains, then inserts the claim record.
+4. The unique claim constraint prevents a duplicate member/coupon claim.
+5. Any failure to insert the claim rolls back the inventory update.
+6. The response is derived from the committed claim record. Analytics events are not the source of truth for ownership.
+
+### 4.3 Engagement event
+
+1. Client generates a UUID event ID and submits an impression, click, or landing-page-view event.
+2. Backend derives member identity from authentication and validates the campaign/message relationship.
+3. Database unique key `(member_id, event_id)` (or equivalent) deduplicates retries.
+4. Analytics reads persisted events and business claim records.
+
+## 5. Backend layering
+
+- **Presentation:** REST controllers, request/response DTOs, validation, cookie/CSRF handling.
+- **Application:** use cases, orchestration, transaction boundaries, ports, authorization checks.
+- **Domain:** campaign lifecycle, audience semantics, coupon eligibility, inventory/claim invariants.
+- **Infrastructure:** JPA/JDBC repositories, PostgreSQL adapters, JWT implementation, delivery worker, clock, logging.
+
+Dependencies point inward. Domain code must not import Spring MVC, Spring Data, Hibernate, JDBC, or provider SDKs.
+
+## 6. Frontend structure
+
+One SPA in `frontend/`:
+
+- `/admin/**`: campaign CRUD, audience segments, coupon configuration, campaign analytics.
+- `/member/**`: login, inbox, claimed coupons, member profile.
+- `/campaigns/:campaignId`: campaign landing page within the same SPA.
+
+The frontend must not contain business authorization logic as a security boundary. The backend remains authoritative for roles, audience membership, campaign state, coupon eligibility, and inventory.
+
+Suggested frontend boundaries:
+
+```text
+frontend/src/
+  app/                 # router, providers, app bootstrap
+  features/
+    auth/
+    admin/campaigns/
+    admin/audiences/
+    admin/analytics/
+    member/messages/
+    member/coupons/
+    campaigns/landing-page/
+  shared/
+    components/
+    hooks/
+    lib/
+  api/                 # typed API client and generated OpenAPI types
+```
+
+## 7. MVP exclusions
+
+Do not add Redis, Kafka, microservices, distributed locks, scheduled-delivery infrastructure, external email/push/SMS providers, event streaming platforms, or a generic plugin system unless an approved requirement change demonstrates the need.
+
+## 8. Operational baseline
+
+- One Spring Boot backend instance is sufficient for the initial demo; design must remain stateless at the web tier except for persisted refresh-token state.
+- PostgreSQL is the source of truth.
+- Database-backed workers must use bounded batches and safe row claiming (for example, `FOR UPDATE SKIP LOCKED`) if multiple workers are later run.
+- Provide health endpoints, structured logs, request correlation IDs, and metrics for publication, delivery backlog/failures, event ingestion, and coupon claims.
+- Time storage: persist timestamps as `timestamptz` in UTC; present campaign times in `Asia/Taipei` unless product owner changes this decision.
+
+## 9. Open implementation details
+
+These are intentionally deferred to implementation planning and must be decided before the affected code is written: exact Spring Boot minor version, build tool and dependency versions, ORM vs JDBC choices per use case, deployment hosting, frontend UI library, and production secrets management. Do not silently add infrastructure dependencies.

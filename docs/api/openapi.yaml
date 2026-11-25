@@ -1,0 +1,553 @@
+openapi: 3.1.0
+info:
+  title: E-commerce Marketing Platform API
+  version: 1.0.0-draft
+  description: >-
+    Draft API contract for the MVP. Browser authentication uses HttpOnly cookies;
+    state-changing requests require the configured CSRF header.
+servers:
+  - url: /api/v1
+security: []
+paths:
+  /auth/csrf:
+    get:
+      summary: Initialize CSRF cookie/token
+      responses:
+        '200':
+          description: CSRF token initialized; cookie behavior is implementation-specific.
+  /auth/login:
+    post:
+      summary: Authenticate and set access/refresh cookies
+      security: []
+      parameters:
+        - $ref: '#/components/parameters/CsrfHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email: { type: string, format: email, maxLength: 320 }
+                password: { type: string, minLength: 1, writeOnly: true }
+      responses:
+        '200':
+          description: Authenticated; tokens are set in HttpOnly cookies.
+          headers:
+            Set-Cookie:
+              schema: { type: string }
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CurrentUserEnvelope' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+  /auth/refresh:
+    post:
+      summary: Rotate refresh token and issue new access token
+      parameters:
+        - $ref: '#/components/parameters/CsrfHeader'
+      responses:
+        '200': { description: Session refreshed; cookies rotated. }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+  /auth/logout:
+    post:
+      summary: Revoke refresh session and clear auth cookies
+      parameters:
+        - $ref: '#/components/parameters/CsrfHeader'
+      responses:
+        '204': { description: Logged out. }
+  /auth/me:
+    get:
+      summary: Get current authenticated user
+      security: [{ accessCookie: [] }]
+      responses:
+        '200':
+          description: Current user.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CurrentUserEnvelope' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+  /admin/campaigns:
+    get:
+      summary: List campaigns
+      security: [{ accessCookie: [] }]
+      parameters:
+        - { name: page, in: query, schema: { type: integer, minimum: 0, default: 0 } }
+        - { name: size, in: query, schema: { type: integer, minimum: 1, maximum: 100, default: 20 } }
+        - { name: status, in: query, schema: { type: string, enum: [DRAFT, ACTIVE, PAUSED, ENDED] } }
+      responses:
+        '200':
+          description: Campaign page.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CampaignPageEnvelope' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+    post:
+      summary: Create a draft campaign
+      security: [{ accessCookie: [] }]
+      parameters: [{ $ref: '#/components/parameters/CsrfHeader' }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CampaignWrite' }
+      responses:
+        '201':
+          description: Draft created.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CampaignEnvelope' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+  /admin/campaigns/{campaignId}:
+    parameters:
+      - $ref: '#/components/parameters/CampaignId'
+    get:
+      summary: Get campaign detail
+      security: [{ accessCookie: [] }]
+      responses:
+        '200':
+          description: Campaign detail.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CampaignEnvelope' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    put:
+      summary: Update a draft campaign
+      security: [{ accessCookie: [] }]
+      parameters: [{ $ref: '#/components/parameters/CsrfHeader' }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CampaignWrite' }
+      responses:
+        '200':
+          description: Campaign updated.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CampaignEnvelope' }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /admin/campaigns/{campaignId}/publish:
+    parameters:
+      - $ref: '#/components/parameters/CampaignId'
+    post:
+      summary: Publish campaign, snapshot audience, and initiate immediate delivery
+      security: [{ accessCookie: [] }]
+      parameters: [{ $ref: '#/components/parameters/CsrfHeader' }]
+      responses:
+        '202':
+          description: Publication committed; delivery proceeds asynchronously.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PublishEnvelope' }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /admin/campaigns/{campaignId}/pause:
+    parameters:
+      - $ref: '#/components/parameters/CampaignId'
+    post:
+      summary: Pause active campaign
+      security: [{ accessCookie: [] }]
+      parameters: [{ $ref: '#/components/parameters/CsrfHeader' }]
+      responses:
+        '200': { description: Campaign paused. }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /admin/audience-segments:
+    get:
+      summary: List reusable audience segments
+      security: [{ accessCookie: [] }]
+      responses:
+        '200': { description: Segment list. }
+    post:
+      summary: Create reusable audience segment
+      security: [{ accessCookie: [] }]
+      parameters: [{ $ref: '#/components/parameters/CsrfHeader' }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/AudienceSegmentWrite' }
+      responses:
+        '201': { description: Segment created. }
+        '400': { $ref: '#/components/responses/BadRequest' }
+  /admin/audience-segments/preview:
+    post:
+      summary: Preview audience rules
+      security: [{ accessCookie: [] }]
+      parameters: [{ $ref: '#/components/parameters/CsrfHeader' }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/AudienceRules' }
+      responses:
+        '200': { description: Matching member count and optional masked sample. }
+        '400': { $ref: '#/components/responses/BadRequest' }
+  /admin/audience-segments/{segmentId}:
+    parameters:
+      - name: segmentId
+        in: path
+        required: true
+        schema: { type: string, format: uuid }
+    get:
+      summary: Get reusable audience segment
+      security: [{ accessCookie: [] }]
+      responses:
+        '200': { description: Audience segment detail. }
+        '404': { $ref: '#/components/responses/NotFound' }
+    put:
+      summary: Update reusable audience segment
+      security: [{ accessCookie: [] }]
+      parameters: [{ $ref: '#/components/parameters/CsrfHeader' }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/AudienceSegmentWrite' }
+      responses:
+        '200': { description: Audience segment updated. }
+        '400': { $ref: '#/components/responses/BadRequest' }
+  /admin/campaigns/{campaignId}/audience-preview:
+    parameters:
+      - $ref: '#/components/parameters/CampaignId'
+    post:
+      summary: Preview effective audience for a campaign
+      security: [{ accessCookie: [] }]
+      parameters: [{ $ref: '#/components/parameters/CsrfHeader' }]
+      responses:
+        '200': { description: Matching member count and optional masked sample. }
+        '400': { $ref: '#/components/responses/BadRequest' }
+  /admin/campaigns/{campaignId}/coupons:
+    parameters:
+      - $ref: '#/components/parameters/CampaignId'
+    get:
+      summary: List campaign coupon configurations
+      security: [{ accessCookie: [] }]
+      responses:
+        '200': { description: Campaign coupon list. }
+    post:
+      summary: Add a coupon to a draft campaign
+      security: [{ accessCookie: [] }]
+      parameters: [{ $ref: '#/components/parameters/CsrfHeader' }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CouponWrite' }
+      responses:
+        '201': { description: Campaign coupon created. }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /admin/campaigns/{campaignId}/coupons/{couponId}:
+    parameters:
+      - $ref: '#/components/parameters/CampaignId'
+      - name: couponId
+        in: path
+        required: true
+        schema: { type: string, format: uuid }
+    put:
+      summary: Update a coupon on a draft campaign
+      security: [{ accessCookie: [] }]
+      parameters: [{ $ref: '#/components/parameters/CsrfHeader' }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CouponWrite' }
+      responses:
+        '200': { description: Coupon updated. }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /admin/campaigns/{campaignId}/message:
+    parameters:
+      - $ref: '#/components/parameters/CampaignId'
+    get:
+      summary: Get the campaign's single in-app message
+      security: [{ accessCookie: [] }]
+      responses:
+        '200': { description: Campaign message configuration. }
+    put:
+      summary: Create or update the campaign's single in-app message while draft
+      security: [{ accessCookie: [] }]
+      parameters: [{ $ref: '#/components/parameters/CsrfHeader' }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [title, body]
+              properties:
+                title: { type: string, maxLength: 160 }
+                body: { type: string, maxLength: 10000 }
+      responses:
+        '200': { description: Campaign message saved. }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /admin/campaigns/{campaignId}/delivery-status:
+    parameters:
+      - $ref: '#/components/parameters/CampaignId'
+    get:
+      summary: Get asynchronous delivery progress and failures
+      security: [{ accessCookie: [] }]
+      responses:
+        '200': { description: Delivery job status and progress. }
+  /member/profile:
+    get:
+      summary: Get current member profile
+      security: [{ accessCookie: [] }]
+      responses:
+        '200': { description: Current member profile summary. }
+        '403': { $ref: '#/components/responses/Forbidden' }
+  /member/messages:
+    get:
+      summary: List current member inbox
+      security: [{ accessCookie: [] }]
+      parameters:
+        - { name: page, in: query, schema: { type: integer, minimum: 0, default: 0 } }
+        - { name: size, in: query, schema: { type: integer, minimum: 1, maximum: 100, default: 20 } }
+      responses:
+        '200': { description: Current member inbox page. }
+  /member/coupons:
+    get:
+      summary: List current member's successful coupon claims
+      security: [{ accessCookie: [] }]
+      responses:
+        '200': { description: Current member claim list. }
+  /campaigns/{campaignId}:
+    parameters:
+      - $ref: '#/components/parameters/CampaignId'
+    get:
+      summary: Get public campaign landing-page content and authenticated member state if available
+      responses:
+        '200': { description: Campaign landing-page data. }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /campaigns/{campaignId}/coupons/{couponId}/claims:
+    parameters:
+      - $ref: '#/components/parameters/CampaignId'
+      - name: couponId
+        in: path
+        required: true
+        schema: { type: string, format: uuid }
+    post:
+      summary: Claim a campaign coupon
+      security: [{ accessCookie: [] }]
+      parameters: [{ $ref: '#/components/parameters/CsrfHeader' }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [idempotencyKey]
+              properties:
+                idempotencyKey: { type: string, format: uuid }
+      responses:
+        '201':
+          description: Coupon successfully claimed.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ClaimEnvelope' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /campaigns/{campaignId}/events:
+    parameters:
+      - $ref: '#/components/parameters/CampaignId'
+    post:
+      summary: Record member impression, click, or landing-page view
+      security: [{ accessCookie: [] }]
+      parameters: [{ $ref: '#/components/parameters/CsrfHeader' }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EngagementEventWrite' }
+      responses:
+        '202': { description: Event accepted; duplicate event IDs are idempotent. }
+        '400': { $ref: '#/components/responses/BadRequest' }
+  /admin/campaigns/{campaignId}/analytics:
+    parameters:
+      - $ref: '#/components/parameters/CampaignId'
+    get:
+      summary: Get campaign funnel analytics
+      security: [{ accessCookie: [] }]
+      responses:
+        '200': { description: Campaign metrics with totals and distinct-member counts. }
+  /admin/campaigns/{campaignId}/coupons/analytics:
+    parameters:
+      - $ref: '#/components/parameters/CampaignId'
+    get:
+      summary: Get coupon-level claim analytics
+      security: [{ accessCookie: [] }]
+      responses:
+        '200': { description: Coupon quantity, claims, remaining quantity, and unique claimers. }
+components:
+  securitySchemes:
+    accessCookie:
+      type: apiKey
+      in: cookie
+      name: access_token
+  parameters:
+    CampaignId:
+      name: campaignId
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+    CsrfHeader:
+      name: X-CSRF-TOKEN
+      in: header
+      required: true
+      schema: { type: string }
+  schemas:
+    CurrentUserEnvelope:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            userId: { type: string, format: uuid }
+            role: { type: string, enum: [ADMIN, MEMBER] }
+    CampaignWrite:
+      type: object
+      required: [name, startsAt, endsAt, landingPage]
+      properties:
+        name: { type: string, maxLength: 160 }
+        description: { type: [string, 'null'] }
+        startsAt: { type: string, format: date-time }
+        endsAt: { type: string, format: date-time }
+        landingPage:
+          type: object
+          required: [headline, body]
+          properties:
+            headline: { type: string, maxLength: 200 }
+            body: { type: string, maxLength: 10000 }
+        audience:
+          type: object
+          properties:
+            segmentId: { type: [string, 'null'], format: uuid }
+            rules: { $ref: '#/components/schemas/AudienceRules' }
+    AudienceSegmentWrite:
+      type: object
+      required: [name, rules]
+      properties:
+        name: { type: string, maxLength: 120 }
+        description: { type: [string, 'null'], maxLength: 500 }
+        rules: { $ref: '#/components/schemas/AudienceRules' }
+    AudienceRules:
+      type: object
+      required: [version, match, conditions]
+      properties:
+        version: { type: integer, const: 1 }
+        match: { type: string, const: ALL, description: ALL means AND in MVP. }
+        conditions:
+          type: array
+          minItems: 1
+          items:
+            type: object
+            required: [field, operator, value]
+            properties:
+              field:
+                type: string
+                enum: [age, gender, registeredAt, membershipTier, orderCount, totalSpending, lastOrderAt, lastLoginAt]
+              operator:
+                type: string
+                enum: ['=', '!=', '>', '>=', '<', '<=', IN, 'NOT IN']
+              value: {}
+    CouponWrite:
+      type: object
+      required: [name, discountType, discountValue, totalQuantity, startsAt, endsAt]
+      properties:
+        name: { type: string, maxLength: 160 }
+        description: { type: [string, 'null'] }
+        discountType: { type: string, enum: [FIXED_AMOUNT, PERCENTAGE] }
+        discountValue: { type: number, exclusiveMinimum: 0 }
+        minimumOrderAmount: { type: [number, 'null'], minimum: 0 }
+        totalQuantity: { type: integer, minimum: 0 }
+        startsAt: { type: string, format: date-time }
+        endsAt: { type: string, format: date-time }
+    CampaignEnvelope:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            id: { type: string, format: uuid }
+            name: { type: string }
+            status: { type: string, enum: [DRAFT, ACTIVE, PAUSED, ENDED] }
+            startsAt: { type: string, format: date-time }
+            endsAt: { type: string, format: date-time }
+    CampaignPageEnvelope:
+      type: object
+      properties:
+        data: { type: array, items: { type: object } }
+        page:
+          type: object
+          properties:
+            number: { type: integer }
+            size: { type: integer }
+            totalElements: { type: integer }
+            totalPages: { type: integer }
+    PublishEnvelope:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            campaignId: { type: string, format: uuid }
+            status: { type: string, const: ACTIVE }
+            audienceCount: { type: integer }
+            deliveryStatus: { type: string, enum: [PENDING, PROCESSING, COMPLETED] }
+    ClaimEnvelope:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            claimId: { type: string, format: uuid }
+            campaignId: { type: string, format: uuid }
+            couponId: { type: string, format: uuid }
+            status: { type: string, const: CLAIMED }
+            claimedAt: { type: string, format: date-time }
+    EngagementEventWrite:
+      type: object
+      required: [eventId, eventType, occurredAt]
+      properties:
+        eventId: { type: string, format: uuid }
+        eventType: { type: string, enum: [IMPRESSION, CLICK, LANDING_PAGE_VIEW] }
+        messageId: { type: [string, 'null'], format: uuid }
+        occurredAt: { type: string, format: date-time }
+    Error:
+      type: object
+      properties:
+        type: { type: string }
+        title: { type: string }
+        status: { type: integer }
+        code: { type: string }
+        detail: { type: string }
+        traceId: { type: string }
+  responses:
+    BadRequest:
+      description: Invalid request.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    Unauthorized:
+      description: Authentication required or invalid.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    Forbidden:
+      description: Authenticated principal is not authorized or CSRF validation failed.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    NotFound:
+      description: Resource not found.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    Conflict:
+      description: Business state conflict.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
