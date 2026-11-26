@@ -1,6 +1,6 @@
 # Phase 2 Implementation Report — Database Foundation
 
-**Status:** IN PROGRESS — owner authorized Phase 2 on 2026-11-26.  
+**Status:** COMPLETE — formally accepted by the owner on 2026-11-26.  
 **Baseline:** Owner-approved v1.5.0 Development Baseline.  
 **Scope:** PostgreSQL connection, Flyway schema migrations, fictional deterministic seed data, and PostgreSQL integration tests only.
 
@@ -17,10 +17,10 @@
 
 ## 2. Migration inventory
 
-| Version | File | Purpose |
-|---|---|---|
-| V1 | `V1__create_initial_schema.sql` | Creates all 12 approved tables, constraints, and indexes |
-| V2 | `V2__seed_fictional_admin_and_members.sql` | Inserts one fictional Admin and three fictional Members with one-to-one member profiles |
+| Version | File | Purpose | Owner verification |
+|---|---|---|---|
+| V1 | `V1__create_initial_schema.sql` | Creates all 12 approved tables, constraints, and indexes | Applied successfully |
+| V2 | `V2__seed_fictional_admin_and_members.sql` | Inserts one fictional Admin and three fictional Members with one-to-one member profiles | Applied successfully |
 
 The V1 migration is immutable after application. Future schema changes must use a new versioned migration.
 
@@ -55,48 +55,116 @@ The V1 migration is immutable after application. Future schema changes must use 
 - Impression event without the matching member inbox message is rejected.
 - Claim-attempt event without an allowed outcome is rejected.
 
-The existing health endpoint test now uses the same PostgreSQL Testcontainers environment because Flyway and datasource initialization are part of application startup.
+The health endpoint test uses the same PostgreSQL Testcontainers environment because Flyway and datasource initialization are part of application startup.
 
-## 5. Verification status
+## 5. Owner-reported verification results
 
-The following commands are required, but have **not yet completed in this implementation environment**:
+The following results were supplied by the owner after running the verification steps in the owner's Docker-enabled macOS environment on 2026-11-26. These are owner-reported results; this report does not claim that the commands were executed in the AI implementation environment.
 
-| Command | Result |
+### 5.1 Development environment
+
+| Check | Owner-reported result |
 |---|---|
-| `./mvnw -f backend/pom.xml verify` | BLOCKED — Maven Wrapper attempted to download Maven 3.10.2, but this environment could not resolve `dlcdn.apache.org` |
-| PostgreSQL Testcontainers integration tests | BLOCKED — Docker CLI/daemon is not available in this environment |
-| `docker compose config` | BLOCKED — Docker Compose is not installed in this environment |
-| Frontend `npm run typecheck` | BLOCKED — frontend dependencies are not installed; TypeScript and React type packages are unavailable |
-| Frontend `npm run test` | PASS — 4 tests passed, 0 failed |
-| Frontend `npm run build` | BLOCKED — frontend dependencies are not installed; TypeScript and Vite are unavailable |
+| Java | Temurin OpenJDK 21.0.13 LTS |
+| Maven Wrapper | Maven 3.10.2, Java 21.0.13 |
+| Node.js / npm | Node.js 25.2.1 / npm 11.6.2 |
+| Docker / Compose | Docker 28.0.4 / Compose v2.34.0-desktop.1 |
+| Docker daemon | Available; Linux arm64 |
+| Result | **PASS** |
 
-JDK 21 and Node.js 22 are present. The four dependency-free frontend tests passed. The inability to run Maven/Docker and the missing frontend packages are environment limitations, not passing verification results. Phase 2 is **not complete** until Maven verification and PostgreSQL integration tests run successfully in a Docker-enabled environment and the owner accepts the result.
+### 5.2 PostgreSQL service
 
-## 6. Explicitly out of scope
+| Check | Owner-reported result |
+|---|---|
+| `docker compose config` | Passed |
+| PostgreSQL image | `postgres:18.7` |
+| Compose container | Running and healthy |
+| `pg_isready -U marketing_app -d marketing_platform` | Accepting connections |
+| Result | **PASS** |
 
-No authentication, JWT, refresh-token rotation, security configuration, business repositories/services, CRUD APIs, audience evaluation, coupon claim workflow, campaign publication, message delivery worker, Redis, Kafka, or additional persistence technology has been implemented.
+A PostgreSQL log entry reported `FATAL: role "postgres" does not exist` for a connection attempt using the `postgres` role. The configured application role was available, PostgreSQL reported healthy, and the backend connected successfully using `marketing_app`. The log entry did not block the observed verification; it is not treated as proof that every possible connection path is valid.
 
-## 7. Next verification steps
+### 5.3 Backend startup and Flyway
 
-From the repository root, with JDK 21, network access for Maven dependencies, and Docker available:
+| Check | Owner-reported result |
+|---|---|
+| Spring Boot startup | Successful on port 8080 |
+| Hikari datasource connection | Successful |
+| Flyway validation | 2 migrations validated |
+| Flyway schema version | Version 2; schema up to date |
+| `/actuator/health` | `UP` |
+| `/readyz` | `UP` |
+| `/livez` | `UP` |
+| Result | **PASS** |
+
+### 5.4 Database schema, migrations, and seed data
+
+| Check | Owner-reported result |
+|---|---|
+| Business tables | All 12 expected tables present |
+| Flyway history | V1 and V2 both successful |
+| Seeded users | 1 `ADMIN`, 3 `MEMBER` |
+| Member profiles | 3 |
+| Constraints and indexes export | 207 rows returned |
+| Key primary/foreign/unique/check constraints | Present in the exported database definitions |
+| Required query-pattern indexes | Present in the exported database definitions |
+| Result | **PASS** |
+
+The exported constraint/index definitions were reviewed against the approved database design. The important composite constraints were present, including campaign/coupon claim ownership, refresh-token same-family replacement, delivery cursor membership in the campaign snapshot, and campaign/message/member event relationships.
+
+### 5.5 Backend verification
+
+Command:
 
 ```bash
 ./mvnw -f backend/pom.xml verify
-
-docker compose config
-docker compose up -d postgres
-docker compose ps
 ```
 
-Then start the backend with the local environment loaded and verify:
+Owner-reported result: **BUILD SUCCESS**.
 
-```bash
-set -a; . ./.env; set +a
-./mvnw -f backend/pom.xml spring-boot:run
+| Test suite | Tests | Failures | Errors | Skipped |
+|---|---:|---:|---:|---:|
+| `DatabaseSchemaIntegrationTest` | 14 | 0 | 0 | 0 |
+| `HealthEndpointTest` | 1 | 0 | 0 | 0 |
+| **Total** | **15** | **0** | **0** | **0** |
 
-curl --fail http://localhost:8080/actuator/health
-curl --fail http://localhost:8080/readyz
-curl --fail http://localhost:8080/livez
-```
+Testcontainers successfully started PostgreSQL 18.7 for the integration tests. The PostgreSQL integration tests were executed rather than skipped.
 
-After all verification gates pass, update this report and `IMPLEMENTATION_PLAN.md` with the observed results. Phase 3 remains unauthorized until Phase 2 is accepted by the owner.
+### 5.6 Frontend regression
+
+| Command | Owner-reported result |
+|---|---|
+| `npm ci` | Passed; 0 vulnerabilities reported |
+| `npm run typecheck` | Passed |
+| `npm run test` | 4 passed, 0 failed, 0 skipped |
+| `npm run build` | Passed; Vite production build successful |
+| Result | **PASS** |
+
+### 5.7 Non-blocking warnings observed
+
+- Docker emitted a warning about invalid `docker-feedback` plugin metadata and daemon configuration warnings.
+- Maven emitted HTTP 401 metadata/feed warnings while resolving optional repository metadata; the requested build still completed successfully.
+- Mockito / Byte Buddy emitted dynamic-agent warnings during tests; the test suite still completed with zero failures and zero errors.
+
+These warnings are recorded for transparency. Based on the owner-reported successful commands and results, none blocked the Phase 2 acceptance criteria.
+
+## 6. Phase 2 acceptance decision
+
+**Phase 2 exit criteria: PASSED.**
+
+On 2026-11-26, the owner explicitly confirmed:
+
+> 依據 ecommerce-marketing-platform-v0.1.0-phase2-review.zip  
+> 我確認 Phase 2 通過測試，正式接受 Phase 2
+
+The owner-reported environment, PostgreSQL, backend/Flyway, schema/constraint/index, backend integration test, and frontend regression checks all passed. Phase 2 is therefore **formally accepted and closed as of 2026-11-26**.
+
+Phase 1 remains complete and owner-accepted. No Phase 1 or Phase 2 acceptance work remains outstanding.
+
+## 7. Explicitly out of scope
+
+No authentication, JWT, refresh-token rotation, security configuration, business repositories/services, CRUD APIs, audience evaluation, coupon claim workflow, campaign publication, message delivery worker, Redis, Kafka, or additional persistence technology was implemented in Phase 2.
+
+## 8. Next phase gate
+
+Phase 3 — Identity and Security has been documented in `PHASE_3_PLAN.md` for owner review only. Planning does not authorize implementation. Phase 3 may begin only after the owner explicitly approves its scope and authorizes development.

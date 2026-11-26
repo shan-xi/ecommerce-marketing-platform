@@ -1,7 +1,7 @@
 # AI Development Guidelines
 
 **Status:** Approved operating contract for AI-assisted implementation under v1.5.0.  
-**Current instruction:** Phase 1 was formally accepted by the owner on 2026-11-26. The owner explicitly authorized Phase 2 — Database Foundation on 2026-11-26; Phase 2 implementation is in progress and must remain within its approved scope. Phase 3 and later phases are not authorized.
+**Current instruction:** Phase 1 and Phase 2 were formally accepted by the owner on 2026-11-26. Phase 3 — Identity and Security has a planning document (`PHASE_3_PLAN.md`) for owner review only. Phase 3 implementation is not authorized; do not modify code, dependencies, database schema, or runtime configuration for Phase 3 until the owner explicitly approves the plan and authorizes development.
 
 ## 1. Required reading order
 

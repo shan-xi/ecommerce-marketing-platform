@@ -1,6 +1,6 @@
 # Implementation Plan
 
-**Status:** Approved — v1.5.0 baseline accepted; Phase 0 complete; Phase 1 complete and owner-accepted (2026-11-26); Phase 2 explicitly authorized by the owner and in progress (2026-11-26).
+**Status:** Approved — v1.5.0 baseline accepted; Phase 0 complete; Phase 1 and Phase 2 formally owner-accepted (2026-11-26); Phase 3 plan prepared for review only.
 **Scope:** Deliver the approved MVP in incremental, verifiable phases.
 
 ## 1. Execution principles
@@ -10,23 +10,25 @@
 - A phase is complete only when its exit criteria pass and the owner accepts the result.
 - Do not begin a later phase while a blocking defect or unresolved design question remains in an earlier phase.
 - Keep documentation synchronized with implementation; if code and docs differ, stop and resolve the discrepancy.
+- A planning document is not implementation authorization. The owner must explicitly approve a phase plan and authorize development before code changes begin.
 
 ## 2. Phase plan
 
 ### Current execution gate (2026-11-26)
 
 - **Phase 0 — Design baseline:** COMPLETE.
-- **Phase 1 — Repository foundation:** COMPLETE — owner accepted on 2026-11-26 after reporting successful backend verification, frontend checks/build, PostgreSQL health, and application health.
-- **Phase 2 — Database foundation:** IN PROGRESS; explicitly authorized by the owner on 2026-11-26.
-- **Phases 3–10:** PLANNED; each remains gated by completion and owner acceptance of the preceding phase.
-- Phase 2 authorization is limited to the Database Foundation scope recorded below; it does not authorize Phase 3 or later work.
+- **Phase 1 — Repository foundation:** COMPLETE — formally accepted by the owner on 2026-11-26.
+- **Phase 2 — Database foundation:** COMPLETE — formally accepted by the owner on 2026-11-26.
+- **Phase 3 — Identity and security:** PLANNING ONLY — `PHASE_3_PLAN.md` prepared for owner review; implementation is not authorized.
+- **Phases 4–10:** PLANNED; each remains gated by completion and owner acceptance of the preceding phase and explicit owner authorization.
+- Phase 3 planning does not authorize implementation, dependency changes, schema changes, or code changes.
 
 | Phase | Scope | Main deliverables | Exit criteria |
 |---|---|---|---|
-| 0. Design baseline | Review and approve the v1.5.0 Design Pack | Approved PRD, architecture, API/OpenAPI, database/ERD, security, accepted ADRs, and phase plan | **Complete (2026-11-26):** owner approved the complete baseline, PRD is `Ready for Development`, no blocking open questions remain, and Phase 1 is authorized |
-| 1. Repository foundation | Backend/frontend scaffolding and local environment | Spring Boot skeleton, React+TS skeleton, build scripts, local PostgreSQL, README | Both apps build; health endpoint works; frontend can call backend; no business features |
-| 2. Database foundation | Initial schema and seed strategy | Flyway migrations for all v1.5 tables/constraints, fictional admin/member seed data, repository integration | Migrations apply cleanly; composite FKs and checks verified; deterministic seed data |
-| 3. Identity and security | Login, JWT cookies, refresh rotation, logout, roles, CSRF | Auth endpoints, token-family persistence, CSRF config, frontend auth flow | Rotation/reuse/concurrency/logout tests pass; member/admin isolation verified |
+| 0. Design baseline | Review and approve the v1.5.0 Design Pack | Approved PRD, architecture, API/OpenAPI, database/ERD, security, accepted ADRs, and phase plan | **Complete (2026-11-26):** owner approved the complete baseline, PRD is `Ready for Development`, no blocking open questions remained, and Phase 1 was authorized |
+| 1. Repository foundation | Backend/frontend scaffolding and local environment | Spring Boot skeleton, React+TS skeleton, build scripts, local PostgreSQL, README | **Complete and owner-accepted (2026-11-26):** backend build/test, frontend checks/build, PostgreSQL health, backend health, and frontend display verified by owner |
+| 2. Database foundation | Initial schema and seed strategy | Flyway migrations for all v1.5 tables/constraints, fictional admin/member seed data, repository integration | **Complete and owner-accepted (2026-11-26):** Flyway V1/V2 applied; all 12 tables, seed data, constraints/indexes verified; 15 backend tests and 4 frontend tests passed; typecheck/build passed |
+| 3. Identity and security | Login, JWT cookies, refresh rotation, logout, roles, CSRF | Auth endpoints, token-family persistence, CSRF config, frontend auth flow | Rotation/reuse/concurrency/logout tests pass; cookie and CSRF behavior verified; role boundaries enforced; frontend does not store tokens in browser storage; owner accepts Phase 3 |
 | 4. Member and audience | Member profile, audience rule validation/evaluation, reusable segments, preview | Audience use cases and APIs, admin audience UI, canonical field/operator validator | Full matrix tests pass; AND/NULL behavior correct; preview count/sample correct. Snapshot persistence is integrated later with Publish in Phase 7. |
 | 5. Campaign draft management | Draft create/edit/list/detail and lifecycle validation | Campaign CRUD APIs and admin screens; fixed landing-page content fields | Draft validation and date-window rules pass; no publish endpoint/worker yet |
 | 6. Coupon configuration and claim backend | Coupon CRUD/configuration, inventory reservation, claim transaction, claim list | Coupon APIs, atomic claim service, idempotency, server-side claim audit | Duplicate and oversubscription tests pass; inventory equals successful claims; claim API contract stable |
@@ -45,34 +47,48 @@
 - [x] Choose exact compatible framework/library versions and record the selection rationale.
 - [x] Configure local PostgreSQL through Docker Compose.
 - [x] Add health/readiness endpoints and a minimal frontend shell that calls backend health through the Vite proxy.
-- [x] Verify backend build and tests on JDK 21 (`./mvnw -f backend/pom.xml verify`; BUILD SUCCESS, 1 test passed).
+- [x] Verify backend build and tests on JDK 21 (`./mvnw -f backend/pom.xml verify`; owner-reported BUILD SUCCESS, 1 test passed).
 - [x] Verify frontend tests, TypeScript typecheck, and production build (`npm run test`: 4 tests passed; `npm run typecheck`: passed; `npm run build`: passed).
 - [x] Start PostgreSQL and verify its Compose health check (owner reported PostgreSQL container healthy).
 - [x] Start backend and frontend and verify health connectivity (owner reported backend health UP and frontend page displayed).
 - [x] Obtain owner acceptance (2026-11-26).
-- No business features were implemented in this phase; database persistence and Flyway remain Phase 2 scope.
+- No business features were implemented in this phase; database persistence and Flyway were Phase 2 scope.
 
 ### Phase 2 — Database foundation
 
-**Phase status:** IN PROGRESS — owner explicitly authorized Phase 2 on 2026-11-26.
+**Phase status:** COMPLETE — owner formally accepted Phase 2 on 2026-11-26.
 
 - [x] Connect Spring Boot to PostgreSQL using externalizable datasource settings.
 - [x] Add Flyway and PostgreSQL JDBC dependencies.
 - [x] Add versioned migrations for all 12 tables, documented constraints, and indexes.
 - [x] Add fictional deterministic Admin / Member seed records.
 - [x] Add PostgreSQL Testcontainers integration tests for schema and key integrity constraints.
-- [ ] Execute Maven verification and PostgreSQL integration tests in a Docker-enabled environment.
-- [ ] Verify clean-database migration and repeatable local setup.
-- [ ] Synchronize Phase 2 implementation report and documentation after verification.
-- Avoid adding Redis/Kafka or a second persistence technology.
+- [x] Execute Maven verification and PostgreSQL integration tests in the owner's Docker-enabled environment.
+- [x] Verify Flyway V1/V2, all 12 business tables, and seeded data.
+- [x] Export and review constraints/indexes against the approved database design.
+- [x] Verify frontend regression (`npm ci`, tests, typecheck, build).
+- [x] Record owner acceptance (2026-11-26) in `PHASE_2_IMPLEMENTATION_REPORT.md`.
+- No Redis/Kafka or second persistence technology was introduced.
 
-Phase 2 does not implement authentication, domain repositories/services, CRUD APIs, audience evaluation, coupon claim workflows, or message delivery workers; those remain later-phase scope.
+Phase 2 did not implement authentication, domain repositories/services, CRUD APIs, audience evaluation, coupon claim workflows, or message delivery workers; those remain later-phase scope.
 
 ### Phase 3 — Identity and security
 
-- Implement password hashing, access/refresh JWT cookies, token-family rotation/reuse detection, server-side revocation, logout, CSRF, and role-based authorization.
-- Implement frontend login/session handling without storing tokens in browser storage.
-- Test concurrent refresh, token reuse family revocation, and member data isolation.
+**Phase status:** PLANNING ONLY — see `PHASE_3_PLAN.md`. No implementation is authorized.
+
+The proposed Phase 3 scope follows the approved Security Design and API Specification:
+
+- Implement password verification and login using the existing `users` records.
+- Implement short-lived JWT access and refresh cookies; keep token values out of browser storage.
+- Persist only SHA-256 hashes of refresh JWTs in the existing `refresh_token_sessions` table.
+- Implement token-family rotation, one-time token consumption, concurrent refresh protection, and family revocation on reuse.
+- Implement logout that revokes the presented refresh-token family and clears cookies even if the access token has expired.
+- Implement `/auth/csrf`, `/auth/login`, `/auth/refresh`, `/auth/logout`, and `/auth/me` according to the approved API contract.
+- Enforce `ADMIN` / `MEMBER` / anonymous access boundaries and CSRF on state-changing cookie-authenticated requests.
+- Add frontend login/session state and a single-flight refresh path without storing authentication tokens in local/session storage.
+- Verify cookie flags, CORS origin allowlist, CSRF behavior, token lifecycle, role boundaries, and security logging.
+
+**Phase 3 is not authorized for implementation.** Before coding, the owner must approve `PHASE_3_PLAN.md`; any unresolved implementation-level security choices must be surfaced before they alter the approved contract.
 
 ### Phase 4 — Audience
 
@@ -138,7 +154,6 @@ Phase 2 does not implement authentication, domain repositories/services, CRUD AP
 
 No scheduled message delivery, additional channels, coupon redemption, checkout, orders, payments, logistics, microservices, Redis, Kafka, or third-party production integrations are included in the MVP plan.
 
-
 ## 6. Phase acceptance and authorization gates
 
-The owner formally accepted Phase 1 on 2026-11-26; the accepted results are recorded in `PHASE_1_IMPLEMENTATION_REPORT.md`. The owner separately authorized Phase 2 on 2026-11-26. Phase 2 Database Foundation implementation is now in progress and is limited to the scope in this plan. Phase 3 and later phases remain unauthorized until the preceding phase is completed and accepted and the owner explicitly authorizes the next phase.
+Phase 1 and Phase 2 are formally accepted by the owner on 2026-11-26; their results are recorded in `PHASE_1_IMPLEMENTATION_REPORT.md` and `PHASE_2_IMPLEMENTATION_REPORT.md`. Phase 3 has a planning document for owner review only. Phase 3 implementation remains unauthorized until the owner explicitly approves the plan and authorizes development.

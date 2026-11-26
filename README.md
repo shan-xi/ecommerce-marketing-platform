@@ -1,22 +1,19 @@
 # E-commerce Campaign & Coupon Engagement Platform
 
-**Project baseline:** v1.5.0 (owner-approved)
-**Implementation:** Phase 2 — Database Foundation (in progress; Phase 1 formally accepted)
+**Project baseline:** v1.5.0 (owner-approved)  
+**Implementation status:** Phase 0, Phase 1, and Phase 2 complete; Phase 1 and Phase 2 owner-accepted. Phase 3 is planning-only and awaits explicit authorization.
 
 This repository implements the approved MVP described in [`docs/PRD.md`](docs/PRD.md). The project is a modular monolith with one Spring Boot backend, one React + TypeScript SPA, and PostgreSQL as the source of truth.
 
 ## Current implementation status
 
-**Phase 1 — Repository Foundation: COMPLETE and owner-accepted (2026-11-26).** The backend and frontend scaffolds, local PostgreSQL service, Actuator health endpoints, and frontend-to-backend health shell were verified by the owner.
+**Phase 1 — Repository Foundation: COMPLETE and owner-accepted (2026-11-26).** The backend and frontend scaffolds, local PostgreSQL service, Actuator health endpoints, and frontend-to-backend health shell were verified by the owner. See [`docs/development/PHASE_1_IMPLEMENTATION_REPORT.md`](docs/development/PHASE_1_IMPLEMENTATION_REPORT.md).
 
-**Phase 2 — Database Foundation: IN PROGRESS and owner-authorized (2026-11-26).** Current scope includes:
+**Phase 2 — Database Foundation: COMPLETE and owner-accepted (2026-11-26).** The owner verified PostgreSQL 18.7, Flyway V1/V2, all 12 business tables, seed data, constraints/indexes, 15 backend tests, and frontend regression checks (4 tests, typecheck, and build). See [`docs/development/PHASE_2_IMPLEMENTATION_REPORT.md`](docs/development/PHASE_2_IMPLEMENTATION_REPORT.md).
 
-- Spring Boot PostgreSQL datasource configuration using externalizable settings.
-- Flyway versioned migrations for all 12 approved tables, constraints, and indexes.
-- Fictional deterministic Admin / Member seed records.
-- PostgreSQL Testcontainers integration tests for migration and data integrity.
+**Phase 3 — Identity and Security: PLANNING ONLY.** A proposed plan is available at [`docs/development/PHASE_3_PLAN.md`](docs/development/PHASE_3_PLAN.md). No Phase 3 implementation is authorized or included in this repository update.
 
-Authentication, domain repositories/services, business workflows, CRUD APIs, audience evaluation, coupon claiming, and delivery workers remain out of scope for Phase 2.
+Authentication, domain repositories/services, business workflows, CRUD APIs, audience evaluation, coupon claiming, and delivery workers remain unimplemented and are assigned to later phases.
 
 ## Technology versions
 
@@ -70,9 +67,9 @@ The Maven bootstrap script downloads a pinned Maven distribution and verifies it
    npm run dev
    ```
 
-5. Open <http://localhost:5173>. The Phase 1 shell should report the backend connection as healthy when the backend is running.
+5. Open <http://localhost:5173>. The current frontend shell reports backend connectivity; authentication and business screens are planned for later phases.
 
-The backend now connects to PostgreSQL and applies Flyway migrations on startup. Use the `.env.example` values for local development only; override datasource settings through environment variables in other environments.
+The backend connects to PostgreSQL and applies Flyway migrations on startup. Use the `.env.example` values for local development only; override datasource settings through environment variables in other environments.
 
 ## Verification commands
 
@@ -103,14 +100,15 @@ docker compose ps
 - API contract: [`docs/api/API_SPECIFICATION.md`](docs/api/API_SPECIFICATION.md) and [`docs/api/openapi.yaml`](docs/api/openapi.yaml)
 - Database design: [`docs/database/DATABASE_DESIGN.md`](docs/database/DATABASE_DESIGN.md) and [`docs/database/ERD.md`](docs/database/ERD.md)
 - Phase plan: [`docs/development/IMPLEMENTATION_PLAN.md`](docs/development/IMPLEMENTATION_PLAN.md)
+- Phase 3 plan (review only): [`docs/development/PHASE_3_PLAN.md`](docs/development/PHASE_3_PLAN.md)
 - AI development protocol: [`docs/development/AI_DEVELOPMENT_GUIDELINES.md`](docs/development/AI_DEVELOPMENT_GUIDELINES.md)
 - Phase 1 report: [`docs/development/PHASE_1_IMPLEMENTATION_REPORT.md`](docs/development/PHASE_1_IMPLEMENTATION_REPORT.md)
 - Phase 2 report: [`docs/development/PHASE_2_IMPLEMENTATION_REPORT.md`](docs/development/PHASE_2_IMPLEMENTATION_REPORT.md)
 
 ## Development rules
 
-- Implement one approved phase at a time.
+- Implement one explicitly authorized phase at a time.
 - Do not begin a later phase until the current phase passes its exit criteria and the owner accepts it.
+- A plan or review document does not authorize implementation.
 - Do not introduce Redis, Kafka, microservices, external providers, or other unapproved infrastructure.
-- Keep implementation within the currently authorized phase; Phase 2 does not include business workflows.
 - Local Compose credentials are for development only; never reuse them in shared or production environments.
