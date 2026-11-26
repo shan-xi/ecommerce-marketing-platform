@@ -70,7 +70,7 @@ paths:
         '401': { $ref: '#/components/responses/Unauthorized' }
   /admin/campaigns:
     get:
-      summary: List campaigns
+      summary: List campaigns (createdAt descending)
       security: [{ accessCookie: [] }]
       parameters:
         - { name: page, in: query, schema: { type: integer, minimum: 0, default: 0 } }
@@ -155,8 +155,11 @@ paths:
         '409': { $ref: '#/components/responses/Conflict' }
   /admin/audience-segments:
     get:
-      summary: List reusable audience segments
+      summary: List reusable audience segments (createdAt descending)
       security: [{ accessCookie: [] }]
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Size'
       responses:
         '200': { description: Segment list. }
     post:
@@ -222,8 +225,11 @@ paths:
     parameters:
       - $ref: '#/components/parameters/CampaignId'
     get:
-      summary: List campaign coupon configurations
+      summary: List campaign coupon configurations (createdAt ascending)
       security: [{ accessCookie: [] }]
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Size'
       responses:
         '200': { description: Campaign coupon list. }
     post:
@@ -300,17 +306,32 @@ paths:
         '403': { $ref: '#/components/responses/Forbidden' }
   /member/messages:
     get:
-      summary: List current member inbox
+      summary: List current member inbox (deliveredAt descending)
       security: [{ accessCookie: [] }]
       parameters:
         - { name: page, in: query, schema: { type: integer, minimum: 0, default: 0 } }
         - { name: size, in: query, schema: { type: integer, minimum: 1, maximum: 100, default: 20 } }
       responses:
         '200': { description: Current member inbox page. }
+  /member/messages/{messageId}:
+    parameters:
+      - name: messageId
+        in: path
+        required: true
+        schema: { type: string, format: uuid }
+    get:
+      summary: Get a message from the current member inbox
+      security: [{ accessCookie: [] }]
+      responses:
+        '200': { description: Inbox message detail. }
+        '404': { $ref: '#/components/responses/NotFound' }
   /member/coupons:
     get:
-      summary: List current member's successful coupon claims
+      summary: List current member's successful coupon claims (claimedAt descending)
       security: [{ accessCookie: [] }]
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Size'
       responses:
         '200': { description: Current member claim list. }
   /campaigns/{campaignId}:
@@ -318,8 +339,25 @@ paths:
       - $ref: '#/components/parameters/CampaignId'
     get:
       summary: Get public campaign landing-page content and authenticated member state if available
+      security:
+        - accessCookie: []
+        - {}
       responses:
         '200': { description: Campaign landing-page data. }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /campaigns/{campaignId}/coupons:
+    parameters:
+      - $ref: '#/components/parameters/CampaignId'
+    get:
+      summary: List campaign coupons and authenticated member claim state when available (createdAt ascending)
+      security:
+        - accessCookie: []
+        - {}
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Size'
+      responses:
+        '200': { description: Coupon list; member-specific state is omitted for anonymous callers. }
         '404': { $ref: '#/components/responses/NotFound' }
   /campaigns/{campaignId}/coupons/{couponId}/claims:
     parameters:
@@ -343,7 +381,7 @@ paths:
                 idempotencyKey: { type: string, format: uuid }
       responses:
         '201':
-          description: Coupon successfully claimed.
+          description: Coupon successfully claimed; replaying the same member/idempotency key for the same coupon returns the original claim result.
           content:
             application/json:
               schema: { $ref: '#/components/schemas/ClaimEnvelope' }
@@ -388,6 +426,14 @@ components:
       in: cookie
       name: access_token
   parameters:
+    Page:
+      name: page
+      in: query
+      schema: { type: integer, minimum: 0, default: 0 }
+    Size:
+      name: size
+      in: query
+      schema: { type: integer, minimum: 1, maximum: 100, default: 20 }
     CampaignId:
       name: campaignId
       in: path
@@ -460,7 +506,7 @@ components:
         name: { type: string, maxLength: 160 }
         description: { type: [string, 'null'] }
         discountType: { type: string, enum: [FIXED_AMOUNT, PERCENTAGE] }
-        discountValue: { type: number, exclusiveMinimum: 0 }
+        discountValue: { type: number, exclusiveMinimum: 0, description: For FIXED_AMOUNT, a TWD amount. For PERCENTAGE, percentage points (for example 10 means 10 percent off; maximum 100). }
         minimumOrderAmount: { type: [number, 'null'], minimum: 0 }
         totalQuantity: { type: integer, minimum: 0 }
         startsAt: { type: string, format: date-time }
@@ -496,7 +542,7 @@ components:
             campaignId: { type: string, format: uuid }
             status: { type: string, const: ACTIVE }
             audienceCount: { type: integer }
-            deliveryStatus: { type: string, enum: [PENDING, PROCESSING, COMPLETED] }
+            deliveryStatus: { type: string, enum: [PENDING, PROCESSING, COMPLETED, FAILED] }
     ClaimEnvelope:
       type: object
       properties:

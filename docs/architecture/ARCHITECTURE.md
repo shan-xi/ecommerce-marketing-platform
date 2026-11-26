@@ -72,13 +72,13 @@ The diagram is logical, not a deployment topology. Modules share one application
 ### 4.1 Campaign publication and immediate message delivery
 
 1. Admin calls the publish endpoint.
-2. Application validates the draft campaign, its date range, one configured message, coupon configuration, and audience definition.
-3. In one publication transaction, the application resolves the audience and persists the member snapshot, changes campaign status, and writes a delivery job/outbox record.
-4. A worker claims pending delivery work in bounded batches.
+2. Application validates the draft campaign, its date range, exactly one configured message, at least one valid coupon, and audience definition.
+3. In one publication transaction, the application resolves the effective audience with a set-based query, inserts the complete member snapshot, changes campaign status, and writes one delivery job/outbox record. The MVP assumes this single snapshot transaction is practical for the initial/demo audience size.
+4. One delivery worker processes the pending job in bounded batches; multi-worker leases and `FOR UPDATE SKIP LOCKED` are deferred.
 5. For each snapshot member, it creates a member inbox record using a unique campaign/member key. Re-running a batch is safe.
-6. The worker marks the batch/job progress. Failed work remains retryable and observable.
+6. Inbox inserts and the last processed member cursor are committed in the same batch transaction. On application restart, an interrupted `PROCESSING` job is reset to `PENDING` and resumes from its saved cursor; bounded retries make persistent failures visible.
 
-The publish HTTP request must not synchronously create every inbox record. “Immediate” means delivery processing is initiated immediately after successful publication; actual inbox materialization may complete asynchronously.
+The publish HTTP request must not synchronously create every inbox record. “Immediate” means the delivery job is committed with publication and the single worker begins processing promptly; actual inbox materialization completes asynchronously. Snapshot resolution itself remains part of the publication transaction in this simplified MVP. A separate snapshot job/state machine is a future scale-driven option, not part of the current design.
 
 ### 4.2 Coupon claim
 
@@ -113,6 +113,8 @@ One SPA in `frontend/`:
 - `/member/**`: login, inbox, claimed coupons, member profile.
 - `/campaigns/:campaignId`: campaign landing page within the same SPA.
 
+Pausing a campaign prevents new coupon claims; a delivery job already initiated continues to completion, and existing inbox messages are not retracted.
+
 The frontend must not contain business authorization logic as a security boundary. The backend remains authoritative for roles, audience membership, campaign state, coupon eligibility, and inventory.
 
 Suggested frontend boundaries:
@@ -143,7 +145,7 @@ Do not add Redis, Kafka, microservices, distributed locks, scheduled-delivery in
 
 - One Spring Boot backend instance is sufficient for the initial demo; design must remain stateless at the web tier except for persisted refresh-token state.
 - PostgreSQL is the source of truth.
-- Database-backed workers must use bounded batches and safe row claiming (for example, `FOR UPDATE SKIP LOCKED`) if multiple workers are later run.
+- The MVP runs one database-backed delivery worker and uses bounded batches plus a persisted cursor. If multiple worker instances are introduced later, add safe row claiming/leases (for example, `FOR UPDATE SKIP LOCKED`) through a reviewed design change.
 - Provide health endpoints, structured logs, request correlation IDs, and metrics for publication, delivery backlog/failures, event ingestion, and coupon claims.
 - Time storage: persist timestamps as `timestamptz` in UTC; present campaign times in `Asia/Taipei` unless product owner changes this decision.
 

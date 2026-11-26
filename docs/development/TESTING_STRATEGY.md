@@ -27,27 +27,30 @@
 - Unsupported fields/operators and malformed values are rejected.
 - AND semantics are correct.
 - Saved segment and campaign-specific rule combination follows the approved rule.
-- Snapshot contains the matching members at publication and remains unchanged after member attributes or segment rules change.
+- Snapshot contains the complete matching members committed with publication and remains unchanged after member attributes or segment rules change.
+- Snapshot rows and the delivery job are committed atomically; no delivery starts if snapshot creation fails.
 
 ### Publication and delivery
 - Campaign cannot publish without required setup.
 - Publish is idempotent or rejects duplicate publish safely.
 - Audience snapshot and delivery job are committed consistently.
 - Delivery worker retries without duplicate inbox records.
-- Delivery can resume after worker interruption.
+- Delivery can resume after worker interruption from the last committed cursor; batch inbox inserts and cursor advancement are atomic.
+- The MVP runs one delivery worker; no lease or multi-worker coordination is required.
 
 ### Coupon claim correctness
 - Claim succeeds for eligible member and available coupon.
 - Duplicate claim by same member is rejected without consuming extra inventory.
 - Ineligible member, paused/ended campaign, expired coupon, and sold-out coupon are rejected.
-- Replaying the same idempotency key returns the original successful result.
+- Replaying the same idempotency key for the same campaign/coupon returns the original successful result.
+- Reusing a key for a different campaign/coupon returns `IDEMPOTENCY_KEY_CONFLICT`; a duplicate claim with a new key returns `CLAIM_ALREADY_EXISTS`.
 - Failure after inventory reservation rolls back the inventory update.
 
 **Concurrency acceptance test:** seed a coupon with quantity 100 and send at least 1,000 concurrent claim attempts from distinct eligible members. Exactly 100 or fewer claims may succeed (exactly 100 if all other conditions are valid); `claimed_quantity` must never exceed 100 or become negative; no member may own duplicate claims; counter must equal successful claim count.
 
 ### Engagement and analytics
 - Duplicate event ID is not counted twice.
-- Delivered count is derived from inbox records.
+- Delivered count is derived from inbox records; no separate `DELIVERED` event row is required.
 - Impression/click/page-view totals and distinct-member counts are calculated separately.
 - Successful claims are sourced from `coupon_claims`.
 - Zero denominators produce unavailable/null rates.

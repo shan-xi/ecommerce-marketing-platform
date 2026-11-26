@@ -123,16 +123,26 @@ For the MVP, a coupon is configured within a campaign; a separate global reusabl
 | `name` | VARCHAR(160) | NOT NULL |
 | `description` | TEXT | Nullable |
 | `discount_type` | VARCHAR(30) | NOT NULL; e.g. `FIXED_AMOUNT`, `PERCENTAGE` |
-| `discount_value` | NUMERIC(12,2) | NOT NULL, CHECK > 0 |
-| `minimum_order_amount` | NUMERIC(14,2) | Nullable, CHECK >= 0; descriptive only in MVP because redemption is out of scope |
+| `discount_value` | NUMERIC(12,2) | NOT NULL; `FIXED_AMOUNT` is TWD amount > 0; `PERCENTAGE` is percent > 0 and <= 100 (application validation or type-aware check) |
+| `minimum_order_amount` | NUMERIC(14,2) | Nullable, CHECK >= 0; TWD; descriptive only in MVP because redemption is out of scope |
 | `total_quantity` | INTEGER | NOT NULL, CHECK >= 0 |
 | `claimed_quantity` | INTEGER | NOT NULL DEFAULT 0, CHECK >= 0 and <= total_quantity |
-| `claim_limit_per_member` | INTEGER | NOT NULL DEFAULT 1, CHECK = 1 for MVP |
 | `starts_at`, `ends_at` | TIMESTAMPTZ | NOT NULL; CHECK ends_at > starts_at |
-| `status` | VARCHAR(20) | NOT NULL; e.g. `ACTIVE`, `INACTIVE` |
 | `created_at`, `updated_at` | TIMESTAMPTZ | NOT NULL |
 
-Indexes: `(campaign_id)`, `(campaign_id, status)`. Use `claimed_quantity` as the concurrency-safe counter; periodically verify it equals successful claim rows in tests/diagnostics. If coupon status is derived from campaign status/time, avoid redundant state unless there is a clear operational need.
+Recommended type-aware database check:
+
+```sql
+CHECK (
+  (discount_type = 'FIXED_AMOUNT' AND discount_value > 0)
+  OR
+  (discount_type = 'PERCENTAGE' AND discount_value > 0 AND discount_value <= 100)
+)
+```
+
+Also constrain `discount_type` to `FIXED_AMOUNT` or `PERCENTAGE`.
+
+Indexes: `(campaign_id)`. Use `claimed_quantity` as the concurrency-safe counter; periodically verify it equals successful claim rows in tests/diagnostics. Coupon claimability is determined by campaign status/window, coupon validity window, audience eligibility, and remaining inventory; the MVP does not maintain a separate coupon status.
 
 #### `coupon_claims`
 
@@ -147,10 +157,26 @@ Indexes: `(campaign_id)`, `(campaign_id, status)`. Use `claimed_quantity` as the
 
 Constraints:
 - `UNIQUE (campaign_id, campaign_coupon_id, member_id)` — one successful claim per member per campaign coupon.
-- `UNIQUE (member_id, idempotency_key)` — prevents duplicate processing of a retried claim request (scope may be adjusted if keys are globally unique).
-- Ensure `campaign_coupon_id` belongs to `campaign_id`; enforce with a composite FK if practical, or validate in application and use a schema-level composite unique key/FK.
+- `UNIQUE (member_id, idempotency_key)` — one successful claim result per member/request key. Reusing the same key for a different campaign/coupon is detected by loading the existing claim and returns `IDEMPOTENCY_KEY_CONFLICT`.
+- Enforce that the referenced coupon belongs to the same campaign with a composite foreign key (SQL below).
 
 Indexes: `(member_id, claimed_at DESC)`, `(campaign_id, campaign_coupon_id)`.
+
+Campaign/coupon ownership integrity:
+
+```sql
+ALTER TABLE campaign_coupons
+  ADD CONSTRAINT uq_campaign_coupon_id UNIQUE (campaign_id, id);
+
+ALTER TABLE coupon_claims
+  ADD CONSTRAINT fk_claim_campaign_coupon
+  FOREIGN KEY (campaign_id, campaign_coupon_id)
+  REFERENCES campaign_coupons (campaign_id, id);
+```
+
+The composite foreign key supplements the existing individual foreign keys; it prevents a claim from pairing one campaign ID with a coupon owned by another campaign.
+
+When a unique constraint rejects a concurrent duplicate claim, roll back the inventory increment, then load the existing successful claim by `(member_id, idempotency_key)` or `(campaign_id, campaign_coupon_id, member_id)` and map it to the documented idempotency/duplicate response. Do not treat an application-side pre-check as sufficient.
 
 ### 2.5 Messaging and delivery
 
@@ -176,7 +202,7 @@ Indexes: `(member_id, claimed_at DESC)`, `(campaign_id, campaign_coupon_id)`.
 | `last_error` | TEXT | Nullable, sanitized |
 | `created_at`, `updated_at` | TIMESTAMPTZ | NOT NULL |
 
-This table is a simple database-backed delivery job/outbox for the MVP. It is not a general-purpose message broker.
+This table is a simple database-backed delivery job/outbox for the MVP. It is not a general-purpose message broker. The MVP runs one delivery worker instance, so no lease or `SKIP LOCKED` coordination fields are required. `cursor_member_id` is the last snapshot member successfully processed. Each batch inserts inbox rows with `ON CONFLICT (campaign_id, member_id) DO NOTHING` and advances the cursor in the same transaction; on restart, an interrupted `PROCESSING` job is returned to `PENDING` and resumes after the saved cursor. A bounded retry policy may mark a persistently failing job `FAILED`; no separate retry scheduler is required.
 
 #### `member_messages`
 
@@ -187,7 +213,6 @@ This table is a simple database-backed delivery job/outbox for the MVP. It is no
 | `campaign_id` | UUID | NOT NULL FK → campaigns.id |
 | `member_id` | UUID | NOT NULL FK → members.id |
 | `delivered_at` | TIMESTAMPTZ | NOT NULL |
-| `read_at` | TIMESTAMPTZ | Nullable; optional inbox read state |
 | `created_at` | TIMESTAMPTZ | NOT NULL |
 
 Constraint: `UNIQUE (campaign_id, member_id)`; this prevents duplicate inbox delivery for the single-message-per-campaign MVP. Index `(member_id, delivered_at DESC)`.
@@ -237,7 +262,7 @@ The following operations must run in one transaction:
 
 1. Validate authenticated member and campaign snapshot membership.
 2. Validate campaign active status and campaign time window.
-3. Validate coupon active status and coupon time window.
+3. Validate the coupon time window.
 4. Check whether this idempotency key already has a result; return the prior result for a safe retry.
 5. Conditionally reserve inventory:
 
@@ -247,13 +272,12 @@ SET claimed_quantity = claimed_quantity + 1,
     updated_at = now()
 WHERE id = :campaignCouponId
   AND campaign_id = :campaignId
-  AND status = 'ACTIVE'
   AND starts_at <= now()
   AND ends_at > now()
   AND claimed_quantity < total_quantity;
 ```
 
-6. If zero rows are updated, return a domain outcome such as sold out/inactive (distinguish after a safe read if required).
+6. If zero rows are updated, return `COUPON_SOLD_OUT` when inventory is exhausted; validate campaign and coupon time windows separately and return their corresponding business errors.
 7. Insert `coupon_claims`.
 8. Commit. If unique constraint or any later step fails, roll back the inventory increment.
 
@@ -261,9 +285,12 @@ The unique constraint is the final guard against duplicate claims. Do not rely o
 
 ## 5. Audience snapshot publication
 
+- For the MVP, resolve the effective audience and insert all matching rows into `campaign_audience_members` in the same publication transaction, using a set-based database operation (`INSERT ... SELECT`) where practical.
+- Create the `campaign_delivery_jobs` row in that same transaction. The campaign must not become publishable/active and the worker must not start until the complete snapshot and job are committed.
+- Do not add a `campaign_snapshot_jobs` table, snapshot lease, or publication state machine for the MVP. If measured audience size makes the single snapshot transaction impractical, revisit this as a separately approved future change.
 - The snapshot is immutable for a published campaign.
-- Save the audience rule version or a copy of the evaluated rule definition with publication metadata for auditability.
-- Save snapshot creation timestamp and member rows.
+- The persisted member rows are the authoritative eligibility snapshot. Full historical versioning of the evaluated rule document is deferred; it is not required to determine eligibility after publication.
+- Save snapshot creation timestamp and member rows. The current schema records `snapshot_at` on each row; all rows for one campaign publication use the same publication timestamp.
 - Delivery worker reads only the snapshot, never re-evaluates the segment.
 - Changes to a reusable segment later must not mutate an existing campaign snapshot.
 - Decide before implementation how a campaign is re-published after audience changes; MVP default is that an active/published campaign cannot silently replace its snapshot. A new draft/revision or explicit republish flow needs approval if required.
@@ -295,5 +322,5 @@ Remaining open questions:
 
 - Exact campaign landing-page content schema.
 - Whether audience rule combination between saved segment and campaign-specific conditions is AND-only (recommended) or replacement semantics.
-- Whether a failed claim idempotency result is persisted or only successful claims are idempotently replayed.
 - Exact retention/anonymization requirements.
+- Expected maximum audience size; the MVP assumes a single set-based snapshot transaction is acceptable for the demo/initial deployment.

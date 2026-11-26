@@ -19,7 +19,7 @@
 | 1. Repository foundation | Backend/frontend scaffolding and local environment | Spring Boot skeleton, React+TS skeleton, build scripts, local PostgreSQL configuration, README | Both apps build; health endpoint works; frontend can call backend; no business features yet |
 | 2. Database foundation | Initial schema and seed strategy | Flyway migrations, fictional admin/member seed data, repository integration setup | Migrations apply cleanly to empty DB; constraints verified; seed data deterministic |
 | 3. Identity and security | Login, JWT cookies, refresh rotation, logout, roles, CSRF | Auth endpoints, Spring Security config, frontend auth flow | Security tests pass; member/admin isolation verified; tokens not stored in browser storage |
-| 4. Member and audience | Member profile, rule validation/evaluation, reusable segments, preview, snapshots | Audience use cases and APIs, admin audience UI | Rule tests pass; snapshot is immutable; supported fields/operators enforced |
+| 4. Member and audience | Member profile, rule validation/evaluation, reusable segments, preview, snapshots | Audience use cases and APIs, admin audience UI | Rule tests pass; snapshot is complete and immutable; supported fields/operators enforced |
 | 5. Campaign management | Draft create/edit/list/detail, lifecycle, landing content | Campaign module/API, admin campaign screens | Campaign validation and lifecycle tests pass |
 | 6. Coupon configuration and claim | Coupon CRUD/configuration, inventory reservation, claim list | Claim transaction, idempotency, member coupon UI | Duplicate and oversubscription tests pass; inventory equals successful claims |
 | 7. Message and delivery | One message per campaign, publication delivery job, worker, inbox | Message APIs, DB-backed batch delivery, inbox UI | Publish initiates delivery; retries create no duplicate inbox rows; delivery progress observable |
@@ -55,7 +55,7 @@
 - Implement allowlisted rule model and evaluator.
 - Implement saved segment CRUD and preview.
 - Implement campaign audience rule composition according to the approved semantics.
-- Persist publication snapshot as immutable rows.
+- Persist the complete publication snapshot as immutable rows in the publication transaction (no separate snapshot job in MVP).
 
 ### Phase 5 — Campaign management
 
@@ -75,7 +75,7 @@
 - Implement one message definition per campaign.
 - Publication transaction creates a delivery job.
 - Worker delivers in bounded batches from the immutable audience snapshot.
-- Use unique campaign/member inbox constraint and retry-safe processing.
+- Use one worker instance, a persisted cursor, and a unique campaign/member inbox constraint; batch inserts and cursor advancement commit together. Multi-worker leases are deferred.
 
 ### Phase 8 — Landing page and events
 

@@ -2,8 +2,8 @@
 ## E-commerce Campaign & Coupon Engagement Platform
 
 **Document status:** Draft — under review  
-**Version:** 1.2  
-**Date:** 2026-11-25  
+**Version:** 1.3  
+**Date:** 2026-11-26  
 **Product type:** Web-based campaign management and member engagement platform
 
 ---
@@ -92,7 +92,7 @@ A member uses the Member Portal to:
 | Engagement Tracking | Delivered, impression, click, landing-page view, claim attempt/result events |
 | Analytics | Campaign-level funnel metrics and coupon-level claim metrics |
 | Reliability | JWT authentication, authorization, duplicate-claim prevention, inventory protection, event deduplication, and concurrency tests |
-| Frontend | React and TypeScript web application(s), with Admin and Member experiences clearly separated |
+| Frontend | One React + TypeScript SPA with separate Admin and Member route groups |
 
 ### 3.2 Out of Scope — MVP
 
@@ -173,7 +173,7 @@ Message delivery alone does not count as an impression or reach. Repeated impres
 
 ### 4.5 Coupon
 
-A **Coupon** is an offer that a member can claim from a campaign landing page. A campaign may contain multiple coupons, each with its own total quantity, validity period, and per-member claim limit.
+A **Coupon** is an offer that a member can claim from a campaign landing page. A campaign may contain multiple coupons, each with its own total quantity and validity period. The MVP applies one fixed rule to every coupon: each member may claim each specific coupon once.
 
 Example:
 
@@ -185,6 +185,8 @@ Example:
 
 The MVP records coupon ownership after a successful claim. It does not process redemption.
 
+For the MVP, `FIXED_AMOUNT` means a fixed discount amount in TWD. `PERCENTAGE` means a percentage discount off the eligible order amount; for example, `discount_value = 10` means 10% off (valid range: greater than 0 and at most 100). `minimum_order_amount` is descriptive offer metadata only because checkout/redemption is out of scope. All monetary values in the MVP use TWD.
+
 ---
 
 ## 5. Primary User Journeys
@@ -195,10 +197,10 @@ The MVP records coupon ownership after a successful claim. It does not process r
 2. Administrator creates a campaign and enters its name, description, start time, end time, and landing-page content.
 3. Administrator selects a saved audience segment or defines campaign-specific targeting rules.
 4. The system previews the estimated matching member count and, before publication, resolves the audience.
-5. Administrator adds one or more coupons and configures each coupon's offer, total quantity, validity period, and claim limit.
+5. Administrator adds one or more coupons and configures each coupon's offer, total quantity, and validity period. The one-claim-per-member rule is fixed for the MVP.
 6. Administrator creates the campaign's single in-app message, including title and body.
 7. Administrator reviews the campaign configuration and publishes it.
-8. The system validates the configuration, creates an immutable audience snapshot for the published campaign, and initiates immediate in-app message delivery to that snapshot.
+8. The system validates the configuration, creates the complete immutable audience snapshot in the publication transaction, creates one delivery job, and initiates immediate in-app message delivery to that snapshot. Inbox rows are then created asynchronously in batches.
 9. The administrator can view campaign status and performance.
 
 ### 5.2 Member Receives and Engages with a Campaign
@@ -279,7 +281,7 @@ For demonstration and testing, the project shall include seeded member records w
 |---|---|---|
 | FR-COUP-01 | An administrator shall be able to associate multiple coupons with one campaign. | P0 |
 | FR-COUP-02 | Each coupon shall have a name, description, discount information, total quantity, and validity period. | P0 |
-| FR-COUP-03 | Each coupon shall support a configurable per-member claim limit, with one claim per member as the MVP rule. | P0 |
+| FR-COUP-03 | The system shall enforce one successful claim per member for each campaign coupon. The limit is fixed at one in the MVP. | P0 |
 | FR-COUP-04 | The system shall display coupon availability on the campaign landing page. | P0 |
 | FR-COUP-05 | The system shall prevent claims after the coupon has reached its total quantity. | P0 |
 | FR-COUP-06 | The system shall prevent claims outside the coupon's validity period. | P0 |
@@ -304,7 +306,7 @@ The claim operation must be safe under concurrent requests. Application-level ch
 | FR-MSG-07 | The system shall associate the message and its events with the campaign. | P0 |
 | FR-MSG-08 | Message delivery shall be retryable and must not create duplicate inbox records for the same campaign/member. | P0 |
 
-The MVP does not support scheduled delivery. The implementation may process large audience deliveries in batches or asynchronously, but publication should not require one long-running synchronous HTTP request to create every member inbox record.
+The MVP does not support scheduled delivery. The implementation processes inbox delivery asynchronously in batches. For the MVP, audience resolution and snapshot insertion use one database publication transaction (one set-based insert/select); the publish request does not create every inbox row. A resumable snapshot-job/state-machine design is deferred unless measured audience size makes the single snapshot transaction impractical.
 
 ### 6.6 Member Campaign Landing Page
 
@@ -322,7 +324,7 @@ The MVP does not support scheduled delivery. The implementation may process larg
 
 | ID | Requirement | Priority |
 |---|---|---|
-| FR-EVT-01 | The system shall record `DELIVERED` when a member's in-app inbox record is successfully created. | P0 |
+| FR-EVT-01 | The system shall report `DELIVERED` from successfully created `member_messages` inbox records; a duplicate `DELIVERED` row in `campaign_events` is not required. | P0 |
 | FR-EVT-02 | The system shall record `IMPRESSION` when the message is visibly rendered. | P0 |
 | FR-EVT-03 | The system shall record `CLICK` when a member clicks the message. | P0 |
 | FR-EVT-04 | The system shall record `LANDING_PAGE_VIEW` when a member opens the campaign landing page. | P0 |
@@ -395,7 +397,7 @@ Coupon claim count and unique claimers differ because a member may claim multipl
 
 ## 8. Business Rules
 
-1. A campaign must have a valid start and end time.
+1. A campaign must have a valid start and end time. Campaign and coupon windows use start-inclusive/end-exclusive semantics: `starts_at <= now < ends_at`, interpreted as instants (stored in UTC; business display timezone is Asia/Taipei).
 2. A campaign must be published and within its active time window before a coupon can be claimed.
 3. A paused or ended campaign must not accept new claims.
 4. A member must be authenticated to access member-specific messages or claim a coupon.
@@ -411,8 +413,9 @@ Coupon claim count and unique claimers differ because a member may claim multipl
 14. Message delivery does not count as an impression or unique reach.
 15. Repeated impressions by the same member count as multiple impressions but one unique reach.
 16. Campaign-level unique metrics must count each member only once per metric.
-17. In-app message delivery begins immediately after successful campaign publication; scheduled delivery is not part of the MVP.
-18. Coupon redemption and order-related behavior are outside the MVP.
+17. In-app message delivery begins immediately after successful campaign publication; inbox creation may finish asynchronously in batches. Scheduled delivery is not part of the MVP.
+18. Pausing a campaign prevents new coupon claims. Recommended MVP behavior is that a delivery job already initiated continues to completion; already-created inbox messages are not retracted. This behavior remains subject to owner confirmation in `OPEN_DESIGN_QUESTIONS.md`.
+19. Coupon redemption and order-related behavior are outside the MVP.
 
 ---
 
@@ -436,7 +439,7 @@ WHERE id = :campaignCouponId
   AND claimed_quantity < total_quantity;
 ```
 
-The claim record should be inserted in the same database transaction. The implementation must handle uniqueness conflicts and roll back inventory changes if claim creation fails.
+The claim record should be inserted in the same database transaction. The implementation must handle uniqueness conflicts and roll back inventory changes if claim creation fails. Repeating a successful request with the same `(member_id, idempotency_key)` returns the original successful claim. Reusing that key for a different campaign/coupon request returns `IDEMPOTENCY_KEY_CONFLICT`; attempting an already-claimed coupon with a different key returns `CLAIM_ALREADY_EXISTS`.
 
 ### 9.2 Security
 
@@ -566,11 +569,12 @@ This is a logical starting point, not a mandatory physical schema.
 | `audience_segments` | Reusable segment definitions and rules | Can be selected by many campaigns; records the creating user |
 | `campaigns` | Campaign definition and lifecycle | Has one audience snapshot, one message, and multiple campaign-owned coupons; records the creating user |
 | `campaign_audience_members` | Resolved audience snapshot | Joins campaigns and members; unique campaign/member pair |
-| `campaign_coupons` | Coupon/offer definition configured directly within a campaign; no separate global coupon master in the MVP | Belongs to one campaign; stores discount type/value, optional minimum order amount, quantity, validity, and per-member claim limit |
+| `campaign_coupons` | Coupon/offer definition configured directly within a campaign; no separate global coupon master in the MVP | Belongs to one campaign; stores discount type/value, optional minimum order amount, quantity, and validity; the one-claim-per-member rule is enforced by a unique constraint |
 | `coupon_claims` | Successful member coupon claims | References campaign, campaign coupon, and member; unique campaign/campaign-coupon/member combination |
 | `campaign_messages` | The campaign's single in-app message definition | One-to-one with campaign in the MVP |
+| `campaign_delivery_jobs` | Progress of the one asynchronous delivery job for a campaign | One-to-one with campaign; stores status, cursor, attempts, and last error |
 | `member_messages` | Per-member message delivery/inbox record | References campaign message and member; unique campaign/member delivery |
-| `campaign_events` | Delivery, impression, click, and landing-page events | References campaign, member, and relevant message/coupon identifiers |
+| `campaign_events` | Impression, click, landing-page, and claim-attempt/failure events | References campaign, member, and relevant message/coupon identifiers; delivery and successful claims are derived from their authoritative tables |
 | `refresh_token_sessions` | Refresh-token lifecycle and revocation | References the shared `users` identity/session |
 
 ### 11.1 Important Data Integrity Rules
@@ -731,7 +735,7 @@ The product does not need to support coupon redemption or order processing to be
 | Authentication | Spring Security with JWT Access Token and Refresh Token |
 | Delivery channel | In-app message center only |
 | Number of messages | Exactly one in-app message per campaign |
-| Message timing | Immediate delivery initiated on successful publication; scheduling is a future enhancement |
+| Message timing | Delivery job starts on successful publication; inbox rows are created asynchronously in batches; scheduling is a future enhancement |
 | Number of coupons | Multiple coupons per campaign |
 | Claim limit | One successful claim per member per campaign coupon |
 | Audience definition | Rule-based targeting with reusable saved segments and campaign-specific rules |

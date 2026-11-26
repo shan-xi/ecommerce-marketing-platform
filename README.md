@@ -45,12 +45,12 @@ ecommerce-campaign-platform/
 ## Current design baseline
 
 - Backend: Java 21 + Spring Boot, modular monolith, Clean Architecture principles.
-- Frontend: one React + TypeScript application with separate Admin and Member route groups.
+- Frontend: one React + TypeScript SPA with separate Admin and Member route groups.
 - Database: PostgreSQL.
 - Authentication: Spring Security, short-lived JWT access token and rotating refresh token, both transported in secure HttpOnly cookies; CSRF protection required.
 - MVP channel: in-app only; exactly one message per campaign; immediate delivery initiated on publication.
-- Audience: reusable rule-based segments plus campaign-specific rules; immutable member snapshot at publication.
-- Coupon claim: transactional inventory reservation and claim insert, database-enforced uniqueness.
+- Audience: reusable rule-based segments plus campaign-specific rules; complete immutable member snapshot committed during publication before delivery starts.
+- Coupon claim: transactional inventory reservation and claim insert, database-enforced uniqueness; successful request retries replay the original claim.
 - No Redis, Kafka, microservices, external channel provider, scheduled delivery, coupon redemption, or order/payment integration in the MVP.
 
 ## Status and caveats

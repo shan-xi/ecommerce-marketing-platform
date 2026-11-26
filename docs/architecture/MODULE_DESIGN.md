@@ -75,12 +75,12 @@ Recommended sequence:
 
 1. Load and validate draft campaign.
 2. Ask audience module to resolve the matching member IDs using the campaign's selected saved segment and/or campaign-specific conditions.
-3. Persist immutable campaign audience snapshot.
-4. Validate exactly one campaign message exists and at least one valid coupon exists (if required by the approved product rules).
-5. Transition campaign to `ACTIVE` (or approved published state) and insert a delivery job/outbox record atomically where practical.
-6. Worker handles delivery asynchronously and idempotently.
+3. Resolve and persist the complete immutable campaign audience snapshot in the publication transaction (one set-based operation for the MVP).
+4. Validate exactly one campaign message and at least one valid coupon exist, as required by the PRD MVP acceptance scenario.
+5. Transition campaign to `ACTIVE` and insert one delivery job/outbox record in the same transaction as the snapshot.
+6. One worker handles delivery asynchronously in bounded batches; inbox inserts and cursor advancement are atomic per batch. Multi-worker lease coordination is deferred.
 
-If snapshot materialization is too large for a single transaction, design a publication state machine and resumable snapshot job before implementation. Do not weaken the invariant that no message is delivered to a partially resolved audience.
+For the MVP, do not introduce a snapshot-job table or publication state machine. The initial deployment assumes the complete snapshot fits one publication transaction. If measured scale disproves that assumption, stop and propose a separate reviewed design; never allow delivery from a partial snapshot.
 
 ## 5. Coupon claim transaction
 

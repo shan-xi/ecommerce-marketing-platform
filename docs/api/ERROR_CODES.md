@@ -12,7 +12,7 @@
 | `CAMPAIGN_NOT_PUBLISHABLE` | 409 | Campaign is not a valid draft or required setup is missing | Show setup validation summary |
 | `CAMPAIGN_INACTIVE` | 409 | Campaign is paused, ended, or outside active window | Disable claim action and explain |
 | `MEMBER_NOT_ELIGIBLE` | 409 | Member is not in the publication audience snapshot | Show unavailable message without disclosing audience rules |
-| `COUPON_INACTIVE` | 409 | Coupon is inactive or outside validity window | Disable claim action |
+| `COUPON_OUTSIDE_VALIDITY` | 409 | Coupon is outside its configured validity window | Disable claim action |
 | `COUPON_SOLD_OUT` | 409 | No remaining coupon inventory | Show sold-out state |
 | `CLAIM_ALREADY_EXISTS` | 409 | Member already claimed this campaign coupon | Show already-claimed state |
 | `IDEMPOTENCY_KEY_CONFLICT` | 409 | Same idempotency key reused for a different request | Do not retry with that key; create a new request key only for a new intent |

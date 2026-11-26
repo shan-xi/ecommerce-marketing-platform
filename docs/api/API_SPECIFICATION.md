@@ -10,7 +10,7 @@
 - JSON uses `camelCase`; database columns use `snake_case`.
 - IDs are UUID strings.
 - Timestamps are ISO-8601 UTC instants (for example `2026-11-25T10:30:00Z`).
-- List endpoints are paginated with `page` (0-based) and `size` (default 20, maximum 100); stable sorting must be documented per endpoint.
+- List endpoints are paginated with `page` (0-based) and `size` (default 20, maximum 100). Default stable sorting: campaigns and segments by `createdAt DESC`; member inbox by `deliveredAt DESC`; member claims by `claimedAt DESC`; campaign coupons by `createdAt ASC`.
 - All write requests require a valid CSRF header when cookie authentication is used.
 - Do not accept `memberId` from a member client for self-service operations. Resolve it from the authenticated principal.
 - Admin endpoints require `ADMIN`; member endpoints require `MEMBER`.
@@ -131,7 +131,7 @@ The API must define whether `segmentId` and `rules` are mutually exclusive or co
 
 ### Publish response
 
-`202 Accepted` is recommended because message delivery continues asynchronously after publication. Response includes campaign status, `publishedAt`, audience count, and delivery job status. A successful publish means the audience snapshot and delivery job are committed; it does not promise every inbox row already exists.
+`202 Accepted` is recommended because message delivery continues asynchronously after publication. Response includes campaign status, `publishedAt`, audience count, and delivery job status. A successful publish means the complete audience snapshot and delivery job are committed in the publication transaction; it does not promise every inbox row already exists. The MVP uses one delivery worker and a persisted batch cursor, without worker leases.
 
 ## 6. Audience segment APIs
 
@@ -206,7 +206,7 @@ Claim request:
 { "idempotencyKey": "f3e2e6a0-2c20-4a1f-a7f3-4d6ef1f96a22" }
 ```
 
-Successful response: `201 Created` with `claimId`, campaign/coupon IDs, status `CLAIMED`, and `claimedAt`. A replay with the same idempotency key returns the same successful result. A duplicate claim with a different key returns `409 CLAIM_ALREADY_EXISTS`.
+Successful response: `201 Created` with `claimId`, campaign/coupon IDs, status `CLAIMED`, and `claimedAt`. A replay with the same member and idempotency key for the same campaign/coupon returns the original successful claim response. Reusing that key for a different campaign/coupon returns `409 IDEMPOTENCY_KEY_CONFLICT`. A duplicate claim with a different key returns `409 CLAIM_ALREADY_EXISTS`. Only successful claim results are persisted for idempotent replay; failed attempts do not reserve inventory and are not replay-cached.
 
 ## 11. Engagement APIs
 
@@ -225,7 +225,7 @@ Request example:
 }
 ```
 
-The backend derives `memberId` from authentication. Allowed client event types are `IMPRESSION`, `CLICK`, and `LANDING_PAGE_VIEW`; claim attempt/outcome records may be created server-side as part of claim processing. `DELIVERED` is derived from inbox delivery records. Successful claim is derived from `coupon_claims`.
+The backend derives `memberId` from authentication. Allowed client event types are `IMPRESSION`, `CLICK`, and `LANDING_PAGE_VIEW`; claim attempt/failure records may be created server-side as part of claim processing. `DELIVERED` is derived from `member_messages`, and successful claim is derived from `coupon_claims`; neither needs a duplicate client-submitted event.
 
 ## 12. Admin analytics APIs
 
@@ -244,7 +244,7 @@ Metrics must distinguish total event counts from distinct-member counts. If a de
 | 401 | Missing/invalid authentication | `UNAUTHENTICATED`, `TOKEN_EXPIRED` |
 | 403 | Authenticated but forbidden / CSRF failure | `FORBIDDEN`, `CSRF_INVALID` |
 | 404 | Resource not found or not visible | `RESOURCE_NOT_FOUND` |
-| 409 | State conflict or business invariant | `CAMPAIGN_NOT_PUBLISHABLE`, `CAMPAIGN_INACTIVE`, `MEMBER_NOT_ELIGIBLE`, `COUPON_SOLD_OUT`, `CLAIM_ALREADY_EXISTS` |
+| 409 | State conflict or business invariant | `CAMPAIGN_NOT_PUBLISHABLE`, `CAMPAIGN_INACTIVE`, `MEMBER_NOT_ELIGIBLE`, `COUPON_OUTSIDE_VALIDITY`, `COUPON_SOLD_OUT`, `CLAIM_ALREADY_EXISTS`, `IDEMPOTENCY_KEY_CONFLICT` |
 | 422 | Semantically invalid business input (optional convention) | `INVALID_CAMPAIGN_PERIOD` |
 | 429 | Rate limit exceeded, if enabled | `RATE_LIMITED` |
 | 500 | Unexpected server failure | `INTERNAL_ERROR` |

@@ -10,6 +10,7 @@ erDiagram
   USERS ||--o{ CAMPAIGNS : creates
   AUDIENCE_SEGMENTS o|--o{ CAMPAIGNS : selected_by
   CAMPAIGNS ||--o{ CAMPAIGN_AUDIENCE_MEMBERS : snapshots
+  AUDIENCE_SEGMENTS o|--o{ CAMPAIGN_AUDIENCE_MEMBERS : snapshot_source
   MEMBERS ||--o{ CAMPAIGN_AUDIENCE_MEMBERS : included_in
   CAMPAIGNS ||--o{ CAMPAIGN_COUPONS : offers
   CAMPAIGNS ||--o| CAMPAIGN_MESSAGES : has_one_message
@@ -66,6 +67,7 @@ erDiagram
     uuid campaign_id PK,FK
     uuid member_id PK,FK
     timestamptz snapshot_at
+    uuid source_segment_id FK
   }
   CAMPAIGN_COUPONS {
     uuid id PK
@@ -92,7 +94,11 @@ erDiagram
     uuid id PK
     uuid campaign_id FK,UK
     varchar status
+    uuid cursor_member_id
     int attempt_count
+    text last_error
+    timestamptz created_at
+    timestamptz updated_at
   }
   MEMBER_MESSAGES {
     uuid id PK
@@ -114,7 +120,7 @@ erDiagram
 ## Cardinality and integrity notes
 
 - `users` is the shared identity table for both administrators and members; `users.role` distinguishes `ADMIN` and `MEMBER`. Only member users have a one-to-one `members` profile containing member-specific attributes.
-- `campaign_coupons` is campaign-owned through `campaign_id`. The MVP has no separate global coupon master or reusable promotion-rule entity; supported discount metadata is `FIXED_AMOUNT` or `PERCENTAGE`.
+- `campaign_coupons` is campaign-owned through `campaign_id`. The MVP has no separate global coupon master or reusable promotion-rule entity; supported discount metadata is `FIXED_AMOUNT` or `PERCENTAGE`. `PERCENTAGE` stores percentage points (for example, `10` means 10% off); monetary amounts are TWD.
 
 - `campaign_messages.campaign_id` is unique: exactly one message per campaign in the MVP.
 - `campaign_delivery_jobs.campaign_id` is unique: one delivery job per campaign; retries update the same job.
@@ -122,4 +128,5 @@ erDiagram
 - `member_messages` has unique `(campaign_id, member_id)`.
 - `coupon_claims` has unique `(campaign_id, campaign_coupon_id, member_id)`.
 - `campaign_events` has unique `(member_id, event_id)`.
-- Campaign coupon ownership and campaign IDs must agree; use a composite FK where practical.
+- Campaign coupon ownership and campaign IDs must agree; `coupon_claims(campaign_id, campaign_coupon_id)` references the unique `(campaign_id, id)` pair on `campaign_coupons`.
+- `campaign_delivery_jobs` is one row per campaign. The MVP uses one worker; the cursor and attempt/error fields support batch resume without a lease/lock table.
