@@ -1,6 +1,6 @@
 # Testing Strategy
 
-**Status:** Proposed — implementation has not started.
+**Status:** Reviewed — pending owner approval; implementation has not started.
 
 ## 1. Test pyramid
 
@@ -19,31 +19,45 @@
 - Admin can authenticate and access admin endpoints.
 - Member cannot access admin endpoints.
 - Member A cannot retrieve Member B's private data.
-- Refresh token rotation, expiration, revocation, and logout work.
+- Refresh token rotation, expiration, revocation, and logout work. MVP defaults are access 15 minutes and refresh 7 days (overridable by environment). Each token generation has its own row and family ID; exactly one concurrent request consumes a generation; reuse of a consumed token revokes the family.
 - CSRF protection rejects missing/invalid tokens on state-changing cookie requests.
 
 ### Audience
-- Each supported field/operator combination is validated.
+- Every field/operator combination in the PRD matrix is accepted; every incompatible combination is rejected. Cover all 8 fields, enum restrictions, scalar-vs-array value shape, exact value types, enum allowlists, and integer/decimal bounds.
+- Age is derived from `birth_date` using the `Asia/Taipei` date: preview uses the preview run date, while publication uses the actual publication date and creates the authoritative snapshot.
 - Unsupported fields/operators and malformed values are rejected.
 - AND semantics are correct.
-- Saved segment and campaign-specific rule combination follows the approved rule.
+- When both a saved segment and campaign-specific rules are supplied, the result is their intersection; either one alone works as the effective audience.
+- NULL-valued attributes do not match any supported comparison/set operator; explicit NULL-check operators and NULL rule values/array items are rejected. Comparison operators require scalar values; `IN`/`NOT IN` require non-empty arrays.
 - Snapshot contains the complete matching members committed with publication and remains unchanged after member attributes or segment rules change.
 - Snapshot rows and the delivery job are committed atomically; no delivery starts if snapshot creation fails.
+- Composite foreign keys reject member_messages or campaign_events that pair a campaign with another campaign's message/coupon; impression/click events cannot be recorded by a member without the matching inbox row; a delivery cursor cannot reference a member outside its campaign snapshot.
+- Impression/click event ingestion rejects a member who does not have the corresponding campaign message in their inbox.
+- A zero-member snapshot publishes successfully with a warning and a `COMPLETED` delivery job; no inbox rows are created.
 
 ### Publication and delivery
 - Campaign cannot publish without required setup.
+- Campaigns outside their start-inclusive/end-exclusive window are rejected for publication; publication succeeds only when `starts_at <= now < ends_at`.
+- `ENDED` is derived for a published campaign when `ends_at <= now`; it is not persisted, no background status transition is required, and an expired draft remains `DRAFT`.
+- Publication rejects a campaign without at least one configured coupon with `total_quantity >= 1`; coupon configuration rejects zero or negative total quantity.
 - Publish is idempotent or rejects duplicate publish safely.
 - Audience snapshot and delivery job are committed consistently.
-- Delivery worker retries without duplicate inbox records.
-- Delivery can resume after worker interruption from the last committed cursor; batch inbox inserts and cursor advancement are atomic.
+- Delivery worker processes batches of 100; each batch and cursor update are atomic.
+- Injected batch failures retry after 1s/2s/4s; the initial attempt plus three automatic retries (1s/2s/4s backoff) fail at the same cursor, the job moves to `FAILED`. A successful batch resets attempt count.
+- Admin retry is accepted only for `FAILED`, resets attempt count, preserves cursor, and resumes without duplicate inbox records. Retry is rejected for other job statuses.
+- Delivery can resume after worker interruption from the last committed cursor; a `PROCESSING` job is recovered to `PENDING` on startup.
 - The MVP runs one delivery worker; no lease or multi-worker coordination is required.
+- A committed delivery job still in `PENDING` when the campaign is paused is processed to completion; the worker does not gate on campaign status.
 
 ### Coupon claim correctness
 - Claim succeeds for eligible member and available coupon.
 - Duplicate claim by same member is rejected without consuming extra inventory.
 - Ineligible member, paused/ended campaign, expired coupon, and sold-out coupon are rejected.
-- Replaying the same idempotency key for the same campaign/coupon returns the original successful result.
-- Reusing a key for a different campaign/coupon returns `IDEMPOTENCY_KEY_CONFLICT`; a duplicate claim with a new key returns `CLAIM_ALREADY_EXISTS`.
+- Pausing during a delivery job does not stop it, including when the committed job is still `PENDING`; the worker completes the snapshot delivery.
+- A concurrency test verifies pause/claim ordering: a claim that acquired the campaign shared lock before Pause may complete before Pause commits; claims that acquire the lock after Pause commits are rejected.
+- Replaying the same idempotency key for the same campaign/coupon returns the original successful result, including after the campaign is paused or has ended.
+- Concurrent requests using the same idempotency key re-check after acquiring the campaign lock and return the single winning claim result; reuse for a different request returns `IDEMPOTENCY_KEY_CONFLICT`.
+- Reusing a key for a different campaign/coupon returns `IDEMPOTENCY_KEY_CONFLICT`; while the campaign is otherwise claimable, a duplicate claim with a new key returns `CLAIM_ALREADY_EXISTS`.
 - Failure after inventory reservation rolls back the inventory update.
 
 **Concurrency acceptance test:** seed a coupon with quantity 100 and send at least 1,000 concurrent claim attempts from distinct eligible members. Exactly 100 or fewer claims may succeed (exactly 100 if all other conditions are valid); `claimed_quantity` must never exceed 100 or become negative; no member may own duplicate claims; counter must equal successful claim count.
@@ -53,21 +67,27 @@
 - Delivered count is derived from inbox records; no separate `DELIVERED` event row is required.
 - Impression/click/page-view totals and distinct-member counts are calculated separately.
 - Successful claims are sourced from `coupon_claims`.
+- Claim attempt audit is server-generated for each authenticated claim command for an existing campaign: `SUCCEEDED`, `FAILED`, or `REPLAYED`. Success audit commits with the claim; failure audit survives claim rollback in a separate transaction; replay audit is written independently. Audit write contains no secrets or raw idempotency key. `campaign_events` rejects a `CLAIM_ATTEMPT` row without an allowed `metadata.outcome`.
+- Landing visitor rate includes only distinct audience-snapshot members with authenticated page-view events; do not calculate click-to-landing conversion. Anonymous page views create no member event.
 - Zero denominators produce unavailable/null rates.
 
 ## 3. Required frontend tests
 
 - Admin and Member routes render the correct screens and deny wrong-role navigation at the UX layer.
+- Admin delivery status displays progress and sanitized failure details; the retry action is enabled only for `FAILED` jobs and is hidden/disabled for other statuses.
 - Login, refresh, logout, and CSRF behavior match the API contract.
 - Audience builder prevents unsupported rule combinations.
 - Campaign forms display server validation errors.
 - Landing page displays claimed/sold-out/available states accurately.
+- Anonymous visitors can read public landing content and coupon summaries but cannot see member claim state or submit a claim; after sign-in they return to the intended campaign page. Anonymous page views create no `campaign_events` row; authenticated page views are member-attributed.
+- Published landing pages remain readable while paused/ended; claim actions are disabled. Authenticated non-audience members see an explicit not-eligible state.
+- The fixed landing-page template renders the configured headline/body and campaign/coupon data; no page-builder behavior exists.
 - Duplicate click or network retry does not create duplicate claim UI state.
 - Empty, loading, error, and success states are covered.
 
 ## 4. End-to-end scenarios
 
-Implement the 12 acceptance scenarios in `PRD.md` as automated or documented repeatable E2E flows. At minimum, automate campaign creation/publication, member delivery, coupon claim, duplicate claim, concurrency, and analytics verification.
+Implement all 21 acceptance scenarios in `PRD.md` as automated or documented repeatable E2E flows. At minimum, automate campaign creation/publication, member delivery, coupon claim, duplicate claim, concurrency, and analytics verification.
 
 ## 5. Test data and environment
 

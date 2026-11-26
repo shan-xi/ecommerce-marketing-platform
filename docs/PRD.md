@@ -2,7 +2,7 @@
 ## E-commerce Campaign & Coupon Engagement Platform
 
 **Document status:** Draft — under review  
-**Version:** 1.3  
+**Version:** 1.5.0  
 **Date:** 2026-11-26  
 **Product type:** Web-based campaign management and member engagement platform
 
@@ -52,6 +52,7 @@ An administrator uses the Admin Portal to:
 - Configure multiple coupons for a campaign.
 - Configure the campaign's single in-app message.
 - Publish or pause a campaign.
+- Review delivery progress and manually retry a failed delivery job.
 - Review campaign and coupon performance.
 
 ### 2.2 Member
@@ -73,6 +74,7 @@ A member uses the Member Portal to:
 - The backend shall derive the member identity from the authenticated principal. It must not trust a client-supplied member ID for member-specific operations.
 - Administrator and member roles shall have separate authorization boundaries.
 - Passwords must be stored using a secure password hashing algorithm.
+- Each refresh-token rotation creates a new token record in the same stable token family. The presented token is atomically consumed once; reuse of a consumed/revoked token revokes the entire token family. Logout revokes the current family.
 - Production identity-provider integration, social login, OAuth federation, and enterprise SSO are out of scope.
 
 ---
@@ -83,15 +85,15 @@ A member uses the Member Portal to:
 
 | Area | Included capabilities |
 |---|---|
-| Admin Portal | Administrator login; campaign create, edit, publish, pause, list, and detail; audience segment management; analytics |
-| Campaign | Name, description, start/end time, status, landing-page content; exactly one in-app message |
+| Admin Portal | Administrator login; campaign create, edit, publish, pause, list, and detail; audience segment management; delivery progress/retry; analytics |
+| Campaign | Name, description, start/end time, status, fixed landing-page headline and body; exactly one in-app message |
 | Audience | Rule-based audience definition; reusable saved segments; audience preview; snapshot of eligible members at publication |
 | Coupon | Multiple coupons per campaign; coupon definitions, validity, limited inventory, and one-claim-per-member rule |
 | Touchpoint | In-app message center only; one message per campaign; immediate delivery when the campaign is published |
 | Member Portal | Member login; message inbox; campaign landing page; coupon claim; claimed-coupon list |
 | Engagement Tracking | Delivered, impression, click, landing-page view, claim attempt/result events |
 | Analytics | Campaign-level funnel metrics and coupon-level claim metrics |
-| Reliability | JWT authentication, authorization, duplicate-claim prevention, inventory protection, event deduplication, and concurrency tests |
+| Reliability | JWT authentication, authorization, duplicate-claim prevention, inventory protection, event deduplication, delivery retry/manual recovery, and concurrency tests |
 | Frontend | One React + TypeScript SPA with separate Admin and Member route groups |
 
 ### 3.2 Out of Scope — MVP
@@ -124,9 +126,9 @@ Examples include a seasonal promotion, a new-member offer, or a dormant-member r
 
 An **Audience** is the set of members eligible to participate in a campaign.
 
-An **Audience Segment** is a reusable set of targeting rules saved by an administrator, such as VIP members, new members, or members who have not ordered recently. A campaign may use a saved segment or define campaign-specific rules.
+An **Audience Segment** is a reusable set of targeting rules saved by an administrator, such as VIP members, new members, or members who have not ordered recently. A campaign may use a saved segment, campaign-specific rules, or both. When both are provided, the effective audience is the intersection: a member must match the saved segment **AND** every campaign-specific condition. When only one is provided, that definition is used. A campaign must provide at least one audience definition.
 
-The MVP supports simple rule-based conditions against seeded member attributes. Supported attributes should include:
+The MVP supports simple rule-based conditions against seeded member attributes. `Age` is derived from `birth_date` using the `Asia/Taipei` calendar date. Audience preview uses the date on which the preview is run; publication snapshot uses the actual publication date. Therefore, an age-based preview is an estimate and may change if the campaign is published on a later date; the committed publication snapshot is authoritative. Age is not stored as a mutable value. Supported attributes should include:
 
 - Age
 - Gender
@@ -142,11 +144,29 @@ The MVP rule builder supports:
 - Comparison operators: `=`, `!=`, `>`, `>=`, `<`, `<=`
 - Set operators: `IN`, `NOT IN`
 - Date and numeric comparisons where appropriate
+- Comparison operators take one non-null scalar value; `IN` and `NOT IN` take a non-empty array of non-null scalar values. Values must match the selected member attribute type.
 - Multiple conditions combined with `AND`
 
-Nested `AND`/`OR` groups, arbitrary SQL, custom scripts, and continuously updated real-time audiences are out of scope.
+#### Audience field / type / operator matrix (normative)
 
-**Audience snapshot rule:** when a campaign is published, the system resolves its audience and stores a snapshot of eligible member IDs for that campaign. The campaign's target population remains stable after publication; later changes to a member's attributes do not silently add or remove members from that published campaign. A campaign must be edited/re-published or recreated if the administrator needs a new target snapshot, subject to the campaign lifecycle rules.
+The API field names below are the canonical JSON values. The Admin rule builder and backend validator must use this matrix; an operator not listed for a field is rejected with `INVALID_AUDIENCE_RULE`.
+
+| API field | Value type | NULL allowed on member record? | Allowed operators | Value format / constraints |
+|---|---|---:|---|---|
+| `age` | Integer | Derived as NULL when `birth_date` is NULL | `=`, `!=`, `>`, `>=`, `<`, `<=`, `IN`, `NOT IN` | Integer from 0 through 120; calculated as of the Asia/Taipei date used for preview/publication |
+| `gender` | Enum | Yes | `=`, `!=`, `IN`, `NOT IN` | `FEMALE`, `MALE`, `OTHER`, `UNDISCLOSED` |
+| `registeredAt` | DateTime | No | `=`, `!=`, `>`, `>=`, `<`, `<=`, `IN`, `NOT IN` | ISO-8601 timestamp with timezone; normalized to UTC |
+| `membershipTier` | Enum | No | `=`, `!=`, `IN`, `NOT IN` | `STANDARD`, `SILVER`, `GOLD`, `PLATINUM` |
+| `orderCount` | Integer | No | `=`, `!=`, `>`, `>=`, `<`, `<=`, `IN`, `NOT IN` | Integer >= 0 |
+| `totalSpending` | Decimal | No | `=`, `!=`, `>`, `>=`, `<`, `<=`, `IN`, `NOT IN` | Decimal >= 0, TWD, maximum 2 fractional digits |
+| `lastOrderAt` | DateTime | Yes | `=`, `!=`, `>`, `>=`, `<`, `<=`, `IN`, `NOT IN` | ISO-8601 timestamp with timezone; normalized to UTC |
+| `lastLoginAt` | DateTime | Yes | `=`, `!=`, `>`, `>=`, `<`, `<=`, `IN`, `NOT IN` | ISO-8601 timestamp with timezone; normalized to UTC |
+
+For all fields, comparison operators take exactly one non-null scalar; `IN` and `NOT IN` take a non-empty array of non-null values of the field's type. `>`/`>=`/`<`/`<=` are not valid for enum fields. Boolean values are not supported. DateTime set values are timestamp strings. Enum values are case-sensitive. A member attribute that is NULL never matches any condition, including `!=` and `NOT IN`; this is an explicit product rule and must not rely on SQL's default NULL behavior.
+
+Nested `AND`/`OR` groups, arbitrary SQL, custom scripts, and continuously updated real-time audiences are out of scope. For every supported comparison or set operator, a member attribute whose value is `NULL` does not match the condition. SQL `UNKNOWN`/three-valued results are treated as non-matches; explicit `IS NULL`/`IS NOT NULL` rule operators are not supported in the MVP.
+
+**Audience snapshot rule:** when a campaign is published, the system resolves its audience and stores a snapshot of eligible member IDs for that campaign. The campaign's target population remains stable after publication; later changes to a member's attributes do not silently add or remove members from that published campaign. A published campaign's audience snapshot is not silently replaced. If a new target snapshot is needed, the administrator creates a new draft/revision; a dedicated republish workflow is out of scope for the MVP.
 
 ### 4.3 Touchpoint and Message
 
@@ -195,12 +215,12 @@ For the MVP, `FIXED_AMOUNT` means a fixed discount amount in TWD. `PERCENTAGE` m
 
 1. Administrator signs in to the Admin Portal.
 2. Administrator creates a campaign and enters its name, description, start time, end time, and landing-page content.
-3. Administrator selects a saved audience segment or defines campaign-specific targeting rules.
-4. The system previews the estimated matching member count and, before publication, resolves the audience.
+3. Administrator selects a saved audience segment, defines campaign-specific targeting rules, or provides both. When both are provided, a member must match both (AND).
+4. The system previews the effective audience using the same AND semantics and, before publication, resolves the audience.
 5. Administrator adds one or more coupons and configures each coupon's offer, total quantity, and validity period. The one-claim-per-member rule is fixed for the MVP.
 6. Administrator creates the campaign's single in-app message, including title and body.
-7. Administrator reviews the campaign configuration and publishes it.
-8. The system validates the configuration, creates the complete immutable audience snapshot in the publication transaction, creates one delivery job, and initiates immediate in-app message delivery to that snapshot. Inbox rows are then created asynchronously in batches.
+7. Administrator reviews the campaign configuration and publishes it. Publication is allowed only within the campaign window (`starts_at <= now < ends_at`); future-dated scheduled publication is not supported.
+8. The system validates the configuration, creates the complete immutable audience snapshot in the publication transaction, creates one delivery job, and initiates immediate in-app message delivery to that snapshot. Inbox rows are then created asynchronously in batches. A zero-member snapshot is valid: the campaign publishes with a warning and its delivery job is immediately marked `COMPLETED` without creating inbox rows.
 9. The administrator can view campaign status and performance.
 
 ### 5.2 Member Receives and Engages with a Campaign
@@ -209,9 +229,9 @@ For the MVP, `FIXED_AMOUNT` means a fixed discount amount in TWD. `PERCENTAGE` m
 2. Member opens the in-app message center.
 3. The member sees the campaign message delivered to their account.
 4. When the message is visibly rendered, the client records an impression.
-5. The member clicks the message; the system records the click and navigates to the campaign landing page.
-6. The system records a landing-page view.
-7. The member reviews the available coupons and selects one to claim.
+5. The member clicks the message; the system records the click and navigates to the campaign landing page. The landing page may also be opened directly by an anonymous visitor.
+6. The system records a landing-page view when the visitor is authenticated; anonymous page views are not attributed to a member.
+7. The visitor can review public campaign content and coupon summaries even when the campaign is `PAUSED` or effectively `ENDED`. In those states coupons are shown as unavailable and cannot be newly claimed. To claim a coupon, the visitor must sign in; after login, the application returns them to the intended campaign page. The member then selects a coupon to claim.
 8. The backend validates campaign status and period, audience membership, coupon validity, inventory, and prior claim history.
 9. If all validations pass, the system creates a coupon claim record and confirms success.
 10. The member can see the claimed coupon in their claimed-coupon list.
@@ -248,17 +268,19 @@ Priority definitions:
 | ID | Requirement | Priority |
 |---|---|---|
 | FR-CAM-01 | An administrator shall be able to create a campaign. | P0 |
-| FR-CAM-02 | A campaign shall include a name, description, start time, end time, and landing-page content. | P0 |
+| FR-CAM-02 | A campaign shall include a name, description, start time, end time, and fixed landing-page `headline` and `body` fields. | P0 |
 | FR-CAM-03 | An administrator shall be able to view and search campaigns. | P0 |
 | FR-CAM-04 | An administrator shall be able to edit a draft campaign. | P0 |
-| FR-CAM-05 | An administrator shall be able to publish a valid campaign. | P0 |
-| FR-CAM-06 | An administrator shall be able to pause an active campaign. | P0 |
+| FR-CAM-05 | An administrator shall be able to publish a valid campaign only when `starts_at <= now < ends_at`; future-dated scheduled publication is not supported. | P0 |
+| FR-CAM-06 | An administrator shall be able to pause an active campaign; after the pause commits, new coupon claims are blocked. The delivery job committed during publication continues even if still `PENDING`, and delivered inbox messages are not retracted. | P0 |
 | FR-CAM-07 | The system shall reject invalid campaign schedules, including an end time earlier than the start time. | P0 |
 | FR-CAM-08 | The system shall prevent coupon claims outside the campaign's active period. | P0 |
 | FR-CAM-09 | The system shall expose a reusable campaign landing page using a campaign identifier. | P0 |
 | FR-CAM-10 | Publishing shall resolve and persist the campaign's audience snapshot before message delivery begins. | P0 |
+| FR-CAM-11 | A campaign shall have at least one configured coupon with `total_quantity >= 1` before it can be published. | P0 |
+| FR-CAM-12 | A campaign with a valid configuration may be published with a zero-member audience snapshot; the UI shall warn the administrator and the delivery job shall be completed without inbox rows. | P0 |
 
-Suggested campaign statuses: `DRAFT`, `ACTIVE`, `PAUSED`, and `ENDED`. A published campaign may be active only within its configured time window. The MVP does not require a scheduled-message state or future delivery scheduler.
+Campaign lifecycle semantics: persisted states are `DRAFT`, `ACTIVE`, and `PAUSED`. `ENDED` is a derived status when `published_at` is set and `ends_at <= now`, whether the persisted state was `ACTIVE` or `PAUSED`; it is not stored and requires no background status-transition job. A draft remains `DRAFT` even if its configured end time passes. A campaign is claimable only when its persisted status is `ACTIVE` and `starts_at <= now < ends_at`. The MVP has no resume or republish workflow.
 
 ### 6.3 Audience and Segment Management
 
@@ -291,7 +313,7 @@ For demonstration and testing, the project shall include seeded member records w
 
 **Claim uniqueness:** a member may claim different coupons in the same campaign, but may successfully claim a specific campaign coupon only once. A suitable database constraint is `UNIQUE (campaign_id, campaign_coupon_id, member_id)`.
 
-The claim operation must be safe under concurrent requests. Application-level checks alone are insufficient; database constraints and transactional inventory updates must protect correctness.
+The claim operation must be safe under concurrent requests. Application-level checks alone are insufficient; database constraints and transactional inventory updates must protect correctness. A retry with an existing successful idempotency key returns its original result even if the campaign has since been paused or ended; idempotency replay is checked before new-claim eligibility.
 
 ### 6.5 In-App Message Management and Delivery
 
@@ -299,26 +321,34 @@ The claim operation must be safe under concurrent requests. Application-level ch
 |---|---|---|
 | FR-MSG-01 | Each campaign shall have exactly one in-app message in the MVP. | P0 |
 | FR-MSG-02 | The message shall include a title, body, and associated campaign. | P0 |
-| FR-MSG-03 | When a campaign is successfully published, the system shall initiate immediate delivery of its message to members in the audience snapshot. | P0 |
+| FR-MSG-03 | When a campaign is successfully published, the system shall commit a delivery job for its message and initiate asynchronous delivery to members in the audience snapshot. The committed job is not cancelled by a later Pause. | P0 |
 | FR-MSG-04 | A member shall be able to view their in-app message list. | P0 |
 | FR-MSG-05 | A member shall be able to open the message and navigate to its campaign landing page. | P0 |
 | FR-MSG-06 | The system shall record message delivery, impression, and click events. | P0 |
 | FR-MSG-07 | The system shall associate the message and its events with the campaign. | P0 |
 | FR-MSG-08 | Message delivery shall be retryable and must not create duplicate inbox records for the same campaign/member. | P0 |
+| FR-MSG-09 | An administrator shall be able to view delivery status, processed/total counts, cursor, retry count, and sanitized last error. | P0 |
+| FR-MSG-10 | An administrator shall be able to manually retry a `FAILED` delivery job from its last committed cursor; retrying any other status shall be rejected. | P0 |
 
 The MVP does not support scheduled delivery. The implementation processes inbox delivery asynchronously in batches. For the MVP, audience resolution and snapshot insertion use one database publication transaction (one set-based insert/select); the publish request does not create every inbox row. A resumable snapshot-job/state-machine design is deferred unless measured audience size makes the single snapshot transaction impractical.
+
+**Delivery retry and recovery policy (MVP):** one worker processes one campaign job at a time in batches of 100 snapshot members. Each batch inserts inbox rows and advances `cursor_member_id` in the same transaction. On a batch failure, the transaction rolls back, the cursor remains unchanged, `attempt_count` increases by one, and the worker retries the same batch after a short exponential backoff (1 second, then 2 seconds, then 4 seconds). `attempt_count` counts automatic retries already consumed at the current cursor (0–3) and resets to zero after a successful batch. The initial attempt plus up to three automatic retries are allowed (four total attempts). After the initial failure, wait 1 second; after the second failed attempt, wait 2 seconds; after the third failed attempt, wait 4 seconds. If the fourth attempt fails, the job becomes `FAILED` and automatic retries stop. An administrator may use the delivery retry action to move a `FAILED` job back to `PENDING`; it preserves the last committed cursor and resets `attempt_count` to zero. A process restart recovers any `PROCESSING` job to `PENDING` because an uncommitted batch is rolled back; the single worker resumes after the last committed cursor. The worker must never re-evaluate audience rules or campaign status. An empty snapshot creates a `COMPLETED` job in the publication transaction.
+
+The retry action is available only for `FAILED` jobs. `PENDING`, `PROCESSING`, and `COMPLETED` jobs cannot be manually restarted. The MVP has no retry scheduler, lease, multi-worker coordination, or dead-letter queue.
 
 ### 6.6 Member Campaign Landing Page
 
 | ID | Requirement | Priority |
 |---|---|---|
-| FR-LP-01 | Each published campaign shall have a landing page rendered from a reusable template. | P0 |
-| FR-LP-02 | The landing page shall display campaign title, description, campaign period, and associated coupons. | P0 |
+| FR-LP-01 | Each published campaign shall have a landing page rendered from one reusable fixed template; the MVP has no page builder or custom layout system. | P0 |
+| FR-LP-02 | The landing page shall display fixed campaign content fields (`headline` and `body`), campaign name/description, campaign period, and associated coupons. | P0 |
 | FR-LP-03 | The landing page shall display whether each coupon is available, unavailable, or already claimed by the current member. | P0 |
 | FR-LP-04 | The landing page shall allow an eligible authenticated member to claim an available coupon. | P0 |
 | FR-LP-05 | The system shall record landing-page views. | P0 |
 | FR-LP-06 | The system shall display a clear success or failure result after a claim attempt. | P0 |
-| FR-LP-07 | If a member opens a claim-protected page while unauthenticated, the system shall direct the member to sign in and then return them to the intended campaign page. | P0 |
+| FR-LP-07 | Public campaign landing-page content shall be readable without authentication. If a visitor attempts to claim a coupon while unauthenticated, the system shall direct them to sign in and then return them to the intended campaign page. | P0 |
+| FR-LP-08 | A published campaign landing page remains publicly readable while the campaign is `PAUSED` or effectively `ENDED`; coupons are displayed as unavailable and new claims are blocked. | P0 |
+| FR-LP-09 | If an authenticated visitor is not in the campaign audience snapshot, the page shall show that the member is not eligible; it shall not imply that stock availability means claim eligibility. | P0 |
 
 ### 6.7 Engagement Event Tracking
 
@@ -327,13 +357,13 @@ The MVP does not support scheduled delivery. The implementation processes inbox 
 | FR-EVT-01 | The system shall report `DELIVERED` from successfully created `member_messages` inbox records; a duplicate `DELIVERED` row in `campaign_events` is not required. | P0 |
 | FR-EVT-02 | The system shall record `IMPRESSION` when the message is visibly rendered. | P0 |
 | FR-EVT-03 | The system shall record `CLICK` when a member clicks the message. | P0 |
-| FR-EVT-04 | The system shall record `LANDING_PAGE_VIEW` when a member opens the campaign landing page. | P0 |
-| FR-EVT-05 | The system shall record a claim attempt and its outcome, or provide equivalent auditable claim-result information. | P0 |
+| FR-EVT-04 | The system shall record `LANDING_PAGE_VIEW` when an authenticated member opens the campaign landing page; anonymous views are not attributed to a member. | P0 |
+| FR-EVT-05 | The server shall record each authenticated claim command for an existing campaign that passes basic request-shape validation as a `CLAIM_ATTEMPT` audit event with outcome `SUCCEEDED`, `FAILED`, or `REPLAYED`; failed events include a safe business failure code. | P0 |
 | FR-EVT-06 | The system shall associate events with campaign and member identifiers, and with the message or coupon where applicable. | P0 |
 | FR-EVT-07 | The system shall prevent duplicate event submissions from inflating event and unique-member metrics. | P0 |
 | FR-EVT-08 | The system shall distinguish total event counts from distinct-member counts. | P0 |
 
-Event ingestion must be idempotent. Client-submitted engagement events should include a client-generated event identifier or another deduplication key. A successful coupon claim is a business transaction and the `coupon_claims` record is the source of truth; analytics events must never be used as the authority for whether a coupon was claimed.
+Event ingestion must be idempotent. Client-submitted impression/click events are accepted only when the authenticated member has the corresponding `member_messages` inbox record for that campaign/message. Client-submitted engagement events should include a client-generated event identifier or another deduplication key. Landing-page views may be recorded for any authenticated visitor; target landing visitor metrics count only members in the campaign audience snapshot. A successful coupon claim is a business transaction and the `coupon_claims` record is the source of truth; analytics events must never be used as the authority for whether a coupon was claimed. Claim-attempt audit events are generated by the server, not accepted from the client. A successful new claim writes its `CLAIM_ATTEMPT` audit event in the same transaction as the claim. A failed business attempt is recorded after the claim transaction rolls back, in a separate short transaction, so the failure audit survives the rollback. An idempotent replay is recorded as `REPLAYED`. Audit metadata may contain only the outcome, safe error code, and coupon ID; never tokens, raw idempotency keys, or sensitive member attributes.
 
 ### 6.8 Analytics and Reporting
 
@@ -365,21 +395,23 @@ Because each campaign has exactly one message in the MVP, separate multi-message
 | Click Count | Total recorded message-click events |
 | Unique Clickers | Number of distinct members who clicked the campaign message |
 | Landing Page Views | Total recorded campaign landing-page view events |
-| Unique Landing Visitors | Number of distinct members who viewed the campaign landing page |
+| Unique Landing Visitors | Number of distinct members in the campaign audience snapshot with at least one authenticated landing-page view |
 | Coupon Claims | Total successful coupon claim records across campaign coupons |
 | Unique Claimers | Number of distinct members with at least one successful claim in the campaign |
+| Claim Attempt Count | Number of server-generated `CLAIM_ATTEMPT` audit events, including succeeded, failed, and replayed requests |
+| Failed Claim Attempt Count | Number of `CLAIM_ATTEMPT` audit events with `metadata.outcome = FAILED` |
 
-### 7.2 Suggested Conversion Rates
+### 7.2 MVP Rates and Attribution Limits
 
-The report should show the numerator and denominator alongside percentages:
+The report shows the numerator and denominator alongside each rate:
 
 - **Delivery Rate** = Delivered Members / Target Members
 - **Reach Rate** = Unique Reach / Target Members
-- **Click-to-Reach Rate** = Unique Clickers / Unique Reach
-- **Landing Rate** = Unique Landing Visitors / Unique Clickers
-- **Claim Rate** = Unique Claimers / Unique Landing Visitors
+- **Click Rate** = Unique Clickers / Delivered Members
+- **Target Landing Visitor Rate** = Unique Landing Visitors from the campaign audience snapshot / Target Members
+- **Target Claim Rate** = Unique Claimers / Target Members
 
-If a denominator is zero, the rate should be displayed as unavailable. These are member-based rates; total event counts may be displayed separately.
+A unique landing visitor for this rate must be a member in the campaign's immutable audience snapshot with at least one authenticated `LANDING_PAGE_VIEW`. Anonymous page views are not counted. Direct visits are included, so the landing visitor rate is descriptive and is not a click-attribution conversion. The MVP does not report `Unique Landing Visitors / Unique Clickers` as a conversion rate. Claim counts and claimers come only from `coupon_claims`; claim attempts are reported separately as audit counts. If a denominator is zero, the rate is `null`/unavailable, not `0%`. Total event counts may be displayed separately.
 
 ### 7.3 Coupon-Level Reporting
 
@@ -389,7 +421,7 @@ For each coupon, report:
 - Successful claim count.
 - Remaining quantity.
 - Unique claimers.
-- Claim rate, with its denominator clearly stated.
+- Coupon Target Claim Rate = unique claimers for that coupon / campaign target count; show the numerator and denominator. This is audience penetration, not a checkout conversion rate.
 
 Coupon claim count and unique claimers differ because a member may claim multiple different coupons in one campaign.
 
@@ -397,7 +429,7 @@ Coupon claim count and unique claimers differ because a member may claim multipl
 
 ## 8. Business Rules
 
-1. A campaign must have a valid start and end time. Campaign and coupon windows use start-inclusive/end-exclusive semantics: `starts_at <= now < ends_at`, interpreted as instants (stored in UTC; business display timezone is Asia/Taipei).
+1. A campaign must have a valid start and end time. Campaign and coupon windows use start-inclusive/end-exclusive semantics: `starts_at <= now < ends_at`, interpreted as instants (stored in UTC; business display timezone is Asia/Taipei). An administrator may publish only within the campaign window (`starts_at <= now < ends_at`); scheduled publication of a future campaign is not supported.
 2. A campaign must be published and within its active time window before a coupon can be claimed.
 3. A paused or ended campaign must not accept new claims.
 4. A member must be authenticated to access member-specific messages or claim a coupon.
@@ -414,8 +446,11 @@ Coupon claim count and unique claimers differ because a member may claim multipl
 15. Repeated impressions by the same member count as multiple impressions but one unique reach.
 16. Campaign-level unique metrics must count each member only once per metric.
 17. In-app message delivery begins immediately after successful campaign publication; inbox creation may finish asynchronously in batches. Scheduled delivery is not part of the MVP.
-18. Pausing a campaign prevents new coupon claims. Recommended MVP behavior is that a delivery job already initiated continues to completion; already-created inbox messages are not retracted. This behavior remains subject to owner confirmation in `OPEN_DESIGN_QUESTIONS.md`.
-19. Coupon redemption and order-related behavior are outside the MVP.
+18. Successful publication commits a delivery job in the same transaction as the audience snapshot. Pausing a campaign does not cancel that committed job, even if it is still `PENDING` and the worker has not picked it up; the worker continues until the job completes. Already-created inbox messages are not retracted. Pause does not cancel or rewind delivery.
+19. Claim and pause operations are serialized on the campaign row. A claim transaction obtains a shared row lock before checking campaign status and holds it through commit. The pause update obtains a conflicting row lock. A claim that acquired its lock first may complete before the pause commits; after the pause commits, new claims are rejected.
+20. Coupon redemption and order-related behavior are outside the MVP.
+21. A zero-member audience snapshot is valid for publication; the administrator receives a warning and the delivery job is `COMPLETED` with zero inbox rows.
+22. A published campaign landing page remains publicly readable while paused or ended; coupon claim actions are unavailable in those states. A member outside the snapshot may view the public page but is shown an explicit not-eligible state.
 
 ---
 
@@ -558,6 +593,15 @@ Domain rules should not depend directly on Spring MVC, JPA/Hibernate, PostgreSQL
 
 ---
 
+## 10.1 Additional v1.5 implementation rules
+
+- Audience field/operator compatibility is defined by the normative matrix in Section 4.2.
+- Delivery allows one initial attempt plus three automatic retries per cursor/batch, with 1s/2s/4s backoff; a fourth total failure marks the job `FAILED`. Manual retry is allowed only from `FAILED` and resumes from the last committed cursor.
+- Refresh-token records represent individual token generations; `token_family_id` identifies one browser login session.
+- `member_messages` and `campaign_events` must enforce campaign/message/coupon ownership with composite foreign keys.
+- `coupon_claims` remains the only source of truth for successful coupon ownership. Server-generated claim audit events record outcomes but never drive claim metrics.
+- A zero-member audience is publishable and completes delivery immediately. Published paused/ended landing pages remain publicly readable but do not allow new claims.
+
 ## 11. Suggested Conceptual Data Model
 
 This is a logical starting point, not a mandatory physical schema.
@@ -591,7 +635,7 @@ This is a logical starting point, not a mandatory physical schema.
 
 ## 12. Suggested API Capabilities
 
-Exact endpoint paths and payloads will be finalized during technical design.
+Exact endpoint paths and payloads are defined in `docs/api/API_SPECIFICATION.md` and `docs/api/openapi.yaml`; these files are the implementation contract and must remain synchronized.
 
 ### Admin APIs
 
@@ -622,7 +666,7 @@ Exact endpoint paths and payloads will be finalized during technical design.
 - Claim APIs must return clear results for success, already claimed, ineligible member, inactive campaign, expired coupon, and sold-out coupon.
 - Event APIs should accept an idempotency/deduplication identifier.
 - APIs should use consistent error response formats.
-- Refresh-token rotation or equivalent replay protection should be considered as part of the authentication implementation.
+- Refresh-token rotation, token-family reuse detection, and family revocation are required as defined in `docs/architecture/SECURITY_DESIGN.md`.
 
 ---
 
@@ -633,7 +677,7 @@ The MVP is functionally complete when the following end-to-end scenarios pass.
 ### Scenario 1: Campaign Creation
 
 **Given** an authenticated administrator  
-**When** the administrator creates a campaign with valid dates, an audience definition, at least one coupon, and one in-app message  
+**When** the administrator creates a campaign with valid dates, an audience definition, at least one coupon with positive quantity, and one in-app message  
 **Then** the campaign is saved as a draft and can be published.
 
 ### Scenario 2: Reusable Audience Segment
@@ -642,19 +686,34 @@ The MVP is functionally complete when the following end-to-end scenarios pass.
 **When** the administrator creates and saves a segment using supported member attributes and AND conditions  
 **Then** the segment can be previewed and selected for a campaign.
 
-### Scenario 3: Audience Snapshot at Publication
+### Scenario 3: Audience Rule Composition and NULL Semantics
+
+**Given** a campaign with both a saved segment and campaign-specific rules
+**When** the system previews or snapshots its audience
+**Then** only members matching the saved segment AND all campaign-specific conditions are included. A NULL-valued member attribute does not match a supported comparison/set condition.
+
+### Scenario 4: Campaign Publication Start-Time Guard
+
+**Given** a draft campaign whose `starts_at` is in the future
+**When** an administrator attempts to publish it
+**Then** publication is rejected with `CAMPAIGN_NOT_PUBLISHABLE` and no audience snapshot or delivery job is created.
+
+**When** the campaign start time has arrived
+**Then** the campaign may proceed through normal publication validation.
+
+### Scenario 5: Audience Snapshot at Publication
 
 **Given** a valid campaign with an audience definition  
 **When** the administrator publishes the campaign  
 **Then** the system resolves and persists the matching member IDs, and later changes to member attributes do not silently change that campaign's audience snapshot.
 
-### Scenario 4: Immediate Message Delivery
+### Scenario 6: Immediate Message Delivery
 
 **Given** a valid published campaign with a resolved audience snapshot  
 **When** the campaign is published  
 **Then** the system initiates immediate in-app message delivery to the snapshot members and creates no more than one inbox delivery per campaign/member.
 
-### Scenario 5: Message Impression and Click
+### Scenario 7: Message Impression and Click
 
 **Given** a member with an available campaign message  
 **When** the message is visibly rendered  
@@ -662,43 +721,58 @@ The MVP is functionally complete when the following end-to-end scenarios pass.
 **When** the member clicks the message  
 **Then** a click event is recorded and the member can navigate to the campaign landing page.
 
-### Scenario 6: Landing-Page View
+### Scenario 8: Public Landing-Page View
 
-**Given** an authenticated eligible member  
-**When** the member opens the campaign landing page  
-**Then** the page displays campaign details and available coupons, and a landing-page view is recorded.
+**Given** a published campaign
+**When** an anonymous visitor opens its landing page
+**Then** the fixed campaign content and public coupon summaries are displayed without exposing member-specific claim state.
 
-### Scenario 7: Successful Coupon Claim
+**When** an authenticated member opens the landing page
+**Then** the page may also display that member's claim state and records a member-attributed landing-page view. Anonymous views are not written to `campaign_events`, whose `member_id` is required.
+
+### Scenario 9: Authentication Required for Coupon Claim
+
+**Given** an anonymous visitor on a public campaign landing page
+**When** the visitor attempts to claim a coupon
+**Then** the application requires sign-in and returns the visitor to the same campaign page after successful login.
+
+### Scenario 10: Successful Coupon Claim
 
 **Given** an eligible member and a claimable coupon with remaining inventory  
 **When** the member claims the coupon  
 **Then** the system creates one successful claim record, updates remaining inventory by one, and returns a success response.
 
-### Scenario 8: Duplicate Claim Prevention
+### Scenario 11: Duplicate Claim Prevention
 
-**Given** a member who has already successfully claimed a specific campaign coupon  
-**When** the member attempts to claim the same campaign coupon again  
+**Given** a member who has already successfully claimed a specific campaign coupon and the campaign is otherwise claimable  
+**When** the member attempts to claim the same campaign coupon again with a different idempotency key  
 **Then** the system rejects the duplicate attempt and does not consume additional inventory.
 
-### Scenario 9: Concurrent Inventory Protection
+### Scenario 12: Concurrent Inventory Protection
 
 **Given** a coupon with a limited remaining quantity  
 **When** more unique members submit concurrent claim requests than the remaining quantity  
 **Then** successful claims never exceed the configured quantity, inventory never becomes negative, and the inventory count agrees with successful claim records.
 
-### Scenario 10: Audience Eligibility
+### Scenario 13: Audience Eligibility
 
 **Given** a member who is not in the campaign's audience snapshot  
 **When** the member attempts to claim a campaign coupon  
 **Then** the system rejects the request and creates no successful claim record.
 
-### Scenario 11: Campaign Analytics
+### Scenario 14: Campaign Analytics
 
 **Given** a campaign with delivery, impression, click, landing-page, and claim activity  
 **When** an administrator views campaign analytics  
 **Then** the report displays total events and distinct-member metrics separately.
 
-### Scenario 12: Authentication and Authorization
+### Scenario 15: Pause During Message Delivery
+
+**Given** an active campaign whose asynchronous message delivery job has already started
+**When** an administrator pauses the campaign
+**Then** the committed delivery job continues to completion even if its status is still `PENDING` when Pause commits; existing inbox messages remain. Claims already holding the campaign shared lock may complete before Pause commits, while claims beginning after Pause commits are rejected.
+
+### Scenario 16: Authentication and Authorization
 
 **Given** an authenticated member  
 **When** the member attempts to access an administrator-only endpoint or another member's private data  
@@ -706,12 +780,45 @@ The MVP is functionally complete when the following end-to-end scenarios pass.
 
 ---
 
+### Scenario 17: Zero-member audience publication
+
+**Given** a valid draft campaign with one message, at least one positive-quantity coupon, and a valid audience definition that currently matches zero members
+**When** the administrator publishes the campaign within its campaign window
+**Then** publication succeeds with audience count zero, the snapshot contains no rows, the delivery job is immediately `COMPLETED`, and no member inbox rows are created
+
+### Scenario 18: Delivery retry and manual recovery
+
+**Given** a delivery batch fails
+**When** the initial attempt and all three automatic retries fail (four total attempts)
+**Then** the job becomes `FAILED`, its cursor remains at the last committed member, and automatic retries stop; an administrator may retry it, resetting the retry count and resuming from that cursor without duplicate inbox rows
+
+### Scenario 19: Paused or ended landing page
+
+**Given** a published campaign is paused or has reached its end time
+**When** an anonymous visitor or member opens its landing page
+**Then** public content remains readable, coupon claim actions are unavailable, and an authenticated member outside the audience snapshot is explicitly shown as not eligible
+
+### Scenario 20: Refresh token reuse detection
+
+**Given** a refresh token has been successfully rotated
+**When** the old token is presented again
+**Then** the request is rejected and all active refresh tokens in that token family are revoked
+
+
+---
+
+### Scenario 21: Claim attempt audit
+
+**Given** an authenticated member submits a claim command for an existing campaign
+**When** the claim succeeds, fails a business validation, or replays an existing successful idempotent claim
+**Then** the server records one `CLAIM_ATTEMPT` audit event with outcome `SUCCEEDED`, `FAILED`, or `REPLAYED`; failed audit survives rollback, and only `coupon_claims` determines successful claim counts.
+
 ## 14. MVP Release Boundary
 
 The MVP is complete when this end-to-end journey works:
 
 1. An administrator signs in and creates a campaign.
-2. The administrator defines or selects a reusable rule-based audience segment.
+2. The administrator defines or selects a reusable rule-based audience segment and may add campaign-specific conditions; when both are present, both must match (AND).
 3. The administrator configures multiple coupons and exactly one in-app message.
 4. The system snapshots the audience at publication and immediately initiates message delivery.
 5. A member signs in, views the message, and clicks it.
@@ -735,20 +842,20 @@ The product does not need to support coupon redemption or order processing to be
 | Authentication | Spring Security with JWT Access Token and Refresh Token |
 | Delivery channel | In-app message center only |
 | Number of messages | Exactly one in-app message per campaign |
-| Message timing | Delivery job starts on successful publication; inbox rows are created asynchronously in batches; scheduling is a future enhancement |
+| Message timing | Publication commits a delivery job; the worker processes it asynchronously in batches. Pause does not cancel the committed job, including while it is still pending; scheduling is a future enhancement |
 | Number of coupons | Multiple coupons per campaign |
 | Claim limit | One successful claim per member per campaign coupon |
-| Audience definition | Rule-based targeting with reusable saved segments and campaign-specific rules |
+| Audience definition | At least one of saved segment or campaign-specific rules is required; if both are supplied, combine with AND |
 | Audience operators | Comparison and set operators; multiple conditions combined with AND |
 | Audience evaluation | Snapshot of matching members at campaign publication |
 | Sample data | Seeded members with age, gender, registration date, tier, order count, spending, last order date, and last login date |
-| Landing page | One reusable dynamic page template per campaign |
+| Landing page | One reusable fixed template per campaign with `headline` and `body`; no page builder or custom layouts |
 | Coupon redemption | Out of scope |
 | Analytics | Delivery, impression, click, landing-page view, claim attempt/result, and successful claim metrics |
 | Attribution | No multi-message attribution model required because each campaign has one message |
 | External integrations | Out of scope for MVP; channel abstraction should permit future extensions |
 | Cross-device attribution | Not a required MVP capability |
-| Time zone | Campaign schedules use a clearly defined business time zone; default to Asia/Taipei for this project unless changed during review |
+| Time zone | Campaign schedules use `Asia/Taipei` as the business time zone; instants are stored in UTC |
 
 ---
 
@@ -756,19 +863,9 @@ The product does not need to support coupon redemption or order processing to be
 
 Implementation should prioritize a working, demonstrable end-to-end product while preserving the agreed MVP requirements.
 
-Recommended sequence:
+The authoritative implementation sequence, phase dependencies, deliverables, and exit criteria are defined in `docs/development/IMPLEMENTATION_PLAN.md`. That plan is normative; this PRD does not define a competing phase order.
 
-1. Establish repository structure, Docker-based local environment, and React/TypeScript frontend shell.
-2. Implement seeded administrator/member accounts and Spring Security JWT access/refresh authentication.
-3. Implement member attributes, audience rule evaluation, reusable segments, audience preview, and publication snapshots.
-4. Implement campaign lifecycle and campaign publication.
-5. Implement coupon configuration and a concurrency-safe claim transaction.
-6. Implement the single in-app message per campaign, immediate batch/asynchronous delivery, and member inbox.
-7. Implement the member campaign landing page and engagement event tracking.
-8. Implement campaign and coupon analytics.
-9. Add integration/concurrency tests, seed data, Docker Compose, and README instructions.
-
-The implementation should demonstrate sound boundaries and data correctness without introducing microservices, external messaging providers, scheduled delivery, or infrastructure that is not necessary for the agreed MVP.
+The implementation should demonstrate sound boundaries and data correctness without introducing microservices, external messaging providers, scheduled delivery, Redis, Kafka, or infrastructure that is not necessary for the agreed MVP.
 
 ---
 
@@ -776,5 +873,4 @@ The implementation should demonstrate sound boundaries and data correctness with
 
 This document is **Draft** and remains under review. It is not yet the final implementation baseline.
 
-The PRD will be marked **Ready for Development** only after the product scope, user journeys, business rules, and acceptance criteria have been reviewed and agreed. Detailed implementation choices may then be captured in a separate Technical Design Document (TDD) and implementation plan.
-
+The PRD will be marked **Ready for Development** only after the product scope, user journeys, business rules, acceptance criteria, and synchronized technical contracts have been reviewed and approved. The v1.5.0 PRD, API/OpenAPI, Database/ERD, Architecture/Module Design, Security Design, Testing Strategy, ADRs, and Implementation Plan together form the Development Baseline; no separate TDD is required to start the MVP unless a later requirement introduces a genuinely unresolved design area.

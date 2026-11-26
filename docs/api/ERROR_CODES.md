@@ -9,8 +9,9 @@
 | `FORBIDDEN` | 403 | Role or resource permission denied | Show access-denied state |
 | `CSRF_INVALID` | 403 | Missing/invalid CSRF token | Refresh CSRF token and retry once where safe |
 | `RESOURCE_NOT_FOUND` | 404 | Resource does not exist or is not visible | Show not-found state |
-| `CAMPAIGN_NOT_PUBLISHABLE` | 409 | Campaign is not a valid draft or required setup is missing | Show setup validation summary |
+| `CAMPAIGN_NOT_PUBLISHABLE` | 409 | Campaign is not a valid draft, required setup is missing, or the campaign is outside its publishable time window | Show setup validation summary |
 | `CAMPAIGN_INACTIVE` | 409 | Campaign is paused, ended, or outside active window | Disable claim action and explain |
+| `DELIVERY_JOB_NOT_RETRYABLE` | 409 | Delivery job is not in `FAILED` state | Show current job status; retry is available only after failure |
 | `MEMBER_NOT_ELIGIBLE` | 409 | Member is not in the publication audience snapshot | Show unavailable message without disclosing audience rules |
 | `COUPON_OUTSIDE_VALIDITY` | 409 | Coupon is outside its configured validity window | Disable claim action |
 | `COUPON_SOLD_OUT` | 409 | No remaining coupon inventory | Show sold-out state |

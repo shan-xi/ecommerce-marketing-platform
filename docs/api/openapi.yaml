@@ -1,10 +1,11 @@
 openapi: 3.1.0
 info:
   title: E-commerce Marketing Platform API
-  version: 1.0.0-draft
+  version: 1.5.0-draft
   description: >-
-    Draft API contract for the MVP. Browser authentication uses HttpOnly cookies;
-    state-changing requests require the configured CSRF header.
+    Draft API contract for the MVP. Persisted campaign states are DRAFT, ACTIVE, and PAUSED;
+    ENDED is derived for a published campaign when endsAt has passed. Browser authentication
+    uses HttpOnly cookies; state-changing requests require the configured CSRF header.
 servers:
   - url: /api/v1
 security: []
@@ -44,7 +45,9 @@ paths:
         '400': { $ref: '#/components/responses/BadRequest' }
   /auth/refresh:
     post:
-      summary: Rotate refresh token and issue new access token
+      summary: Atomically consume the current refresh token generation and issue the next token in the same family
+      description: Each token generation is a separate server-side row in one tokenFamilyId. A consumed token cannot be used again. Reuse of a consumed/revoked token is rejected and revokes the whole token family.
+      security: [{ refreshCookie: [] }]
       parameters:
         - $ref: '#/components/parameters/CsrfHeader'
       responses:
@@ -52,7 +55,9 @@ paths:
         '401': { $ref: '#/components/responses/Unauthorized' }
   /auth/logout:
     post:
-      summary: Revoke refresh session and clear auth cookies
+      summary: Revoke the refresh-token family when the cookie is present and clear auth cookies
+      description: The refresh cookie is optional for logout. If it identifies a token family, all active rows in that family are revoked. If absent or expired, the server still clears both cookies and returns 204. Logout remains possible when the access token is expired.
+      security: []
       parameters:
         - $ref: '#/components/parameters/CsrfHeader'
       responses:
@@ -75,7 +80,7 @@ paths:
       parameters:
         - { name: page, in: query, schema: { type: integer, minimum: 0, default: 0 } }
         - { name: size, in: query, schema: { type: integer, minimum: 1, maximum: 100, default: 20 } }
-        - { name: status, in: query, schema: { type: string, enum: [DRAFT, ACTIVE, PAUSED, ENDED] } }
+        - { name: status, in: query, description: ENDED is an effective read-model status when publishedAt is set and endsAt has passed, whether its persisted state was ACTIVE or PAUSED; a draft remains DRAFT., schema: { type: string, enum: [DRAFT, ACTIVE, PAUSED, ENDED] } }
       responses:
         '200':
           description: Campaign page.
@@ -133,25 +138,36 @@ paths:
     parameters:
       - $ref: '#/components/parameters/CampaignId'
     post:
-      summary: Publish campaign, snapshot audience, and initiate immediate delivery
+      summary: Publish within the campaign window after validating one message, at least one positive-inventory coupon, and the audience snapshot
       security: [{ accessCookie: [] }]
       parameters: [{ $ref: '#/components/parameters/CsrfHeader' }]
       responses:
         '202':
-          description: Publication committed; delivery proceeds asynchronously.
+          description: Publication committed; delivery proceeds asynchronously. A zero-member audience is valid, returns deliveryStatus COMPLETED with no inbox rows, and includes warningCode NO_AUDIENCE_MEMBERS.
           content:
             application/json:
               schema: { $ref: '#/components/schemas/PublishEnvelope' }
-        '409': { $ref: '#/components/responses/Conflict' }
+        '409': { $ref: '#/components/responses/Conflict' } # Includes CAMPAIGN_NOT_PUBLISHABLE for invalid setup or outside the campaign window.
   /admin/campaigns/{campaignId}/pause:
     parameters:
       - $ref: '#/components/parameters/CampaignId'
     post:
-      summary: Pause active campaign
+      summary: Pause active campaign; committed delivery job continues even while pending, and new claims are blocked after pause commits
       security: [{ accessCookie: [] }]
       parameters: [{ $ref: '#/components/parameters/CsrfHeader' }]
       responses:
-        '200': { description: Campaign paused. }
+        '200': { description: Campaign paused; the delivery job committed during publication continues even if still PENDING, and existing inbox messages are not retracted. Claims already holding the campaign shared lock may complete before this response; later claims are rejected. }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /admin/campaigns/{campaignId}/delivery/retry:
+    parameters:
+      - $ref: '#/components/parameters/CampaignId'
+    post:
+      summary: Retry a FAILED delivery job from its last committed cursor
+      description: Requires ADMIN. Only FAILED jobs may be retried. Sets status to PENDING, resets attemptCount to zero, clears lastError, and preserves cursorMemberId. Other states return 409 DELIVERY_JOB_NOT_RETRYABLE.
+      security: [{ accessCookie: [] }]
+      parameters: [{ $ref: '#/components/parameters/CsrfHeader' }]
+      responses:
+        '202': { description: Delivery retry accepted for an ADMIN. Only FAILED is retryable; other states return 409 DELIVERY_JOB_NOT_RETRYABLE. }
         '409': { $ref: '#/components/responses/Conflict' }
   /admin/audience-segments:
     get:
@@ -177,6 +193,7 @@ paths:
   /admin/audience-segments/preview:
     post:
       summary: Preview audience rules
+      description: Age conditions use the current Asia/Taipei date at preview time; campaign publication evaluates age on the actual publication date. Preview is an estimate.
       security: [{ accessCookie: [] }]
       parameters: [{ $ref: '#/components/parameters/CsrfHeader' }]
       requestBody:
@@ -216,6 +233,7 @@ paths:
       - $ref: '#/components/parameters/CampaignId'
     post:
       summary: Preview effective audience for a campaign
+      description: Age conditions use the current Asia/Taipei date at preview time; the publication snapshot uses the actual publication date and is authoritative.
       security: [{ accessCookie: [] }]
       parameters: [{ $ref: '#/components/parameters/CsrfHeader' }]
       responses:
@@ -294,9 +312,14 @@ paths:
       - $ref: '#/components/parameters/CampaignId'
     get:
       summary: Get asynchronous delivery progress and failures
+      description: Requires ADMIN.
       security: [{ accessCookie: [] }]
       responses:
-        '200': { description: Delivery job status and progress. }
+        '200':
+          description: Delivery status, totalCount, processedCount, cursorMemberId, attemptCount (automatic retries consumed, 0-3), sanitized lastError, and retryable. Batch size is 100; initial attempt plus three automatic retries use 1s/2s/4s backoff; a fourth total failure marks FAILED; successful batch resets attemptCount.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DeliveryStatusEnvelope' }
   /member/profile:
     get:
       summary: Get current member profile
@@ -338,7 +361,8 @@ paths:
     parameters:
       - $ref: '#/components/parameters/CampaignId'
     get:
-      summary: Get public campaign landing-page content and authenticated member state if available
+      summary: Get published campaign's public fixed-template landing content; include member state only when authenticated
+      description: Published landing pages remain readable when PAUSED or effectively ENDED. New coupon claims are disabled in those states. Authenticated members outside the audience snapshot receive notEligible; anonymous responses contain no member-specific state.
       security:
         - accessCookie: []
         - {}
@@ -349,7 +373,8 @@ paths:
     parameters:
       - $ref: '#/components/parameters/CampaignId'
     get:
-      summary: List campaign coupons and authenticated member claim state when available (createdAt ascending)
+      summary: List public coupon summaries and authenticated member claim state when available (createdAt ascending)
+      description: Coupon summaries remain public when campaign is PAUSED or effectively ENDED; coupons are marked unavailable for new claims. Authenticated non-eligible members receive notEligible; anonymous responses omit member-specific state.
       security:
         - accessCookie: []
         - {}
@@ -367,7 +392,8 @@ paths:
         required: true
         schema: { type: string, format: uuid }
     post:
-      summary: Claim a campaign coupon
+      summary: Claim a campaign coupon; requires an authenticated MEMBER
+      description: Requires an authenticated MEMBER. Anonymous callers receive 401; the frontend must route them to sign-in and return them to this campaign afterward. A successful retry with the same member, idempotency key, campaign, and coupon returns the original claim even if the campaign is now paused or ended; replay is checked before new-claim eligibility.
       security: [{ accessCookie: [] }]
       parameters: [{ $ref: '#/components/parameters/CsrfHeader' }]
       requestBody:
@@ -392,7 +418,8 @@ paths:
     parameters:
       - $ref: '#/components/parameters/CampaignId'
     post:
-      summary: Record member impression, click, or landing-page view
+      summary: Record authenticated member impression, click, or landing-page view
+      description: Requires an authenticated MEMBER. Anonymous public landing-page views are not submitted and do not create member-attributed events. Claim-attempt audit events are generated server-side by the claim use case and cannot be submitted through this endpoint.
       security: [{ accessCookie: [] }]
       parameters: [{ $ref: '#/components/parameters/CsrfHeader' }]
       requestBody:
@@ -407,7 +434,8 @@ paths:
     parameters:
       - $ref: '#/components/parameters/CampaignId'
     get:
-      summary: Get campaign funnel analytics
+      summary: Get campaign metrics
+      description: Delivered from member_messages; engagement totals from campaign_events; unique landing visitors are audience-snapshot members with authenticated page views; successful claims/claimers from coupon_claims; claim attempts are separate audit counts. Rates are delivery/target, reach/target, click/delivered, target landing visitors/target, and target claimers/target. No click-to-landing attribution rate is reported.
       security: [{ accessCookie: [] }]
       responses:
         '200': { description: Campaign metrics with totals and distinct-member counts. }
@@ -425,6 +453,10 @@ components:
       type: apiKey
       in: cookie
       name: access_token
+    refreshCookie:
+      type: apiKey
+      in: cookie
+      name: refresh_token
   parameters:
     Page:
       name: page
@@ -455,7 +487,7 @@ components:
             role: { type: string, enum: [ADMIN, MEMBER] }
     CampaignWrite:
       type: object
-      required: [name, startsAt, endsAt, landingPage]
+      required: [name, startsAt, endsAt, landingPage, audience]
       properties:
         name: { type: string, maxLength: 160 }
         description: { type: [string, 'null'] }
@@ -469,8 +501,12 @@ components:
             body: { type: string, maxLength: 10000 }
         audience:
           type: object
+          description: Provide segmentId, rules, or both. When both are present, they are combined with AND. NULL-valued member attributes never match supported comparisons; explicit NULL checks are not supported.
+          anyOf:
+            - required: [segmentId]
+            - required: [rules]
           properties:
-            segmentId: { type: [string, 'null'], format: uuid }
+            segmentId: { type: string, format: uuid }
             rules: { $ref: '#/components/schemas/AudienceRules' }
     AudienceSegmentWrite:
       type: object
@@ -481,6 +517,8 @@ components:
         rules: { $ref: '#/components/schemas/AudienceRules' }
     AudienceRules:
       type: object
+      description: >-
+        Canonical field/operator matrix: age INTEGER 0..120 supports all comparison and set operators; gender ENUM (FEMALE, MALE, OTHER, UNDISCLOSED) and membershipTier ENUM (STANDARD, SILVER, GOLD, PLATINUM) support only =, !=, IN, NOT IN; registeredAt DATETIME, orderCount INTEGER >= 0, totalSpending DECIMAL >= 0 with at most 2 decimal places, lastOrderAt nullable DATETIME, and lastLoginAt nullable DATETIME support all comparison and set operators. Comparison operators take one non-null scalar; IN/NOT IN take a non-empty array of non-null exact-type values. Enum values are case-sensitive. Ordered comparisons are invalid for enums. NULL member attributes never match any operator, including != and NOT IN. The backend validator enforces the matrix before constructing SQL.
       required: [version, match, conditions]
       properties:
         version: { type: integer, const: 1 }
@@ -498,7 +536,15 @@ components:
               operator:
                 type: string
                 enum: ['=', '!=', '>', '>=', '<', '<=', IN, 'NOT IN']
-              value: {}
+              value:
+                oneOf:
+                  - type: string
+                  - type: number
+                  - type: array
+                    minItems: 1
+                    items:
+                      type: [string, number]
+                description: Comparison operators require one non-null scalar; IN and NOT IN require a non-empty array of non-null scalars. Values must match the selected field type; NULL values and NULL array items are invalid.
     CouponWrite:
       type: object
       required: [name, discountType, discountValue, totalQuantity, startsAt, endsAt]
@@ -508,9 +554,17 @@ components:
         discountType: { type: string, enum: [FIXED_AMOUNT, PERCENTAGE] }
         discountValue: { type: number, exclusiveMinimum: 0, description: For FIXED_AMOUNT, a TWD amount. For PERCENTAGE, percentage points (for example 10 means 10 percent off; maximum 100). }
         minimumOrderAmount: { type: [number, 'null'], minimum: 0 }
-        totalQuantity: { type: integer, minimum: 0 }
+        totalQuantity: { type: integer, minimum: 1, description: At least one configured coupon with positive inventory is required before campaign publication. }
         startsAt: { type: string, format: date-time }
         endsAt: { type: string, format: date-time }
+      allOf:
+        - if:
+            properties:
+              discountType: { const: PERCENTAGE }
+            required: [discountType]
+          then:
+            properties:
+              discountValue: { maximum: 100 }
     CampaignEnvelope:
       type: object
       properties:
@@ -519,7 +573,7 @@ components:
           properties:
             id: { type: string, format: uuid }
             name: { type: string }
-            status: { type: string, enum: [DRAFT, ACTIVE, PAUSED, ENDED] }
+            status: { type: string, enum: [DRAFT, ACTIVE, PAUSED, ENDED], description: ENDED is derived when publishedAt is set and endsAt has passed, whether persisted state was ACTIVE or PAUSED; it is not persisted. A draft with a past endsAt remains DRAFT. }
             startsAt: { type: string, format: date-time }
             endsAt: { type: string, format: date-time }
     CampaignPageEnvelope:
@@ -543,6 +597,21 @@ components:
             status: { type: string, const: ACTIVE }
             audienceCount: { type: integer }
             deliveryStatus: { type: string, enum: [PENDING, PROCESSING, COMPLETED, FAILED] }
+            warningCode: { type: [string, 'null'], enum: [NO_AUDIENCE_MEMBERS, null], description: Present when audienceCount is zero. }
+    DeliveryStatusEnvelope:
+      type: object
+      properties:
+        data:
+          type: object
+          required: [status, totalCount, processedCount, attemptCount, retryable]
+          properties:
+            status: { type: string, enum: [PENDING, PROCESSING, COMPLETED, FAILED] }
+            totalCount: { type: integer, minimum: 0 }
+            processedCount: { type: integer, minimum: 0 }
+            cursorMemberId: { type: [string, 'null'], format: uuid }
+            attemptCount: { type: integer, minimum: 0, maximum: 3, description: Automatic retries consumed at the current cursor. }
+            lastError: { type: [string, 'null'] }
+            retryable: { type: boolean, description: True only when status is FAILED. }
     ClaimEnvelope:
       type: object
       properties:
@@ -562,6 +631,22 @@ components:
         eventType: { type: string, enum: [IMPRESSION, CLICK, LANDING_PAGE_VIEW] }
         messageId: { type: [string, 'null'], format: uuid }
         occurredAt: { type: string, format: date-time }
+      allOf:
+        - if:
+            properties:
+              eventType: { enum: [IMPRESSION, CLICK] }
+            required: [eventType]
+          then:
+            required: [messageId]
+            properties:
+              messageId: { type: string, format: uuid }
+        - if:
+            properties:
+              eventType: { const: LANDING_PAGE_VIEW }
+            required: [eventType]
+          then:
+            properties:
+              messageId: { type: 'null' }
     Error:
       type: object
       properties:

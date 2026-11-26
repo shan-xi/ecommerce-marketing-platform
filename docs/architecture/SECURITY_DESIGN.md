@@ -1,6 +1,6 @@
 # Security Design
 
-**Status:** Proposed — requires owner review
+**Status:** Reviewed — pending owner approval
 
 ## 1. Security objectives
 
@@ -17,20 +17,23 @@ Use Spring Security with:
 - Short-lived JWT access token.
 - Refresh token with rotation and server-side revocation state.
 - Access and refresh tokens transported using `HttpOnly` cookies; never store tokens in `localStorage` or `sessionStorage`.
-- `Secure` cookie flag in HTTPS environments.
-- Explicit `SameSite` policy selected for the deployment topology. Prefer `Lax` when compatible with the routing flow; use `None; Secure` only when cross-site cookie behavior is required and documented.
-- Narrow cookie `Path` values where practical; refresh cookie should be sent only to the refresh/logout endpoints if implementation supports it.
+- `HttpOnly=true` for both access and refresh cookies; JavaScript must never read either token.
+- `SameSite=Lax` is the MVP default. Use `SameSite=None; Secure` only if a genuinely cross-site deployment requires it and the CORS/CSRF configuration is explicitly reviewed.
+- `Secure=true` in HTTPS environments; only the local development profile may disable it for plain HTTP localhost.
+- Host-only cookies by default (omit `Domain`). Access cookie path is `/api/v1`; refresh cookie path is `/api/v1/auth`, covering both `/refresh` and `/logout`.
+- Logout must remain possible when the access token is expired; the refresh cookie is optional for cookie clearing and used for family revocation when present.
 
 The API specification assumes cookie transport. It does not require the browser to manually attach an `Authorization: Bearer` header.
 
 ## 3. Token lifecycle
 
 1. Login validates credentials and issues an access token and refresh token.
-2. Backend stores only a cryptographic hash of the refresh token (or a hash of its unique token identifier) with user ID, expiry, creation time, rotation/revocation metadata.
+2. Backend stores only a SHA-256 hash of the complete serialized refresh JWT with user ID, token family ID, expiry, creation time, and rotation/revocation metadata; never store the raw refresh JWT.
 3. Refresh endpoint validates the refresh token, revokes/consumes the presented token, issues a new access token and refresh token, and stores the new refresh-token hash.
-4. Reuse of a rotated/revoked refresh token is rejected; consider revoking the full token family/session on detected reuse.
-5. Logout revokes the current refresh session and clears cookies.
-6. Access token expiry is short; refresh token expiry is longer and configurable. Exact durations are configuration decisions and must be documented in deployment config, not hard-coded.
+4. Every refresh-token row represents one token generation. A stable `token_family_id` groups all generations created by one login session. Refresh atomically consumes the presented row (`consumed_at IS NULL`, `revoked_at IS NULL`, and not expired), inserts the next token row with the same family/user, and links it using `replaced_by_token_id` in one database transaction. A concurrent refresh can consume the row only once. The frontend API client must use a single-flight refresh operation so parallel expired-access requests share one refresh request rather than racing the same refresh cookie.
+5. Reuse of a consumed or revoked token is rejected and revokes all still-active rows in that token family. An unknown token is rejected without disclosing whether a user/session exists.
+6. Logout revokes all active tokens in the presented token family and clears access/refresh cookies. It relies on the refresh cookie, not a valid access token, so logout remains possible after access-token expiry.
+7. MVP configuration defaults are access token TTL `15 minutes` and refresh token TTL `7 days`. Both are environment-configurable (`ACCESS_TOKEN_TTL`, `REFRESH_TOKEN_TTL`) and must be documented in deployment configuration; do not hard-code them in business logic.
 
 JWT claims should be minimal: subject/user ID, role(s), issued-at, expiry, token ID, and issuer/audience as appropriate. Do not place member profile, coupon, or sensitive audience attributes in tokens.
 
@@ -40,8 +43,9 @@ Because cookies are automatically attached by browsers, CSRF protection is manda
 
 - Enable Spring Security CSRF protection for cookie-authenticated browser routes.
 - Use a documented token pattern, such as a CSRF cookie readable by the frontend and a matching custom request header (for example `X-CSRF-TOKEN`). The CSRF cookie itself must not be treated as an authentication credential.
-- Require CSRF token for POST, PUT, PATCH, and DELETE, including login/refresh/logout as appropriate to the chosen Spring Security configuration.
+- Require the CSRF token for all state-changing browser endpoints, including login, refresh, logout, and all POST/PUT/PATCH/DELETE operations. The API contract requires `X-CSRF-TOKEN` for these requests.
 - Validate `Origin`/`Referer` as defense in depth where feasible.
+- Allow only the configured frontend origin(s) with credentials; never combine credentialed CORS with wildcard `Access-Control-Allow-Origin`.
 - Configure CORS narrowly; do not use wildcard origins with credentialed requests.
 
 ## 5. Authorization matrix
@@ -55,9 +59,9 @@ Because cookies are automatically attached by browsers, CSRF protection is manda
 | View own inbox | No | Yes | No |
 | Claim coupon | No | Yes | No |
 | View own claims | No | Yes | No |
-| View public campaign landing-page content | Configurable/public read | Yes | Yes, if campaign is public |
+| View public campaign landing-page content and non-personal coupon summaries | Yes | Yes | Yes |
 
-Public campaign content must not expose member-specific claim status or audience information. Coupon claiming always requires an authenticated member.
+Public campaign content must not expose member-specific claim status or audience information. Public coupon summaries may show general availability but not a visitor's claim state. Coupon claiming always requires an authenticated member; an anonymous visitor is redirected to sign in and then returned to the intended campaign page.
 
 ## 6. Identity and tenant isolation
 
@@ -91,6 +95,7 @@ Public campaign content must not expose member-specific claim status or audience
 - Forged client-supplied member IDs are ignored/rejected.
 - Missing/invalid CSRF token rejects state-changing cookie-authenticated requests.
 - Expired access token is rejected; valid refresh token renews session.
-- Rotated/revoked/expired refresh token cannot be reused.
-- Logout invalidates refresh session and clears cookies.
+- Exactly one of two concurrent refresh attempts can consume a token generation.
+- Reuse of a consumed/revoked token revokes the entire token family; subsequent family tokens fail.
+- Logout revokes the presented token family and clears cookies even when the access token is expired.
 - Sensitive values do not appear in logs.

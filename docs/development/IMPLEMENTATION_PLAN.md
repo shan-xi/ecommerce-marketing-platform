@@ -15,17 +15,17 @@
 
 | Phase | Scope | Main deliverables | Exit criteria |
 |---|---|---|---|
-| 0. Design baseline | Review PRD and technical docs | Approved PRD, approved architecture/API/DB/security, ADR decisions | Owner explicitly changes status to Ready for Development; no blocking open questions |
-| 1. Repository foundation | Backend/frontend scaffolding and local environment | Spring Boot skeleton, React+TS skeleton, build scripts, local PostgreSQL configuration, README | Both apps build; health endpoint works; frontend can call backend; no business features yet |
-| 2. Database foundation | Initial schema and seed strategy | Flyway migrations, fictional admin/member seed data, repository integration setup | Migrations apply cleanly to empty DB; constraints verified; seed data deterministic |
-| 3. Identity and security | Login, JWT cookies, refresh rotation, logout, roles, CSRF | Auth endpoints, Spring Security config, frontend auth flow | Security tests pass; member/admin isolation verified; tokens not stored in browser storage |
-| 4. Member and audience | Member profile, rule validation/evaluation, reusable segments, preview, snapshots | Audience use cases and APIs, admin audience UI | Rule tests pass; snapshot is complete and immutable; supported fields/operators enforced |
-| 5. Campaign management | Draft create/edit/list/detail, lifecycle, landing content | Campaign module/API, admin campaign screens | Campaign validation and lifecycle tests pass |
-| 6. Coupon configuration and claim | Coupon CRUD/configuration, inventory reservation, claim list | Claim transaction, idempotency, member coupon UI | Duplicate and oversubscription tests pass; inventory equals successful claims |
-| 7. Message and delivery | One message per campaign, publication delivery job, worker, inbox | Message APIs, DB-backed batch delivery, inbox UI | Publish initiates delivery; retries create no duplicate inbox rows; delivery progress observable |
-| 8. Landing page and engagement | Campaign landing page, impression/click/page-view event ingestion | Member landing route, event API, deduplication | Event dedup and landing-page flows pass; eligibility and claim state correct |
-| 9. Analytics | Campaign funnel and coupon reports | Admin analytics APIs and screens | Counts and distinct-member metrics match source records; zero denominators handled |
-| 10. Hardening and delivery | E2E, concurrency, security, docs, containerized demo | Full test suite, deployment/local run instructions, final README | All PRD acceptance criteria pass; clean setup reproducible; known limitations documented |
+| 0. Design baseline | Review and approve the v1.5.0 Design Pack | Approved PRD, architecture, API/OpenAPI, database/ERD, security, ADRs, and phase plan | Owner explicitly changes PRD to `Ready for Development`; no blocking open questions; Phase 1 authorized |
+| 1. Repository foundation | Backend/frontend scaffolding and local environment | Spring Boot skeleton, React+TS skeleton, build scripts, local PostgreSQL, README | Both apps build; health endpoint works; frontend can call backend; no business features |
+| 2. Database foundation | Initial schema and seed strategy | Flyway migrations for all v1.5 tables/constraints, fictional admin/member seed data, repository integration | Migrations apply cleanly; composite FKs and checks verified; deterministic seed data |
+| 3. Identity and security | Login, JWT cookies, refresh rotation, logout, roles, CSRF | Auth endpoints, token-family persistence, CSRF config, frontend auth flow | Rotation/reuse/concurrency/logout tests pass; member/admin isolation verified |
+| 4. Member and audience | Member profile, audience rule validation/evaluation, reusable segments, preview | Audience use cases and APIs, admin audience UI, canonical field/operator validator | Full matrix tests pass; AND/NULL behavior correct; preview count/sample correct. Snapshot persistence is integrated later with Publish in Phase 7. |
+| 5. Campaign draft management | Draft create/edit/list/detail and lifecycle validation | Campaign CRUD APIs and admin screens; fixed landing-page content fields | Draft validation and date-window rules pass; no publish endpoint/worker yet |
+| 6. Coupon configuration and claim backend | Coupon CRUD/configuration, inventory reservation, claim transaction, claim list | Coupon APIs, atomic claim service, idempotency, server-side claim audit | Duplicate and oversubscription tests pass; inventory equals successful claims; claim API contract stable |
+| 7. Message, publication orchestration, and delivery | Single message configuration, publish, immutable snapshot, delivery job/worker/retry | Message APIs, publish orchestration, snapshot + job transaction, batch worker, delivery status/manual retry | Publish atomically commits snapshot and job; empty snapshot completes immediately; delivery retries/recovery and no-duplicate inbox tests pass |
+| 8. Landing page and engagement | Public landing page, member claim UI, impression/click/page-view events | Landing route, eligibility/claim states, sign-in return flow, event ingestion | Paused/ended public page behavior, anonymous behavior, eligibility display, event dedup all pass |
+| 9. Analytics | Campaign funnel and coupon reports | Analytics APIs and Admin screens | Metrics match source records; target-based rates and zero-denominator handling verified |
+| 10. Hardening and delivery | E2E, concurrency, security, docs, reproducible demo | Full test suite, deployment/local run instructions, final README | All PRD acceptance scenarios pass; clean setup reproducible; limitations documented |
 
 ## 3. Phase details and dependencies
 
@@ -40,53 +40,58 @@
 ### Phase 2 — Database foundation
 
 - Implement tables and constraints from `DATABASE_DESIGN.md` using Flyway.
-- Add fictional deterministic seed records for admin users and members.
-- Verify constraints with integration tests.
+- Include refresh-token family/generation columns, composite campaign/message/coupon foreign keys, and delivery retry fields.
+- Add fictional deterministic seed records for admin users and members using the documented enum values.
+- Verify constraints with PostgreSQL integration tests.
 - Avoid adding Redis/Kafka or a second persistence technology.
 
 ### Phase 3 — Identity and security
 
-- Implement password hashing, access/refresh JWT cookies, refresh rotation, server-side refresh revocation, logout, CSRF, and role-based authorization.
+- Implement password hashing, access/refresh JWT cookies, token-family rotation/reuse detection, server-side revocation, logout, CSRF, and role-based authorization.
 - Implement frontend login/session handling without storing tokens in browser storage.
-- Test member data isolation.
+- Test concurrent refresh, token reuse family revocation, and member data isolation.
 
 ### Phase 4 — Audience
 
-- Implement allowlisted rule model and evaluator.
+- Implement the canonical field/type/operator matrix and allowlisted rule model/evaluator.
 - Implement saved segment CRUD and preview.
-- Implement campaign audience rule composition according to the approved semantics.
-- Persist the complete publication snapshot as immutable rows in the publication transaction (no separate snapshot job in MVP).
+- Implement campaign audience rule composition according to AND semantics.
+- Do not persist the final campaign snapshot in this phase; publication snapshot + delivery job are one transaction in Phase 7.
 
-### Phase 5 — Campaign management
+### Phase 5 — Campaign draft management
 
-- Implement draft lifecycle and campaign details.
-- Enforce exactly one message per campaign at publish time.
-- Keep campaign pause and end behavior consistent with claim eligibility.
+- Implement draft create/update/list/detail and campaign date validation.
+- Implement fixed landing-page headline/body fields.
+- Publish and Pause endpoints are integrated in Phase 7 after coupon/message prerequisites are available.
 
-### Phase 6 — Coupon claim
+### Phase 6 — Coupon configuration and claim backend
 
-- Implement coupon configuration and member claim list.
+- Implement coupon configuration and member claim-list APIs.
 - Implement atomic conditional inventory update and claim insert in one transaction.
-- Add database uniqueness and idempotency handling.
+- Until Publish is integrated in Phase 7, test the claim service with deterministic fixtures for an already-ACTIVE campaign and its audience snapshot.
+- Add database uniqueness, idempotency replay, and server-generated claim-attempt audit behavior.
 - Run concurrency tests against PostgreSQL.
 
-### Phase 7 — Message delivery
+### Phase 7 — Message, publication, and delivery
 
 - Implement one message definition per campaign.
-- Publication transaction creates a delivery job.
-- Worker delivers in bounded batches from the immutable audience snapshot.
-- Use one worker instance, a persisted cursor, and a unique campaign/member inbox constraint; batch inserts and cursor advancement commit together. Multi-worker leases are deferred.
+- Implement `PublishCampaign` and `PauseCampaign`: validate draft, active time window, message, positive-quantity coupon, resolve and persist complete audience snapshot, transition to ACTIVE, and create delivery job in one transaction. Pause uses the same campaign-row lock protocol as ClaimCoupon.
+- If audience count is zero, create the delivery job as `COMPLETED`; otherwise `PENDING`.
+- Implement one worker with batch size 100, cursor, three automatic retries after the initial attempt (1s/2s/4s backoff), FAILED state, status API, and manual retry from last committed cursor.
+- Pause must not cancel a committed job.
 
 ### Phase 8 — Landing page and events
 
-- Implement `/campaigns/:campaignId` within the Member Portal.
-- Record impression only when the message is visibly rendered, click on click, and landing-page view on page open.
-- Event IDs deduplicate client retries.
+- Implement `/campaigns/:campaignId` as public fixed-template content.
+- Keep published content readable when paused/ended, but disable claims. Show authenticated audience eligibility and claim state.
+- Implement login return-to-page behavior.
+- Record authenticated impression/click/landing-page events; record claim-attempt audit only on the server.
 
 ### Phase 9 — Analytics
 
-- Derive delivery from inbox rows and claims from claim rows.
-- Aggregate event totals and distinct members separately.
+- Derive delivery from inbox rows and successful claims from claim rows.
+- Derive claim attempts from server-generated audit events.
+- Aggregate totals and distinct target-member counts separately; do not report click-to-landing conversion.
 - Add indexes based on measured query plans.
 
 ### Phase 10 — Hardening

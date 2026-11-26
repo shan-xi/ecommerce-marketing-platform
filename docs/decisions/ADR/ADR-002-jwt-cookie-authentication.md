@@ -9,7 +9,7 @@ The product has browser-based Admin and Member experiences. The owner selected S
 
 ## Decision
 
-Use short-lived JWT access tokens and rotating refresh tokens. Transport them through HttpOnly cookies, not browser localStorage/sessionStorage. Persist refresh-token hashes/session state for rotation and revocation. Enable CSRF protection for cookie-authenticated state-changing requests.
+Use short-lived JWT access tokens and rotating refresh tokens. Transport them through HttpOnly cookies, not browser localStorage/sessionStorage. Persist one row per refresh-token generation, grouped by a stable `token_family_id`; atomically consume each presented token and link it to its replacement. Reuse of a consumed/revoked token revokes the full token family. Enable CSRF protection for cookie-authenticated state-changing requests.
 
 ## Alternatives considered
 

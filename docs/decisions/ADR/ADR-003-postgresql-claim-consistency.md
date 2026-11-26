@@ -9,7 +9,7 @@ Coupon inventory is limited and many members may claim concurrently. Successful 
 
 ## Decision
 
-Use PostgreSQL as source of truth. Reserve inventory with one conditional atomic UPDATE and insert the claim record in the same transaction. Enforce uniqueness with database constraints on `(campaign_id, campaign_coupon_id, member_id)` and `(member_id, idempotency_key)`. Enforce that `coupon_claims.campaign_id` matches the campaign that owns `campaign_coupon_id` with a composite foreign key. A retry using the same member/idempotency key for the same coupon returns the original successful claim; reuse for a different request returns `IDEMPOTENCY_KEY_CONFLICT`. Failed attempts are not response-cached.
+Use PostgreSQL as source of truth. Reserve inventory with one conditional atomic UPDATE and insert the claim record in the same transaction. Enforce uniqueness with database constraints on `(campaign_id, campaign_coupon_id, member_id)` and `(member_id, idempotency_key)`. Enforce that `coupon_claims.campaign_id` matches the campaign that owns `campaign_coupon_id` with a composite foreign key. A retry using the same member/idempotency key for the same campaign/coupon returns the original successful claim even if the campaign has since been paused or ended; replay is checked before new-claim eligibility. Reuse for a different request returns `IDEMPOTENCY_KEY_CONFLICT`. Failed attempts are not response-cached. For a new claim, lock the campaign row with `SELECT ... FOR SHARE` before checking eligibility, then re-check the idempotency key to cover concurrent requests. Pause updates the same campaign row and therefore waits for claims that acquired the shared lock first.
 
 ## Alternatives considered
 
