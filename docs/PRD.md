@@ -871,6 +871,6 @@ The implementation should demonstrate sound boundaries and data correctness with
 
 ## 17. Document Status and Change Control
 
-This PRD is **Ready for Development** and is the owner-approved v1.5.0 baseline dated 2026-11-26. The owner approved the complete Design Pack and authorized Phase 1 readiness. Phase 1 has **not started**; implementation remains on hold until the owner separately notifies the project to begin.
+This PRD is **Ready for Development** and is the owner-approved v1.5.0 baseline dated 2026-11-26. The owner approved the complete Design Pack. Phase 1 was formally accepted on 2026-11-26, and Phase 2 — Database Foundation was separately authorized on 2026-11-26. Phase 2 implementation is limited to the approved database foundation scope; later phases remain gated by owner acceptance and explicit authorization.
 
 The v1.5.0 PRD, API/OpenAPI, Database/ERD, Architecture/Module Design, Security Design, Testing Strategy, accepted ADRs, and Implementation Plan together form the authoritative MVP Development Baseline. No separate TDD is required to start the MVP unless a later requirement introduces a genuinely unresolved design area.

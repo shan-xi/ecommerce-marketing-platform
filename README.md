@@ -1,22 +1,22 @@
 # E-commerce Campaign & Coupon Engagement Platform
 
 **Project baseline:** v1.5.0 (owner-approved)
-**Implementation:** Phase 1 — Repository Foundation (first implementation; runtime verification pending)
+**Implementation:** Phase 2 — Database Foundation (in progress; Phase 1 formally accepted)
 
 This repository implements the approved MVP described in [`docs/PRD.md`](docs/PRD.md). The project is a modular monolith with one Spring Boot backend, one React + TypeScript SPA, and PostgreSQL as the source of truth.
 
-## Phase 1 scope
+## Current implementation status
 
-Included in this first implementation:
+**Phase 1 — Repository Foundation: COMPLETE and owner-accepted (2026-11-26).** The backend and frontend scaffolds, local PostgreSQL service, Actuator health endpoints, and frontend-to-backend health shell were verified by the owner.
 
-- Spring Boot backend scaffold on Java 21.
-- React + TypeScript frontend scaffold with strict TypeScript settings.
-- PostgreSQL local development service through Docker Compose.
-- Actuator health, readiness, and liveness endpoints.
-- Frontend-to-backend health check through the Vite development proxy.
-- Reproducible project commands and version selection documentation.
+**Phase 2 — Database Foundation: IN PROGRESS and owner-authorized (2026-11-26).** Current scope includes:
 
-No campaign, audience, identity, message, coupon, claim, analytics, database schema, or Flyway migration functionality is implemented in Phase 1.
+- Spring Boot PostgreSQL datasource configuration using externalizable settings.
+- Flyway versioned migrations for all 12 approved tables, constraints, and indexes.
+- Fictional deterministic Admin / Member seed records.
+- PostgreSQL Testcontainers integration tests for migration and data integrity.
+
+Authentication, domain repositories/services, business workflows, CRUD APIs, audience evaluation, coupon claiming, and delivery workers remain out of scope for Phase 2.
 
 ## Technology versions
 
@@ -44,12 +44,13 @@ The Maven bootstrap script downloads a pinned Maven distribution and verifies it
 
    ```bash
    docker compose up -d postgres
-  docker compose ps
+   docker compose ps
    ```
 
-3. Start the backend in terminal 1:
+3. Load the local environment values and start the backend in terminal 1:
 
    ```bash
+   set -a; . ./.env; set +a
    ./mvnw -f backend/pom.xml spring-boot:run
    ```
 
@@ -71,7 +72,7 @@ The Maven bootstrap script downloads a pinned Maven distribution and verifies it
 
 5. Open <http://localhost:5173>. The Phase 1 shell should report the backend connection as healthy when the backend is running.
 
-The PostgreSQL service is provisioned in Phase 1 but is not yet connected to application persistence. Database dependencies, Flyway migrations, and schema creation belong to Phase 2.
+The backend now connects to PostgreSQL and applies Flyway migrations on startup. Use the `.env.example` values for local development only; override datasource settings through environment variables in other environments.
 
 ## Verification commands
 
@@ -83,7 +84,7 @@ From the repository root:
 
 # Frontend checks
 cd frontend
-npm test
+npm run test
 npm run typecheck
 npm run build
 cd ..
@@ -104,11 +105,12 @@ docker compose ps
 - Phase plan: [`docs/development/IMPLEMENTATION_PLAN.md`](docs/development/IMPLEMENTATION_PLAN.md)
 - AI development protocol: [`docs/development/AI_DEVELOPMENT_GUIDELINES.md`](docs/development/AI_DEVELOPMENT_GUIDELINES.md)
 - Phase 1 report: [`docs/development/PHASE_1_IMPLEMENTATION_REPORT.md`](docs/development/PHASE_1_IMPLEMENTATION_REPORT.md)
+- Phase 2 report: [`docs/development/PHASE_2_IMPLEMENTATION_REPORT.md`](docs/development/PHASE_2_IMPLEMENTATION_REPORT.md)
 
 ## Development rules
 
 - Implement one approved phase at a time.
 - Do not begin a later phase until the current phase passes its exit criteria and the owner accepts it.
 - Do not introduce Redis, Kafka, microservices, external providers, or other unapproved infrastructure.
-- Do not add business features during Phase 1.
+- Keep implementation within the currently authorized phase; Phase 2 does not include business workflows.
 - Local Compose credentials are for development only; never reuse them in shared or production environments.

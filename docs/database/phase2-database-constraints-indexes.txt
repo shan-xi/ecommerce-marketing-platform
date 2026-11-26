@@ -1,0 +1,209 @@
+object_type	table_name	object_name	definition
+CONSTRAINT	audience_segments	audience_segments_created_at_not_null	NOT NULL created_at
+CONSTRAINT	audience_segments	audience_segments_created_by_user_id_not_null	NOT NULL created_by_user_id
+CONSTRAINT	audience_segments	audience_segments_id_not_null	NOT NULL id
+CONSTRAINT	audience_segments	audience_segments_name_not_null	NOT NULL name
+CONSTRAINT	audience_segments	audience_segments_pkey	PRIMARY KEY (id)
+CONSTRAINT	audience_segments	audience_segments_rules_not_null	NOT NULL rules
+CONSTRAINT	audience_segments	audience_segments_updated_at_not_null	NOT NULL updated_at
+CONSTRAINT	audience_segments	fk_audience_segments_created_by	FOREIGN KEY (created_by_user_id) REFERENCES users(id)
+CONSTRAINT	campaign_audience_members	campaign_audience_members_campaign_id_not_null	NOT NULL campaign_id
+CONSTRAINT	campaign_audience_members	campaign_audience_members_member_id_not_null	NOT NULL member_id
+CONSTRAINT	campaign_audience_members	campaign_audience_members_snapshot_at_not_null	NOT NULL snapshot_at
+CONSTRAINT	campaign_audience_members	fk_campaign_audience_campaign	FOREIGN KEY (campaign_id) REFERENCES campaigns(id)
+CONSTRAINT	campaign_audience_members	fk_campaign_audience_member	FOREIGN KEY (member_id) REFERENCES members(id)
+CONSTRAINT	campaign_audience_members	fk_campaign_audience_source_segment	FOREIGN KEY (source_segment_id) REFERENCES audience_segments(id)
+CONSTRAINT	campaign_audience_members	pk_campaign_audience_members	PRIMARY KEY (campaign_id, member_id)
+CONSTRAINT	campaign_coupons	campaign_coupons_campaign_id_not_null	NOT NULL campaign_id
+CONSTRAINT	campaign_coupons	campaign_coupons_claimed_quantity_not_null	NOT NULL claimed_quantity
+CONSTRAINT	campaign_coupons	campaign_coupons_created_at_not_null	NOT NULL created_at
+CONSTRAINT	campaign_coupons	campaign_coupons_discount_type_not_null	NOT NULL discount_type
+CONSTRAINT	campaign_coupons	campaign_coupons_discount_value_not_null	NOT NULL discount_value
+CONSTRAINT	campaign_coupons	campaign_coupons_ends_at_not_null	NOT NULL ends_at
+CONSTRAINT	campaign_coupons	campaign_coupons_id_not_null	NOT NULL id
+CONSTRAINT	campaign_coupons	campaign_coupons_name_not_null	NOT NULL name
+CONSTRAINT	campaign_coupons	campaign_coupons_pkey	PRIMARY KEY (id)
+CONSTRAINT	campaign_coupons	campaign_coupons_starts_at_not_null	NOT NULL starts_at
+CONSTRAINT	campaign_coupons	campaign_coupons_total_quantity_not_null	NOT NULL total_quantity
+CONSTRAINT	campaign_coupons	campaign_coupons_updated_at_not_null	NOT NULL updated_at
+CONSTRAINT	campaign_coupons	ck_campaign_coupons_claimed_quantity	CHECK (((claimed_quantity >= 0) AND (claimed_quantity <= total_quantity)))
+CONSTRAINT	campaign_coupons	ck_campaign_coupons_discount_type	CHECK (((discount_type)::text = ANY ((ARRAY['FIXED_AMOUNT'::character varying, 'PERCENTAGE'::character varying])::text[])))
+CONSTRAINT	campaign_coupons	ck_campaign_coupons_discount_value	CHECK (((((discount_type)::text = 'FIXED_AMOUNT'::text) AND (discount_value > (0)::numeric)) OR (((discount_type)::text = 'PERCENTAGE'::text) AND (discount_value > (0)::numeric) AND (discount_value <= (100)::numeric))))
+CONSTRAINT	campaign_coupons	ck_campaign_coupons_minimum_order	CHECK (((minimum_order_amount IS NULL) OR (minimum_order_amount >= (0)::numeric)))
+CONSTRAINT	campaign_coupons	ck_campaign_coupons_time_window	CHECK ((ends_at > starts_at))
+CONSTRAINT	campaign_coupons	ck_campaign_coupons_total_quantity	CHECK ((total_quantity >= 1))
+CONSTRAINT	campaign_coupons	fk_campaign_coupons_campaign	FOREIGN KEY (campaign_id) REFERENCES campaigns(id)
+CONSTRAINT	campaign_coupons	uq_campaign_coupon_id	UNIQUE (campaign_id, id)
+CONSTRAINT	campaign_delivery_jobs	campaign_delivery_jobs_attempt_count_not_null	NOT NULL attempt_count
+CONSTRAINT	campaign_delivery_jobs	campaign_delivery_jobs_campaign_id_not_null	NOT NULL campaign_id
+CONSTRAINT	campaign_delivery_jobs	campaign_delivery_jobs_created_at_not_null	NOT NULL created_at
+CONSTRAINT	campaign_delivery_jobs	campaign_delivery_jobs_id_not_null	NOT NULL id
+CONSTRAINT	campaign_delivery_jobs	campaign_delivery_jobs_pkey	PRIMARY KEY (id)
+CONSTRAINT	campaign_delivery_jobs	campaign_delivery_jobs_status_not_null	NOT NULL status
+CONSTRAINT	campaign_delivery_jobs	campaign_delivery_jobs_updated_at_not_null	NOT NULL updated_at
+CONSTRAINT	campaign_delivery_jobs	ck_campaign_delivery_jobs_attempt_count	CHECK (((attempt_count >= 0) AND (attempt_count <= 3)))
+CONSTRAINT	campaign_delivery_jobs	ck_campaign_delivery_jobs_status	CHECK (((status)::text = ANY ((ARRAY['PENDING'::character varying, 'PROCESSING'::character varying, 'COMPLETED'::character varying, 'FAILED'::character varying])::text[])))
+CONSTRAINT	campaign_delivery_jobs	fk_campaign_delivery_jobs_campaign	FOREIGN KEY (campaign_id) REFERENCES campaigns(id)
+CONSTRAINT	campaign_delivery_jobs	fk_delivery_cursor_campaign_snapshot_member	FOREIGN KEY (campaign_id, cursor_member_id) REFERENCES campaign_audience_members(campaign_id, member_id)
+CONSTRAINT	campaign_delivery_jobs	uq_campaign_delivery_jobs_campaign	UNIQUE (campaign_id)
+CONSTRAINT	campaign_events	campaign_events_campaign_id_not_null	NOT NULL campaign_id
+CONSTRAINT	campaign_events	campaign_events_event_id_not_null	NOT NULL event_id
+CONSTRAINT	campaign_events	campaign_events_event_type_not_null	NOT NULL event_type
+CONSTRAINT	campaign_events	campaign_events_id_not_null	NOT NULL id
+CONSTRAINT	campaign_events	campaign_events_member_id_not_null	NOT NULL member_id
+CONSTRAINT	campaign_events	campaign_events_occurred_at_not_null	NOT NULL occurred_at
+CONSTRAINT	campaign_events	campaign_events_pkey	PRIMARY KEY (id)
+CONSTRAINT	campaign_events	campaign_events_received_at_not_null	NOT NULL received_at
+CONSTRAINT	campaign_events	ck_campaign_events_claim_attempt_outcome	CHECK ((((event_type)::text <> 'CLAIM_ATTEMPT'::text) OR ((metadata IS NOT NULL) AND (metadata ? 'outcome'::text) AND ((metadata ->> 'outcome'::text) = ANY (ARRAY['SUCCEEDED'::text, 'FAILED'::text, 'REPLAYED'::text])))))
+CONSTRAINT	campaign_events	ck_campaign_events_context	CHECK (((((event_type)::text = ANY ((ARRAY['IMPRESSION'::character varying, 'CLICK'::character varying])::text[])) AND (campaign_message_id IS NOT NULL) AND (campaign_coupon_id IS NULL)) OR (((event_type)::text = 'LANDING_PAGE_VIEW'::text) AND (campaign_message_id IS NULL) AND (campaign_coupon_id IS NULL)) OR (((event_type)::text = 'CLAIM_ATTEMPT'::text) AND (campaign_message_id IS NULL))))
+CONSTRAINT	campaign_events	ck_campaign_events_type	CHECK (((event_type)::text = ANY ((ARRAY['IMPRESSION'::character varying, 'CLICK'::character varying, 'LANDING_PAGE_VIEW'::character varying, 'CLAIM_ATTEMPT'::character varying])::text[])))
+CONSTRAINT	campaign_events	fk_campaign_event_campaign_coupon	FOREIGN KEY (campaign_id, campaign_coupon_id) REFERENCES campaign_coupons(campaign_id, id)
+CONSTRAINT	campaign_events	fk_campaign_event_campaign_message	FOREIGN KEY (campaign_id, campaign_message_id) REFERENCES campaign_messages(campaign_id, id)
+CONSTRAINT	campaign_events	fk_campaign_event_recipient_message	FOREIGN KEY (campaign_id, campaign_message_id, member_id) REFERENCES member_messages(campaign_id, campaign_message_id, member_id)
+CONSTRAINT	campaign_events	fk_campaign_events_campaign	FOREIGN KEY (campaign_id) REFERENCES campaigns(id)
+CONSTRAINT	campaign_events	fk_campaign_events_member	FOREIGN KEY (member_id) REFERENCES members(id)
+CONSTRAINT	campaign_events	uq_campaign_events_member_event	UNIQUE (member_id, event_id)
+CONSTRAINT	campaign_messages	campaign_messages_body_not_null	NOT NULL body
+CONSTRAINT	campaign_messages	campaign_messages_campaign_id_not_null	NOT NULL campaign_id
+CONSTRAINT	campaign_messages	campaign_messages_created_at_not_null	NOT NULL created_at
+CONSTRAINT	campaign_messages	campaign_messages_id_not_null	NOT NULL id
+CONSTRAINT	campaign_messages	campaign_messages_pkey	PRIMARY KEY (id)
+CONSTRAINT	campaign_messages	campaign_messages_title_not_null	NOT NULL title
+CONSTRAINT	campaign_messages	campaign_messages_updated_at_not_null	NOT NULL updated_at
+CONSTRAINT	campaign_messages	fk_campaign_messages_campaign	FOREIGN KEY (campaign_id) REFERENCES campaigns(id)
+CONSTRAINT	campaign_messages	uq_campaign_message_campaign_id	UNIQUE (campaign_id, id)
+CONSTRAINT	campaign_messages	uq_campaign_messages_campaign	UNIQUE (campaign_id)
+CONSTRAINT	campaigns	campaigns_created_at_not_null	NOT NULL created_at
+CONSTRAINT	campaigns	campaigns_created_by_user_id_not_null	NOT NULL created_by_user_id
+CONSTRAINT	campaigns	campaigns_ends_at_not_null	NOT NULL ends_at
+CONSTRAINT	campaigns	campaigns_id_not_null	NOT NULL id
+CONSTRAINT	campaigns	campaigns_landing_page_body_not_null	NOT NULL landing_page_body
+CONSTRAINT	campaigns	campaigns_landing_page_headline_not_null	NOT NULL landing_page_headline
+CONSTRAINT	campaigns	campaigns_name_not_null	NOT NULL name
+CONSTRAINT	campaigns	campaigns_pkey	PRIMARY KEY (id)
+CONSTRAINT	campaigns	campaigns_starts_at_not_null	NOT NULL starts_at
+CONSTRAINT	campaigns	campaigns_status_not_null	NOT NULL status
+CONSTRAINT	campaigns	campaigns_updated_at_not_null	NOT NULL updated_at
+CONSTRAINT	campaigns	ck_campaigns_audience_definition	CHECK (((audience_segment_id IS NOT NULL) OR (audience_rules IS NOT NULL)))
+CONSTRAINT	campaigns	ck_campaigns_status	CHECK (((status)::text = ANY ((ARRAY['DRAFT'::character varying, 'ACTIVE'::character varying, 'PAUSED'::character varying])::text[])))
+CONSTRAINT	campaigns	ck_campaigns_time_window	CHECK ((ends_at > starts_at))
+CONSTRAINT	campaigns	fk_campaigns_audience_segment	FOREIGN KEY (audience_segment_id) REFERENCES audience_segments(id)
+CONSTRAINT	campaigns	fk_campaigns_created_by	FOREIGN KEY (created_by_user_id) REFERENCES users(id)
+CONSTRAINT	coupon_claims	coupon_claims_campaign_coupon_id_not_null	NOT NULL campaign_coupon_id
+CONSTRAINT	coupon_claims	coupon_claims_campaign_id_not_null	NOT NULL campaign_id
+CONSTRAINT	coupon_claims	coupon_claims_claimed_at_not_null	NOT NULL claimed_at
+CONSTRAINT	coupon_claims	coupon_claims_id_not_null	NOT NULL id
+CONSTRAINT	coupon_claims	coupon_claims_idempotency_key_not_null	NOT NULL idempotency_key
+CONSTRAINT	coupon_claims	coupon_claims_member_id_not_null	NOT NULL member_id
+CONSTRAINT	coupon_claims	coupon_claims_pkey	PRIMARY KEY (id)
+CONSTRAINT	coupon_claims	fk_claim_campaign_coupon	FOREIGN KEY (campaign_id, campaign_coupon_id) REFERENCES campaign_coupons(campaign_id, id)
+CONSTRAINT	coupon_claims	fk_coupon_claims_campaign	FOREIGN KEY (campaign_id) REFERENCES campaigns(id)
+CONSTRAINT	coupon_claims	fk_coupon_claims_coupon	FOREIGN KEY (campaign_coupon_id) REFERENCES campaign_coupons(id)
+CONSTRAINT	coupon_claims	fk_coupon_claims_member	FOREIGN KEY (member_id) REFERENCES members(id)
+CONSTRAINT	coupon_claims	uq_coupon_claim_campaign_coupon_member	UNIQUE (campaign_id, campaign_coupon_id, member_id)
+CONSTRAINT	coupon_claims	uq_coupon_claim_member_idempotency	UNIQUE (member_id, idempotency_key)
+CONSTRAINT	flyway_schema_history	flyway_schema_history_description_not_null	NOT NULL description
+CONSTRAINT	flyway_schema_history	flyway_schema_history_execution_time_not_null	NOT NULL execution_time
+CONSTRAINT	flyway_schema_history	flyway_schema_history_installed_by_not_null	NOT NULL installed_by
+CONSTRAINT	flyway_schema_history	flyway_schema_history_installed_on_not_null	NOT NULL installed_on
+CONSTRAINT	flyway_schema_history	flyway_schema_history_installed_rank_not_null	NOT NULL installed_rank
+CONSTRAINT	flyway_schema_history	flyway_schema_history_pk	PRIMARY KEY (installed_rank)
+CONSTRAINT	flyway_schema_history	flyway_schema_history_script_not_null	NOT NULL script
+CONSTRAINT	flyway_schema_history	flyway_schema_history_success_not_null	NOT NULL success
+CONSTRAINT	flyway_schema_history	flyway_schema_history_type_not_null	NOT NULL type
+CONSTRAINT	member_messages	fk_member_message_campaign_message	FOREIGN KEY (campaign_id, campaign_message_id) REFERENCES campaign_messages(campaign_id, id)
+CONSTRAINT	member_messages	fk_member_messages_campaign	FOREIGN KEY (campaign_id) REFERENCES campaigns(id)
+CONSTRAINT	member_messages	fk_member_messages_member	FOREIGN KEY (member_id) REFERENCES members(id)
+CONSTRAINT	member_messages	fk_member_messages_message	FOREIGN KEY (campaign_message_id) REFERENCES campaign_messages(id)
+CONSTRAINT	member_messages	member_messages_campaign_id_not_null	NOT NULL campaign_id
+CONSTRAINT	member_messages	member_messages_campaign_message_id_not_null	NOT NULL campaign_message_id
+CONSTRAINT	member_messages	member_messages_created_at_not_null	NOT NULL created_at
+CONSTRAINT	member_messages	member_messages_delivered_at_not_null	NOT NULL delivered_at
+CONSTRAINT	member_messages	member_messages_id_not_null	NOT NULL id
+CONSTRAINT	member_messages	member_messages_member_id_not_null	NOT NULL member_id
+CONSTRAINT	member_messages	member_messages_pkey	PRIMARY KEY (id)
+CONSTRAINT	member_messages	uq_member_message_campaign_member	UNIQUE (campaign_id, member_id)
+CONSTRAINT	member_messages	uq_member_message_campaign_message_member	UNIQUE (campaign_id, campaign_message_id, member_id)
+CONSTRAINT	members	ck_members_gender	CHECK (((gender IS NULL) OR ((gender)::text = ANY ((ARRAY['FEMALE'::character varying, 'MALE'::character varying, 'OTHER'::character varying, 'UNDISCLOSED'::character varying])::text[]))))
+CONSTRAINT	members	ck_members_membership_tier	CHECK (((membership_tier)::text = ANY ((ARRAY['STANDARD'::character varying, 'SILVER'::character varying, 'GOLD'::character varying, 'PLATINUM'::character varying])::text[])))
+CONSTRAINT	members	ck_members_order_count	CHECK ((order_count >= 0))
+CONSTRAINT	members	ck_members_total_spending	CHECK ((total_spending >= (0)::numeric))
+CONSTRAINT	members	fk_members_user	FOREIGN KEY (user_id) REFERENCES users(id)
+CONSTRAINT	members	members_created_at_not_null	NOT NULL created_at
+CONSTRAINT	members	members_display_name_not_null	NOT NULL display_name
+CONSTRAINT	members	members_id_not_null	NOT NULL id
+CONSTRAINT	members	members_membership_tier_not_null	NOT NULL membership_tier
+CONSTRAINT	members	members_order_count_not_null	NOT NULL order_count
+CONSTRAINT	members	members_pkey	PRIMARY KEY (id)
+CONSTRAINT	members	members_registered_at_not_null	NOT NULL registered_at
+CONSTRAINT	members	members_total_spending_not_null	NOT NULL total_spending
+CONSTRAINT	members	members_updated_at_not_null	NOT NULL updated_at
+CONSTRAINT	members	members_user_id_not_null	NOT NULL user_id
+CONSTRAINT	members	uq_members_user_id	UNIQUE (user_id)
+CONSTRAINT	refresh_token_sessions	fk_refresh_token_replacement_same_family	FOREIGN KEY (replaced_by_token_id, user_id, token_family_id) REFERENCES refresh_token_sessions(id, user_id, token_family_id)
+CONSTRAINT	refresh_token_sessions	fk_refresh_token_user	FOREIGN KEY (user_id) REFERENCES users(id)
+CONSTRAINT	refresh_token_sessions	refresh_token_sessions_created_at_not_null	NOT NULL created_at
+CONSTRAINT	refresh_token_sessions	refresh_token_sessions_expires_at_not_null	NOT NULL expires_at
+CONSTRAINT	refresh_token_sessions	refresh_token_sessions_id_not_null	NOT NULL id
+CONSTRAINT	refresh_token_sessions	refresh_token_sessions_pkey	PRIMARY KEY (id)
+CONSTRAINT	refresh_token_sessions	refresh_token_sessions_token_family_id_not_null	NOT NULL token_family_id
+CONSTRAINT	refresh_token_sessions	refresh_token_sessions_token_hash_not_null	NOT NULL token_hash
+CONSTRAINT	refresh_token_sessions	refresh_token_sessions_user_id_not_null	NOT NULL user_id
+CONSTRAINT	refresh_token_sessions	uq_refresh_token_generation_family	UNIQUE (id, user_id, token_family_id)
+CONSTRAINT	refresh_token_sessions	uq_refresh_token_hash	UNIQUE (token_hash)
+CONSTRAINT	refresh_token_sessions	uq_refresh_token_single_predecessor	UNIQUE (replaced_by_token_id)
+CONSTRAINT	users	ck_users_role	CHECK (((role)::text = ANY ((ARRAY['ADMIN'::character varying, 'MEMBER'::character varying])::text[])))
+CONSTRAINT	users	uq_users_email	UNIQUE (email)
+CONSTRAINT	users	users_created_at_not_null	NOT NULL created_at
+CONSTRAINT	users	users_email_not_null	NOT NULL email
+CONSTRAINT	users	users_id_not_null	NOT NULL id
+CONSTRAINT	users	users_password_hash_not_null	NOT NULL password_hash
+CONSTRAINT	users	users_pkey	PRIMARY KEY (id)
+CONSTRAINT	users	users_role_not_null	NOT NULL role
+CONSTRAINT	users	users_status_not_null	NOT NULL status
+CONSTRAINT	users	users_updated_at_not_null	NOT NULL updated_at
+INDEX	public.audience_segments	audience_segments_pkey	CREATE UNIQUE INDEX audience_segments_pkey ON public.audience_segments USING btree (id)
+INDEX	public.campaign_audience_members	idx_campaign_audience_member_campaign	CREATE INDEX idx_campaign_audience_member_campaign ON public.campaign_audience_members USING btree (member_id, campaign_id)
+INDEX	public.campaign_audience_members	pk_campaign_audience_members	CREATE UNIQUE INDEX pk_campaign_audience_members ON public.campaign_audience_members USING btree (campaign_id, member_id)
+INDEX	public.campaign_coupons	campaign_coupons_pkey	CREATE UNIQUE INDEX campaign_coupons_pkey ON public.campaign_coupons USING btree (id)
+INDEX	public.campaign_coupons	idx_campaign_coupons_campaign	CREATE INDEX idx_campaign_coupons_campaign ON public.campaign_coupons USING btree (campaign_id)
+INDEX	public.campaign_coupons	uq_campaign_coupon_id	CREATE UNIQUE INDEX uq_campaign_coupon_id ON public.campaign_coupons USING btree (campaign_id, id)
+INDEX	public.campaign_delivery_jobs	campaign_delivery_jobs_pkey	CREATE UNIQUE INDEX campaign_delivery_jobs_pkey ON public.campaign_delivery_jobs USING btree (id)
+INDEX	public.campaign_delivery_jobs	uq_campaign_delivery_jobs_campaign	CREATE UNIQUE INDEX uq_campaign_delivery_jobs_campaign ON public.campaign_delivery_jobs USING btree (campaign_id)
+INDEX	public.campaign_events	campaign_events_pkey	CREATE UNIQUE INDEX campaign_events_pkey ON public.campaign_events USING btree (id)
+INDEX	public.campaign_events	idx_campaign_events_campaign_coupon	CREATE INDEX idx_campaign_events_campaign_coupon ON public.campaign_events USING btree (campaign_id, campaign_coupon_id)
+INDEX	public.campaign_events	idx_campaign_events_campaign_member_type	CREATE INDEX idx_campaign_events_campaign_member_type ON public.campaign_events USING btree (campaign_id, member_id, event_type)
+INDEX	public.campaign_events	idx_campaign_events_campaign_message_member	CREATE INDEX idx_campaign_events_campaign_message_member ON public.campaign_events USING btree (campaign_id, campaign_message_id, member_id)
+INDEX	public.campaign_events	idx_campaign_events_campaign_type_received	CREATE INDEX idx_campaign_events_campaign_type_received ON public.campaign_events USING btree (campaign_id, event_type, received_at)
+INDEX	public.campaign_events	idx_campaign_events_member_received	CREATE INDEX idx_campaign_events_member_received ON public.campaign_events USING btree (member_id, received_at DESC)
+INDEX	public.campaign_events	uq_campaign_events_member_event	CREATE UNIQUE INDEX uq_campaign_events_member_event ON public.campaign_events USING btree (member_id, event_id)
+INDEX	public.campaign_messages	campaign_messages_pkey	CREATE UNIQUE INDEX campaign_messages_pkey ON public.campaign_messages USING btree (id)
+INDEX	public.campaign_messages	uq_campaign_message_campaign_id	CREATE UNIQUE INDEX uq_campaign_message_campaign_id ON public.campaign_messages USING btree (campaign_id, id)
+INDEX	public.campaign_messages	uq_campaign_messages_campaign	CREATE UNIQUE INDEX uq_campaign_messages_campaign ON public.campaign_messages USING btree (campaign_id)
+INDEX	public.campaigns	campaigns_pkey	CREATE UNIQUE INDEX campaigns_pkey ON public.campaigns USING btree (id)
+INDEX	public.campaigns	idx_campaigns_created_at	CREATE INDEX idx_campaigns_created_at ON public.campaigns USING btree (created_at DESC)
+INDEX	public.campaigns	idx_campaigns_status_window	CREATE INDEX idx_campaigns_status_window ON public.campaigns USING btree (status, starts_at, ends_at)
+INDEX	public.coupon_claims	coupon_claims_pkey	CREATE UNIQUE INDEX coupon_claims_pkey ON public.coupon_claims USING btree (id)
+INDEX	public.coupon_claims	idx_coupon_claims_campaign_coupon	CREATE INDEX idx_coupon_claims_campaign_coupon ON public.coupon_claims USING btree (campaign_id, campaign_coupon_id)
+INDEX	public.coupon_claims	idx_coupon_claims_member_claimed_at	CREATE INDEX idx_coupon_claims_member_claimed_at ON public.coupon_claims USING btree (member_id, claimed_at DESC)
+INDEX	public.coupon_claims	uq_coupon_claim_campaign_coupon_member	CREATE UNIQUE INDEX uq_coupon_claim_campaign_coupon_member ON public.coupon_claims USING btree (campaign_id, campaign_coupon_id, member_id)
+INDEX	public.coupon_claims	uq_coupon_claim_member_idempotency	CREATE UNIQUE INDEX uq_coupon_claim_member_idempotency ON public.coupon_claims USING btree (member_id, idempotency_key)
+INDEX	public.flyway_schema_history	flyway_schema_history_pk	CREATE UNIQUE INDEX flyway_schema_history_pk ON public.flyway_schema_history USING btree (installed_rank)
+INDEX	public.flyway_schema_history	flyway_schema_history_s_idx	CREATE INDEX flyway_schema_history_s_idx ON public.flyway_schema_history USING btree (success)
+INDEX	public.member_messages	idx_member_messages_campaign_message	CREATE INDEX idx_member_messages_campaign_message ON public.member_messages USING btree (campaign_id, campaign_message_id)
+INDEX	public.member_messages	idx_member_messages_member_delivered_at	CREATE INDEX idx_member_messages_member_delivered_at ON public.member_messages USING btree (member_id, delivered_at DESC)
+INDEX	public.member_messages	member_messages_pkey	CREATE UNIQUE INDEX member_messages_pkey ON public.member_messages USING btree (id)
+INDEX	public.member_messages	uq_member_message_campaign_member	CREATE UNIQUE INDEX uq_member_message_campaign_member ON public.member_messages USING btree (campaign_id, member_id)
+INDEX	public.member_messages	uq_member_message_campaign_message_member	CREATE UNIQUE INDEX uq_member_message_campaign_message_member ON public.member_messages USING btree (campaign_id, campaign_message_id, member_id)
+INDEX	public.members	members_pkey	CREATE UNIQUE INDEX members_pkey ON public.members USING btree (id)
+INDEX	public.members	uq_members_user_id	CREATE UNIQUE INDEX uq_members_user_id ON public.members USING btree (user_id)
+INDEX	public.refresh_token_sessions	idx_refresh_token_expires_at	CREATE INDEX idx_refresh_token_expires_at ON public.refresh_token_sessions USING btree (expires_at)
+INDEX	public.refresh_token_sessions	idx_refresh_token_family_revoked	CREATE INDEX idx_refresh_token_family_revoked ON public.refresh_token_sessions USING btree (token_family_id, revoked_at)
+INDEX	public.refresh_token_sessions	idx_refresh_token_user_family	CREATE INDEX idx_refresh_token_user_family ON public.refresh_token_sessions USING btree (user_id, token_family_id)
+INDEX	public.refresh_token_sessions	refresh_token_sessions_pkey	CREATE UNIQUE INDEX refresh_token_sessions_pkey ON public.refresh_token_sessions USING btree (id)
+INDEX	public.refresh_token_sessions	uq_refresh_token_generation_family	CREATE UNIQUE INDEX uq_refresh_token_generation_family ON public.refresh_token_sessions USING btree (id, user_id, token_family_id)
+INDEX	public.refresh_token_sessions	uq_refresh_token_hash	CREATE UNIQUE INDEX uq_refresh_token_hash ON public.refresh_token_sessions USING btree (token_hash)
+INDEX	public.refresh_token_sessions	uq_refresh_token_single_predecessor	CREATE UNIQUE INDEX uq_refresh_token_single_predecessor ON public.refresh_token_sessions USING btree (replaced_by_token_id)
+INDEX	public.users	uq_users_email	CREATE UNIQUE INDEX uq_users_email ON public.users USING btree (email)
+INDEX	public.users	users_pkey	CREATE UNIQUE INDEX users_pkey ON public.users USING btree (id)
+(207 rows)

@@ -1,7 +1,7 @@
 # AI Development Guidelines
 
 **Status:** Approved operating contract for AI-assisted implementation under v1.5.0.  
-**Current instruction:** Phase 1 was formally accepted by the owner on 2026-11-26. Phase 1 is closed. Phase 2 remains planned but is not authorized; do not begin Phase 2 implementation until the owner explicitly approves it.
+**Current instruction:** Phase 1 was formally accepted by the owner on 2026-11-26. The owner explicitly authorized Phase 2 — Database Foundation on 2026-11-26; Phase 2 implementation is in progress and must remain within its approved scope. Phase 3 and later phases are not authorized.
 
 ## 1. Required reading order
 

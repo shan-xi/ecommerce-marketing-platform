@@ -108,7 +108,7 @@ The original implementation environment had no Maven or Docker executable and co
 
 **Phase 1 exit criteria: PASSED.** The owner confirmed the verification results above and explicitly stated: “phase1 確定驗收完成”. Phase 1 is therefore closed and accepted as of 2026-11-26.
 
-No Phase 1 acceptance work remains outstanding. Phase 2 — Database Foundation remains **PLANNED, NOT STARTED, and NOT AUTHORIZED**. A separate explicit owner instruction is required before Phase 2 development begins.
+No Phase 1 acceptance work remains outstanding. At the time of Phase 1 acceptance, Phase 2 had not yet been authorized. The owner subsequently explicitly authorized Phase 2 — Database Foundation on 2026-11-26; its implementation status is tracked in `PHASE_2_IMPLEMENTATION_REPORT.md`.
 
 ## 6. Intentionally deferred to later phases
 
@@ -119,4 +119,4 @@ No Phase 1 acceptance work remains outstanding. Phase 2 — Database Foundation 
 
 ## 7. Next phase gate
 
-Phase 2 may be planned or discussed, but implementation must wait for the owner's explicit Phase 2 authorization.
+Phase 1 remains closed and accepted. Phase 2 was separately authorized on 2026-11-26; no Phase 3 work is authorized by that decision.

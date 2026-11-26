@@ -1,6 +1,6 @@
 # Implementation Plan
 
-**Status:** Approved — v1.5.0 baseline accepted; Phase 0 complete; Phase 1 complete and owner-accepted (2026-11-26); Phase 2 planned and awaiting explicit owner authorization.
+**Status:** Approved — v1.5.0 baseline accepted; Phase 0 complete; Phase 1 complete and owner-accepted (2026-11-26); Phase 2 explicitly authorized by the owner and in progress (2026-11-26).
 **Scope:** Deliver the approved MVP in incremental, verifiable phases.
 
 ## 1. Execution principles
@@ -17,9 +17,9 @@
 
 - **Phase 0 — Design baseline:** COMPLETE.
 - **Phase 1 — Repository foundation:** COMPLETE — owner accepted on 2026-11-26 after reporting successful backend verification, frontend checks/build, PostgreSQL health, and application health.
-- **Phase 2 — Database foundation:** PLANNED; scope is defined in this plan, but implementation has not been authorized or started.
+- **Phase 2 — Database foundation:** IN PROGRESS; explicitly authorized by the owner on 2026-11-26.
 - **Phases 3–10:** PLANNED; each remains gated by completion and owner acceptance of the preceding phase.
-- Phase 1 acceptance does not itself authorize Phase 2. Wait for the owner's explicit Phase 2 authorization before making Phase 2 implementation changes.
+- Phase 2 authorization is limited to the Database Foundation scope recorded below; it does not authorize Phase 3 or later work.
 
 | Phase | Scope | Main deliverables | Exit criteria |
 |---|---|---|---|
@@ -54,11 +54,19 @@
 
 ### Phase 2 — Database foundation
 
-- Implement tables and constraints from `DATABASE_DESIGN.md` using Flyway.
-- Include refresh-token family/generation columns, composite campaign/message/coupon foreign keys, and delivery retry fields.
-- Add fictional deterministic seed records for admin users and members using the documented enum values.
-- Verify constraints with PostgreSQL integration tests.
+**Phase status:** IN PROGRESS — owner explicitly authorized Phase 2 on 2026-11-26.
+
+- [x] Connect Spring Boot to PostgreSQL using externalizable datasource settings.
+- [x] Add Flyway and PostgreSQL JDBC dependencies.
+- [x] Add versioned migrations for all 12 tables, documented constraints, and indexes.
+- [x] Add fictional deterministic Admin / Member seed records.
+- [x] Add PostgreSQL Testcontainers integration tests for schema and key integrity constraints.
+- [ ] Execute Maven verification and PostgreSQL integration tests in a Docker-enabled environment.
+- [ ] Verify clean-database migration and repeatable local setup.
+- [ ] Synchronize Phase 2 implementation report and documentation after verification.
 - Avoid adding Redis/Kafka or a second persistence technology.
+
+Phase 2 does not implement authentication, domain repositories/services, CRUD APIs, audience evaluation, coupon claim workflows, or message delivery workers; those remain later-phase scope.
 
 ### Phase 3 — Identity and security
 
@@ -131,8 +139,6 @@
 No scheduled message delivery, additional channels, coupon redemption, checkout, orders, payments, logistics, microservices, Redis, Kafka, or third-party production integrations are included in the MVP plan.
 
 
-## 6. Phase 1 acceptance and Phase 2 authorization gate
+## 6. Phase acceptance and authorization gates
 
-The original pre-development hold was superseded by the owner's explicit instruction to begin Phase 1 on 2026-11-26. The owner subsequently confirmed that Phase 1 verification was complete and formally accepted Phase 1 on 2026-11-26. The accepted results are recorded in `PHASE_1_IMPLEMENTATION_REPORT.md`.
-
-Phase 1 is closed. Phase 2 — Database Foundation remains planned only. Do not add Flyway migrations, database schema, or Phase 2 implementation until the owner explicitly authorizes Phase 2. Phase 1 acceptance is not blanket authorization for subsequent phases.
+The owner formally accepted Phase 1 on 2026-11-26; the accepted results are recorded in `PHASE_1_IMPLEMENTATION_REPORT.md`. The owner separately authorized Phase 2 on 2026-11-26. Phase 2 Database Foundation implementation is now in progress and is limited to the scope in this plan. Phase 3 and later phases remain unauthorized until the preceding phase is completed and accepted and the owner explicitly authorizes the next phase.

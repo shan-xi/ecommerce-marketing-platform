@@ -15,9 +15,9 @@
 | [Testing Strategy](development/TESTING_STRATEGY.md) | Unit, integration, API, E2E, security, concurrency tests |
 | [Implementation Plan](development/IMPLEMENTATION_PLAN.md) | Phased delivery and exit criteria |
 | [Phase 1 Implementation Report](development/PHASE_1_IMPLEMENTATION_REPORT.md) | Phase 1 implementation, verification results, and owner acceptance record |
+| [Phase 2 Implementation Report](development/PHASE_2_IMPLEMENTATION_REPORT.md) | Phase 2 database foundation implementation and verification status |
 | [AI Development Guidelines](development/AI_DEVELOPMENT_GUIDELINES.md) | How future AI work must use and preserve the docs |
 | [Design Decisions](OPEN_DESIGN_QUESTIONS.md) | Confirmed decisions and Ready-for-Development checklist |
-| [Baseline Approval](BASELINE_APPROVAL.md) | Owner approval record and Phase 1 execution hold |
 | [ADR directory](decisions/ADR/) | Decision records and rationale |
 
 ## Current document status
@@ -25,9 +25,8 @@
 - `PRD.md`: Ready for Development — v1.5.0 owner-approved baseline.
 - API specification, OpenAPI, database design, ERD, architecture, module design, security design, and testing strategy: Approved as part of the v1.5.0 baseline.
 - ADR-001 through ADR-005: Accepted as part of the v1.5.0 baseline.
-- Development guidelines and AI development guidelines: Approved and currently governing Phase 1 implementation.
-- `IMPLEMENTATION_PLAN.md`: Approved; Phase 0 complete; Phase 1 complete and owner-accepted (2026-11-26); Phase 2 planned and awaiting explicit authorization.
-- `OPEN_DESIGN_QUESTIONS.md`: all owner decisions and approval gates complete.
-- `BASELINE_APPROVAL.md`: records the owner's original approval and pre-development hold. The hold was superseded by the owner's explicit Phase 1 start instruction on 2026-11-26.
+- Development guidelines and AI development guidelines: Approved and governing the currently authorized Phase 2 implementation.
+- `IMPLEMENTATION_PLAN.md`: Approved; Phase 0 complete; Phase 1 complete and owner-accepted; Phase 2 explicitly authorized and in progress (2026-11-26).
+- `OPEN_DESIGN_QUESTIONS.md`: records confirmed owner decisions and design approval outcome.
 
-Phase 1 is complete and formally accepted by the owner on 2026-11-26. The verification results are recorded in `development/PHASE_1_IMPLEMENTATION_REPORT.md`. Phase 2 remains planned only; this acceptance does not authorize Phase 2 development.
+Phase 1 is complete and formally accepted by the owner on 2026-11-26. Phase 2 — Database Foundation was separately authorized by the owner on 2026-11-26 and is in progress. Phase 3 and later phases remain gated.
