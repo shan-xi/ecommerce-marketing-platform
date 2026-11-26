@@ -1,0 +1,25 @@
+name: ecommerce-marketing-platform
+
+services:
+  postgres:
+    image: postgres:18.7
+    container_name: ecommerce-marketing-platform-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-marketing_platform}
+      POSTGRES_USER: ${POSTGRES_USER:-marketing_app}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-local_dev_only_change_me}
+      TZ: UTC
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - marketing-platform-postgres-data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+
+volumes:
+  marketing-platform-postgres-data:

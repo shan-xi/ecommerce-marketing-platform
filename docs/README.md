@@ -14,6 +14,7 @@
 | [Development Guidelines](development/DEVELOPMENT_GUIDELINES.md) | Coding and repository conventions |
 | [Testing Strategy](development/TESTING_STRATEGY.md) | Unit, integration, API, E2E, security, concurrency tests |
 | [Implementation Plan](development/IMPLEMENTATION_PLAN.md) | Phased delivery and exit criteria |
+| [Phase 1 Implementation Report](development/PHASE_1_IMPLEMENTATION_REPORT.md) | Phase 1 scaffold, selected versions, validation, and remaining acceptance work |
 | [AI Development Guidelines](development/AI_DEVELOPMENT_GUIDELINES.md) | How future AI work must use and preserve the docs |
 | [Design Decisions](OPEN_DESIGN_QUESTIONS.md) | Confirmed decisions and Ready-for-Development checklist |
 | [Baseline Approval](BASELINE_APPROVAL.md) | Owner approval record and Phase 1 execution hold |
@@ -24,9 +25,9 @@
 - `PRD.md`: Ready for Development — v1.5.0 owner-approved baseline.
 - API specification, OpenAPI, database design, ERD, architecture, module design, security design, and testing strategy: Approved as part of the v1.5.0 baseline.
 - ADR-001 through ADR-005: Accepted as part of the v1.5.0 baseline.
-- Development guidelines and AI development guidelines: Approved for use when implementation begins.
-- `IMPLEMENTATION_PLAN.md`: Approved; Phase 0 complete; Phase 1 authorized / ready but not started.
+- Development guidelines and AI development guidelines: Approved and currently governing Phase 1 implementation.
+- `IMPLEMENTATION_PLAN.md`: Approved; Phase 0 complete; Phase 1 in progress; Phase 1 runtime verification and owner acceptance remain pending.
 - `OPEN_DESIGN_QUESTIONS.md`: all owner decisions and approval gates complete.
-- `BASELINE_APPROVAL.md`: records the owner's approval and the explicit hold on implementation.
+- `BASELINE_APPROVAL.md`: records the owner's original approval and pre-development hold. The hold was superseded by the owner's explicit Phase 1 start instruction on 2026-11-26.
 
-The owner approved the v1.5.0 Development Baseline on 2026-11-26. The owner also instructed that no implementation work begin until a separate notification. Therefore, Phase 1 is ready and authorized, but source code, scaffolding, build configuration, migrations, and services must remain uncreated.
+Phase 1 is in progress. The first implementation exists, but environment-dependent build/runtime checks and owner acceptance remain outstanding. Phase 2 is not authorized yet.
