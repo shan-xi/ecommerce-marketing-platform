@@ -2,7 +2,7 @@
 
 **Status:** Approved — part of the owner-approved v1.5.0 Development Baseline  
 **Applies to:** MVP described in `docs/PRD.md`  
-**Implementation:** Phase 1 repository foundation in progress; business capabilities are not yet implemented
+**Implementation:** Phase 1 repository foundation complete and owner-accepted (2026-11-26); business capabilities remain unimplemented pending their respective phase authorizations
 
 ## 1. Goals
 

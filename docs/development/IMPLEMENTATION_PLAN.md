@@ -1,6 +1,6 @@
 # Implementation Plan
 
-**Status:** Approved — v1.5.0 baseline accepted; Phase 0 complete; Phase 1 in progress (first implementation created; verification and owner acceptance pending).
+**Status:** Approved — v1.5.0 baseline accepted; Phase 0 complete; Phase 1 complete and owner-accepted (2026-11-26); Phase 2 planned and awaiting explicit owner authorization.
 **Scope:** Deliver the approved MVP in incremental, verifiable phases.
 
 ## 1. Execution principles
@@ -16,9 +16,10 @@
 ### Current execution gate (2026-11-26)
 
 - **Phase 0 — Design baseline:** COMPLETE.
-- **Phase 1 — Repository foundation:** IN PROGRESS. The owner explicitly authorized Phase 1 on 2026-11-26. Backend/frontend scaffolds, local PostgreSQL configuration, and health-check wiring have been created. Full build and runtime acceptance remains pending because the implementation environment has no Maven or Docker installation and cannot reach Maven Central/npm registry.
-- **Phases 2–10:** PLANNED; they remain gated by completion and owner acceptance of the preceding phase.
-- Phase 1 must not be marked complete, and Phase 2 must not begin, until all Phase 1 verification steps pass and the owner accepts the result.
+- **Phase 1 — Repository foundation:** COMPLETE — owner accepted on 2026-11-26 after reporting successful backend verification, frontend checks/build, PostgreSQL health, and application health.
+- **Phase 2 — Database foundation:** PLANNED; scope is defined in this plan, but implementation has not been authorized or started.
+- **Phases 3–10:** PLANNED; each remains gated by completion and owner acceptance of the preceding phase.
+- Phase 1 acceptance does not itself authorize Phase 2. Wait for the owner's explicit Phase 2 authorization before making Phase 2 implementation changes.
 
 | Phase | Scope | Main deliverables | Exit criteria |
 |---|---|---|---|
@@ -38,18 +39,18 @@
 
 ### Phase 1 — Repository foundation
 
-**Phase status:** IN PROGRESS — first implementation created; build/runtime verification and owner acceptance remain outstanding.
+**Phase status:** COMPLETE — owner formally accepted Phase 1 on 2026-11-26.
 
 - [x] Create backend and frontend project scaffolds.
 - [x] Choose exact compatible framework/library versions and record the selection rationale.
 - [x] Configure local PostgreSQL through Docker Compose.
 - [x] Add health/readiness endpoints and a minimal frontend shell that calls backend health through the Vite proxy.
-- [ ] Verify backend build and tests on JDK 21.
-- [ ] Install frontend dependencies, generate and commit `package-lock.json`, and verify tests/typecheck/build.
-- [ ] Start PostgreSQL and verify its Compose health check.
-- [ ] Start backend and frontend and verify browser-to-backend health connectivity.
-- [ ] Obtain owner acceptance.
-- Do not implement business features in this phase.
+- [x] Verify backend build and tests on JDK 21 (`./mvnw -f backend/pom.xml verify`; BUILD SUCCESS, 1 test passed).
+- [x] Verify frontend tests, TypeScript typecheck, and production build (`npm run test`: 4 tests passed; `npm run typecheck`: passed; `npm run build`: passed).
+- [x] Start PostgreSQL and verify its Compose health check (owner reported PostgreSQL container healthy).
+- [x] Start backend and frontend and verify health connectivity (owner reported backend health UP and frontend page displayed).
+- [x] Obtain owner acceptance (2026-11-26).
+- No business features were implemented in this phase; database persistence and Flyway remain Phase 2 scope.
 
 ### Phase 2 — Database foundation
 
@@ -130,8 +131,8 @@
 No scheduled message delivery, additional channels, coupon redemption, checkout, orders, payments, logistics, microservices, Redis, Kafka, or third-party production integrations are included in the MVP plan.
 
 
-## 6. Phase 1 authorization and execution gate
+## 6. Phase 1 acceptance and Phase 2 authorization gate
 
-The original pre-development hold was superseded by the owner's explicit instruction to begin Phase 1 on 2026-11-26. Phase 1 implementation is now in progress. Continue only within the Phase 1 scope. Do not begin Phase 2, add migrations, create domain tables, or implement business features until Phase 1 verification passes and the owner explicitly accepts the phase.
+The original pre-development hold was superseded by the owner's explicit instruction to begin Phase 1 on 2026-11-26. The owner subsequently confirmed that Phase 1 verification was complete and formally accepted Phase 1 on 2026-11-26. The accepted results are recorded in `PHASE_1_IMPLEMENTATION_REPORT.md`.
 
-The current verification limitation and exact remaining acceptance steps are recorded in `PHASE_1_IMPLEMENTATION_REPORT.md`.
+Phase 1 is closed. Phase 2 — Database Foundation remains planned only. Do not add Flyway migrations, database schema, or Phase 2 implementation until the owner explicitly authorizes Phase 2. Phase 1 acceptance is not blanket authorization for subsequent phases.

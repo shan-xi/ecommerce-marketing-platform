@@ -1,7 +1,7 @@
 # AI Development Guidelines
 
 **Status:** Approved operating contract for AI-assisted implementation under v1.5.0.  
-**Current instruction:** The original pre-development hold was superseded by the owner's explicit instruction to begin Phase 1 on 2026-11-26. Implement Phase 1 only. Do not proceed to Phase 2 until Phase 1 passes its exit criteria and the owner accepts it.
+**Current instruction:** Phase 1 was formally accepted by the owner on 2026-11-26. Phase 1 is closed. Phase 2 remains planned but is not authorized; do not begin Phase 2 implementation until the owner explicitly approves it.
 
 ## 1. Required reading order
 

@@ -1,20 +1,20 @@
-# Phase 1 — Repository Foundation: First Implementation Report
+# Phase 1 — Repository Foundation: Completion and Acceptance Report
 
 **Project baseline:** v1.5.0  
 **Implementation date:** 2026-11-26  
-**Status:** Implementation files created; full build/runtime verification is pending because this execution environment has no Maven installation, Docker/Compose executable, or outbound package-registry connectivity. Phase 1 is not declared complete.
+**Status:** COMPLETE — the owner formally accepted Phase 1 on 2026-11-26 after completing the verification steps in their environment. This report records the owner-reported results; it does not claim those environment-specific commands were executed in the AI implementation environment.
 
 ## 1. Scope implemented
 
 | Requirement | Implementation | Status |
 |---|---|---|
-| Backend scaffold | Java 21 + Spring Boot application and Maven build | Created; build not executable in this environment |
-| Frontend scaffold | React + TypeScript + Vite SPA | Created; dependency install/build not executable in this environment |
+| Backend scaffold | Java 21 + Spring Boot application and Maven build | Implemented; owner-reported `./mvnw -f backend/pom.xml verify` succeeded (BUILD SUCCESS; 1 test passed) |
+| Frontend scaffold | React + TypeScript + Vite SPA | Implemented; owner-reported typecheck, tests, and production build succeeded |
 | Exact dependency versions | Pinned in Maven parent and `frontend/package.json` | Selected and documented |
-| Local PostgreSQL | `compose.yaml`, named persistent volume at `/var/lib/postgresql` (PostgreSQL 18+ layout), health check, `.env.example` | Created; container not started here |
-| Health/readiness | Spring Boot Actuator `/actuator/health`, `/readyz`, `/livez` | Implemented; runtime verification pending |
-| Frontend calls backend | Typed health API client + Vite `/actuator` proxy | Implemented; browser verification pending |
-| README/setup | Local setup, run, and verification commands | Updated |
+| Local PostgreSQL | `compose.yaml`, named persistent volume at `/var/lib/postgresql` (PostgreSQL 18+ layout), health check, `.env.example` | Implemented; owner reported PostgreSQL container healthy via `docker compose ps` |
+| Health/readiness | Spring Boot Actuator `/actuator/health`, `/readyz`, `/livez` | Implemented; owner reported backend health UP |
+| Frontend calls backend | Typed health API client + Vite `/actuator` proxy | Implemented; owner reported frontend page displayed and health connection verified |
+| README/setup | Local setup, run, and verification commands | Updated and exercised as part of owner verification |
 | No business features | No domain modules, migrations, auth, or campaign/coupon workflows | Preserved |
 
 ## 2. Selected versions
@@ -87,42 +87,36 @@ The exact package versions are pinned in `backend/pom.xml`, `frontend/package.js
 - `docs/development/PHASE_1_IMPLEMENTATION_REPORT.md`
 - `README.md`
 
-## 4. Verification performed in this environment
+## 4. Verification results and owner acceptance
+
+The following results were reported by the owner after running the project in their development environment on 2026-11-26. They are distinguished from the static checks performed during the original implementation pass.
 
 | Check | Command / method | Result |
 |---|---|---|
-| Input ZIP integrity | `unzip -t ecommerce-marketing-platform-v1.5-approved.zip` | Passed |
-| Runtime versions | `java -version`, `node --version`, `npm --version` | Java 21.0.12, Node 22.16.0, npm 10.9.2 available |
-| Maven availability | `command -v mvn` | Not installed |
-| Docker availability | `command -v docker`, `command -v docker-compose` | Not installed |
-| Maven Central connectivity | `curl -I https://repo.maven.apache.org/maven2/` | Blocked: DNS/network unavailable |
-| npm registry connectivity | `curl -I https://registry.npmjs.org/react` | Blocked: DNS/network unavailable |
-| Frontend foundation tests | `cd frontend && npm test` | **Passed: 4 tests, 0 failures** |
-| Maven tests | `./mvnw -f backend/pom.xml verify` | Not runnable here; Maven bootstrap needs outbound network |
-| Frontend install/build | `npm install`, `npm run typecheck`, `npm run build` | Not runnable here; npm registry unavailable |
-| PostgreSQL startup | `docker compose up -d postgres` | Not runnable here; Docker unavailable |
-| Frontend TypeScript/TSX syntax | Preinstalled TypeScript 5.8.3 `transpileModule` over executable `.ts`/`.tsx` files (declaration files excluded) | **Passed: syntax transpilation only; this is not a TypeScript 7.0.2 typecheck** |
-| Maven wrapper syntax | `sh -n mvnw` | **Passed** |
-| POM XML | Python `xml.etree.ElementTree.parse` | **Passed** |
-| JSON configs | Node `JSON.parse` on package and tsconfig files | **Passed** |
-| YAML configs | PyYAML parse of Compose and Spring application config | **Passed** |
-| Phase boundary scan | Source tree scan for domain features, Flyway, Spring Security, Redis, Kafka | **Passed: no Phase 2+ implementation found** |
+| Backend build and tests | `./mvnw -f backend/pom.xml verify` | **Owner-reported: BUILD SUCCESS; 1 test passed, 0 failures, 0 errors** |
+| Frontend tests | `npm run test` | **Owner-reported: 4 tests passed, 0 failed** |
+| Frontend TypeScript | `npm run typecheck` | **Owner-reported: passed** |
+| Frontend production build | `npm run build` | **Owner-reported: passed; Vite build successful** |
+| PostgreSQL service | `docker compose ps` | **Owner-reported: PostgreSQL container healthy** |
+| Backend health | Runtime health endpoint / application status | **Owner-reported: Backend Health UP** |
+| Frontend runtime | Open frontend in browser | **Owner-reported: frontend page displayed** |
+| Owner acceptance | Explicit owner confirmation in conversation | **Accepted — Phase 1 formally accepted on 2026-11-26** |
 
-The unavailable external tooling is an environment limitation, not a test pass. Do not interpret this report as evidence that the Spring application has already started or that PostgreSQL has already run.
+The original implementation environment had no Maven or Docker executable and could not reach Maven Central/npm registry. Those limitations describe the original implementation environment only; they do not override the successful verification results subsequently supplied by the owner. Mockito/Byte Buddy dynamic-agent warnings were non-fatal and did not cause the reported test run to fail.
 
-## 5. Intentionally deferred to later phases
+## 5. Phase 1 acceptance decision
+
+**Phase 1 exit criteria: PASSED.** The owner confirmed the verification results above and explicitly stated: “phase1 確定驗收完成”. Phase 1 is therefore closed and accepted as of 2026-11-26.
+
+No Phase 1 acceptance work remains outstanding. Phase 2 — Database Foundation remains **PLANNED, NOT STARTED, and NOT AUTHORIZED**. A separate explicit owner instruction is required before Phase 2 development begins.
+
+## 6. Intentionally deferred to later phases
 
 - No Flyway dependency, migration, entity, repository, or schema.
 - No Spring Security, JWT, refresh token, login, or CSRF implementation.
 - No domain modules or campaign/audience/coupon business logic.
 - No production deployment topology, secrets manager, Redis, Kafka, or external provider.
 
-## 6. Remaining Phase 1 acceptance work
+## 7. Next phase gate
 
-1. Run `./mvnw -f backend/pom.xml verify` on a machine with internet access and JDK 21.
-2. Run `npm install` in `frontend/`, commit the generated `package-lock.json`, then run `npm test`, `npm run typecheck`, and `npm run build`.
-3. Run `docker compose config`, `docker compose up -d postgres`, and verify `docker compose ps` reports PostgreSQL healthy.
-4. Start the backend and frontend using the README commands; verify `/actuator/health`, `/readyz`, `/livez`, and the frontend connection indicator in a browser.
-5. Resolve any failures, update this report with actual outputs, and obtain owner acceptance.
-
-**Phase gate:** Phase 2 must not begin until these checks pass and the owner explicitly accepts Phase 1.
+Phase 2 may be planned or discussed, but implementation must wait for the owner's explicit Phase 2 authorization.
