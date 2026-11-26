@@ -1,7 +1,7 @@
 # AI Development Guidelines
 
-**Status:** Proposed operating contract for future AI-assisted implementation.  
-**Current instruction:** Do not implement anything until the owner approves the documentation baseline and explicitly requests development.
+**Status:** Approved operating contract for AI-assisted implementation under v1.5.0.  
+**Current instruction:** The baseline is approved and Phase 1 is authorized, but do not implement anything until the owner separately notifies the project to begin Phase 1.
 
 ## 1. Required reading order
 
@@ -89,4 +89,4 @@ Every completed implementation task should report:
 
 ## 7. Documentation maintenance
 
-When code changes a documented behavior, update the appropriate document in the same task. For a significant architectural choice, add an ADR with context, decision, alternatives, consequences, and status. Do not rewrite unrelated docs or change the PRD status without explicit owner approval.
+When code changes a documented behavior, update the appropriate document in the same task. For a significant architectural choice, add an ADR with context, decision, alternatives, consequences, and status. Do not rewrite unrelated docs or change the approved PRD status without explicit owner approval.

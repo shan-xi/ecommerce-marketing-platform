@@ -1,7 +1,7 @@
 # Product Requirements Document (PRD)
 ## E-commerce Campaign & Coupon Engagement Platform
 
-**Document status:** Draft — under review  
+**Document status:** Ready for Development — owner-approved baseline  
 **Version:** 1.5.0  
 **Date:** 2026-11-26  
 **Product type:** Web-based campaign management and member engagement platform
@@ -871,6 +871,6 @@ The implementation should demonstrate sound boundaries and data correctness with
 
 ## 17. Document Status and Change Control
 
-This document is **Draft** and remains under review. It is not yet the final implementation baseline.
+This PRD is **Ready for Development** and is the owner-approved v1.5.0 baseline dated 2026-11-26. The owner approved the complete Design Pack and authorized Phase 1 readiness. Phase 1 has **not started**; implementation remains on hold until the owner separately notifies the project to begin.
 
-The PRD will be marked **Ready for Development** only after the product scope, user journeys, business rules, acceptance criteria, and synchronized technical contracts have been reviewed and approved. The v1.5.0 PRD, API/OpenAPI, Database/ERD, Architecture/Module Design, Security Design, Testing Strategy, ADRs, and Implementation Plan together form the Development Baseline; no separate TDD is required to start the MVP unless a later requirement introduces a genuinely unresolved design area.
+The v1.5.0 PRD, API/OpenAPI, Database/ERD, Architecture/Module Design, Security Design, Testing Strategy, accepted ADRs, and Implementation Plan together form the authoritative MVP Development Baseline. No separate TDD is required to start the MVP unless a later requirement introduces a genuinely unresolved design area.

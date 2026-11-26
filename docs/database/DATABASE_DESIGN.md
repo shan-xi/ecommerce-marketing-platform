@@ -1,6 +1,6 @@
 # Database Design
 
-**Status:** Reviewed — pending owner approval  
+**Status:** Approved — part of the owner-approved v1.5.0 Development Baseline  
 **Database:** PostgreSQL  
 **Schema versioning:** Flyway migrations are recommended for implementation.
 

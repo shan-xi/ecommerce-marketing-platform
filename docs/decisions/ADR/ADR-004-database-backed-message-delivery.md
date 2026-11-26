@@ -1,6 +1,6 @@
 # ADR-004: Database-Backed Immediate In-App Message Delivery
 
-- **Status:** Reviewed — pending owner approval
+- **Status:** Accepted — approved as part of the v1.5.0 Development Baseline
 - **Date:** 2026-11-25
 
 ## Context

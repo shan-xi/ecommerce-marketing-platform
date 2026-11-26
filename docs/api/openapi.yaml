@@ -1,9 +1,9 @@
 openapi: 3.1.0
 info:
   title: E-commerce Marketing Platform API
-  version: 1.5.0-draft
+  version: 1.5.0
   description: >-
-    Draft API contract for the MVP. Persisted campaign states are DRAFT, ACTIVE, and PAUSED;
+    Approved API contract for the MVP. Persisted campaign states are DRAFT, ACTIVE, and PAUSED;
     ENDED is derived for a published campaign when endsAt has passed. Browser authentication
     uses HttpOnly cookies; state-changing requests require the configured CSRF header.
 servers:

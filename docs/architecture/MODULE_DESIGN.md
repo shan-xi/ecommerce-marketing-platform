@@ -1,6 +1,6 @@
 # Backend Module Design
 
-**Status:** Reviewed — pending owner approval
+**Status:** Approved — part of the owner-approved v1.5.0 Development Baseline
 
 ## 1. Module map
 

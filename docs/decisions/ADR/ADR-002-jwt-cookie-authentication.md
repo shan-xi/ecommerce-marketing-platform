@@ -1,6 +1,6 @@
 # ADR-002: JWT Access and Refresh Tokens in HttpOnly Cookies
 
-- **Status:** Proposed — pending owner approval
+- **Status:** Accepted — approved as part of the v1.5.0 Development Baseline
 - **Date:** 2026-11-25
 
 ## Context

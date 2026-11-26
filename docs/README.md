@@ -6,23 +6,27 @@
 | [Architecture](architecture/ARCHITECTURE.md) | System topology, component interactions, technology choices |
 | [Module Design](architecture/MODULE_DESIGN.md) | Backend module ownership, use cases, dependency rules |
 | [Security Design](architecture/SECURITY_DESIGN.md) | JWT cookies, refresh rotation, CSRF, RBAC, data isolation |
-| [Database Design](database/DATABASE_DESIGN.md) | Proposed tables, constraints, indexes, transactions |
+| [Database Design](database/DATABASE_DESIGN.md) | Approved tables, constraints, indexes, transactions |
 | [ERD](database/ERD.md) | Entity relationships and cardinalities |
 | [API Specification](api/API_SPECIFICATION.md) | Endpoint behavior, request/response conventions, auth contract |
-| [OpenAPI](api/openapi.yaml) | Machine-readable draft HTTP contract |
+| [OpenAPI](api/openapi.yaml) | Machine-readable approved HTTP contract |
 | [Error Codes](api/ERROR_CODES.md) | Stable error codes and client behavior |
 | [Development Guidelines](development/DEVELOPMENT_GUIDELINES.md) | Coding and repository conventions |
 | [Testing Strategy](development/TESTING_STRATEGY.md) | Unit, integration, API, E2E, security, concurrency tests |
 | [Implementation Plan](development/IMPLEMENTATION_PLAN.md) | Phased delivery and exit criteria |
 | [AI Development Guidelines](development/AI_DEVELOPMENT_GUIDELINES.md) | How future AI work must use and preserve the docs |
 | [Design Decisions](OPEN_DESIGN_QUESTIONS.md) | Confirmed decisions and Ready-for-Development checklist |
+| [Baseline Approval](BASELINE_APPROVAL.md) | Owner approval record and Phase 1 execution hold |
 | [ADR directory](decisions/ADR/) | Decision records and rationale |
 
 ## Current document status
 
-- `PRD.md`: Draft — Development Baseline v1.5.0, pending owner approval.
-- API specification, OpenAPI, database design, ERD, architecture, module design, security design, testing strategy, and ADR-004: Reviewed — pending owner approval; synchronized to the v1.5.0 baseline.
-- Development guidelines, AI development guidelines, implementation plan, and ADR-001/002/003/005: Proposed — pending owner approval / planning only.
-- `OPEN_DESIGN_QUESTIONS.md`: six owner decisions confirmed; v1.5.0 MVP defaults adopted; final Design Pack approval remains pending.
+- `PRD.md`: Ready for Development — v1.5.0 owner-approved baseline.
+- API specification, OpenAPI, database design, ERD, architecture, module design, security design, and testing strategy: Approved as part of the v1.5.0 baseline.
+- ADR-001 through ADR-005: Accepted as part of the v1.5.0 baseline.
+- Development guidelines and AI development guidelines: Approved for use when implementation begins.
+- `IMPLEMENTATION_PLAN.md`: Approved; Phase 0 complete; Phase 1 authorized / ready but not started.
+- `OPEN_DESIGN_QUESTIONS.md`: all owner decisions and approval gates complete.
+- `BASELINE_APPROVAL.md`: records the owner's approval and the explicit hold on implementation.
 
-These statuses describe document review only. No document authorizes implementation until the owner approves the complete baseline, marks the PRD `Ready for Development`, and explicitly authorizes Phase 1.
+The owner approved the v1.5.0 Development Baseline on 2026-11-26. The owner also instructed that no implementation work begin until a separate notification. Therefore, Phase 1 is ready and authorized, but source code, scaffolding, build configuration, migrations, and services must remain uncreated.

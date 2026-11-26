@@ -1,6 +1,6 @@
 # System Architecture
 
-**Status:** Reviewed — pending owner approval  
+**Status:** Approved — part of the owner-approved v1.5.0 Development Baseline  
 **Applies to:** MVP described in `docs/PRD.md`  
 **Implementation:** Not started
 

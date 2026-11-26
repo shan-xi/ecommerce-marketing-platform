@@ -1,6 +1,6 @@
 # Design Decisions and Ready-for-Development Checklist
 
-**Status:** Decision review complete — six owner decisions confirmed; final Design Pack approval is pending.
+**Status:** Owner-approved — v1.5.0 Development Baseline approved on 2026-11-26; Phase 1 authorized but not started.
 **Scope:** These decisions confirm the existing MVP direction and do not authorize scope expansion.
 
 ## 1. Confirmed decisions
@@ -31,11 +31,11 @@
 | Identity model | Shared `users` table with `ADMIN` / `MEMBER` role; member-only attributes in one-to-one `members` profile. | Previously confirmed; unchanged. |
 | Delivery simplification | One worker, bounded batches, persisted cursor; no lease, `SKIP LOCKED`, or snapshot-job table. | Previously confirmed; unchanged. |
 
-## 3. Review outcome and next gate
+## 3. Review outcome and approval record
 
 The six owner decisions above remain confirmed. The v1.5.0 baseline also adopts the following implementation defaults without expanding product scope: (1) the PRD field/type/operator matrix is authoritative; (2) delivery uses one worker, batch size 100, 1s/2s/4s retry backoff, one initial attempt plus three automatic retries before FAILED, and admin retry from the last committed cursor; (3) refresh-token rows represent individual generations grouped by token_family_id, and reuse revokes the family; (4) composite foreign keys protect campaign/message/coupon ownership; (5) analytics use explicit target-member denominators and do not claim click-to-landing attribution; (6) server-generated claim audit records distinguish SUCCEEDED/FAILED/REPLAYED; (7) zero-member audiences may publish and immediately complete delivery; paused/ended published landing pages remain public but claims are disabled; (8) implementation phases are sequenced so publication is completed in Phase 7. Remaining production-only items are retention/anonymization policy, deployment hosting/secrets, and any measured scale redesign. Token TTL defaults are fixed for MVP configuration (15 minutes / 7 days) and remain environment-configurable. These do not block MVP implementation.
 
-The Design Pack is **not automatically marked Ready for Development** by recording these decisions. The PRD and technical documents remain subject to the owner's final baseline approval. Phase 0 in `development/IMPLEMENTATION_PLAN.md` remains the gate for that approval.
+The owner has explicitly approved the complete v1.5.0 Design Pack. The PRD is now `Ready for Development`, Phase 0 is complete, and Phase 1 is authorized and ready to start. Per the owner's instruction, implementation must remain on hold until a separate notification to begin Phase 1. See `BASELINE_APPROVAL.md` and `development/IMPLEMENTATION_PLAN.md`.
 
 ### Ready-for-development checklist
 
@@ -51,8 +51,8 @@ The Design Pack is **not automatically marked Ready for Development** by recordi
 - [x] Implementation phases have explicit dependencies and publication orchestration ownership.
 - [x] Public landing-page access, authenticated Claim, pause/delivery behavior, and publication timing are specified.
 - [x] MVP exclusions are documented; no Page Builder, scheduled delivery, Kafka, Redis, microservices, snapshot job, or worker lease is added.
-- [ ] Owner gives final approval to the complete Design Pack.
-- [ ] PRD status is explicitly changed to `Ready for Development`.
-- [ ] Phase 1 implementation is explicitly authorized.
+- [x] Owner gives final approval to the complete Design Pack (2026-11-26).
+- [x] PRD status is explicitly changed to `Ready for Development`.
+- [x] Phase 1 is explicitly authorized and ready; execution is on hold until the owner's separate start instruction.
 
-Do not begin implementation until the remaining owner-approval items are completed.
+All owner-approval gates are complete. Do not begin implementation yet: the owner explicitly requested a separate notification before Phase 1 execution.

@@ -1,6 +1,6 @@
 # ADR-005: One React + TypeScript SPA for Admin and Member Experiences
 
-- **Status:** Proposed — pending owner approval
+- **Status:** Accepted — approved as part of the v1.5.0 Development Baseline
 - **Date:** 2026-11-25
 
 ## Context

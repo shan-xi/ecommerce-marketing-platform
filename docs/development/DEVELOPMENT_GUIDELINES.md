@@ -1,6 +1,6 @@
 # Development Guidelines
 
-**Status:** Proposed — applies when implementation is approved.
+**Status:** Approved — applies to implementation under the v1.5.0 baseline.
 
 ## 1. General rules
 

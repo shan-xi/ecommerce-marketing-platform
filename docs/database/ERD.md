@@ -1,6 +1,6 @@
 # Entity Relationship Diagram
 
-**Status:** Reviewed — pending owner approval; logical ERD, not a physical migration specification.
+**Status:** Approved — part of the owner-approved v1.5.0 Development Baseline; logical ERD, not a physical migration specification.
 
 ```mermaid
 erDiagram

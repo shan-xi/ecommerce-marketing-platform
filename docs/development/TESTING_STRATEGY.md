@@ -1,6 +1,6 @@
 # Testing Strategy
 
-**Status:** Reviewed — pending owner approval; implementation has not started.
+**Status:** Approved — part of the owner-approved v1.5.0 Development Baseline; implementation has not started.
 
 ## 1. Test pyramid
 

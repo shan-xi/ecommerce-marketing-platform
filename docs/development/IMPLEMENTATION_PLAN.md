@@ -1,6 +1,6 @@
 # Implementation Plan
 
-**Status:** Proposed — planning only; no development has started.  
+**Status:** Approved — v1.5.0 baseline accepted; Phase 0 complete; Phase 1 authorized and ready, but not started (execution hold at owner's request).  
 **Scope:** Deliver the approved MVP in incremental, verifiable phases.
 
 ## 1. Execution principles
@@ -13,9 +13,16 @@
 
 ## 2. Phase plan
 
+### Current execution gate (2026-11-26)
+
+- **Phase 0 — Design baseline:** COMPLETE.
+- **Phase 1 — Repository foundation:** AUTHORIZED / READY TO START, but **NOT STARTED**. The owner explicitly requested that no development begin until a separate notification.
+- **Phases 2–10:** PLANNED; they remain gated by completion and owner acceptance of the preceding phase.
+- This approval changes document and phase readiness only. It does not mean scaffolding, source code, migrations, build files, containers, or services have been created.
+
 | Phase | Scope | Main deliverables | Exit criteria |
 |---|---|---|---|
-| 0. Design baseline | Review and approve the v1.5.0 Design Pack | Approved PRD, architecture, API/OpenAPI, database/ERD, security, ADRs, and phase plan | Owner explicitly changes PRD to `Ready for Development`; no blocking open questions; Phase 1 authorized |
+| 0. Design baseline | Review and approve the v1.5.0 Design Pack | Approved PRD, architecture, API/OpenAPI, database/ERD, security, accepted ADRs, and phase plan | **Complete (2026-11-26):** owner approved the complete baseline, PRD is `Ready for Development`, no blocking open questions remain, and Phase 1 is authorized |
 | 1. Repository foundation | Backend/frontend scaffolding and local environment | Spring Boot skeleton, React+TS skeleton, build scripts, local PostgreSQL, README | Both apps build; health endpoint works; frontend can call backend; no business features |
 | 2. Database foundation | Initial schema and seed strategy | Flyway migrations for all v1.5 tables/constraints, fictional admin/member seed data, repository integration | Migrations apply cleanly; composite FKs and checks verified; deterministic seed data |
 | 3. Identity and security | Login, JWT cookies, refresh rotation, logout, roles, CSRF | Auth endpoints, token-family persistence, CSRF config, frontend auth flow | Rotation/reuse/concurrency/logout tests pass; member/admin isolation verified |
@@ -31,8 +38,10 @@
 
 ### Phase 1 — Repository foundation
 
+**Phase status:** Authorized / ready to start; not started. Wait for the owner's separate instruction before executing any task.
+
 - Create backend and frontend project scaffolds.
-- Choose exact compatible framework/library versions and record them.
+- Choose exact compatible framework/library versions during Phase 1, record the selected versions and compatibility rationale in the repository, and do not require another product/architecture decision from the owner unless a genuine incompatibility or scope change is discovered.
 - Configure local PostgreSQL through Docker Compose or an equivalent repeatable environment.
 - Add health/readiness endpoint and minimal frontend shell.
 - Do not implement business features in this phase.
@@ -114,3 +123,8 @@
 ## 5. Not part of the plan
 
 No scheduled message delivery, additional channels, coupon redemption, checkout, orders, payments, logistics, microservices, Redis, Kafka, or third-party production integrations are included in the MVP plan.
+
+
+## 6. Explicit execution hold
+
+The owner approved the v1.5.0 baseline and authorized Phase 1 readiness on 2026-11-26, while explicitly instructing that development must not start yet. Do not create or modify application source, project scaffolds, build configuration, Docker Compose, migrations, or executable tests until the owner sends a separate instruction to begin Phase 1. Documentation/status updates in this approval package do not count as implementation.

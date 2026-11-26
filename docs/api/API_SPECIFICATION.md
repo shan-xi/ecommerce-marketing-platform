@@ -1,6 +1,6 @@
 # API Specification
 
-**Status:** Reviewed — pending owner approval  
+**Status:** Approved — part of the owner-approved v1.5.0 Development Baseline  
 **Base path:** `/api/v1`  
 **Transport:** HTTPS + JSON  
 **Authentication:** JWT access/refresh tokens in HttpOnly cookies; CSRF token required for state-changing browser requests.
