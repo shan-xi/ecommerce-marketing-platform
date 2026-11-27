@@ -22,7 +22,8 @@
 | [Phase 4 Implementation Report](development/PHASE_4_IMPLEMENTATION_REPORT.md) | Phase 4 source implementation, verification results, and owner acceptance record          |
 | [Phase 5 Plan](development/PHASE_5_PLAN.md)                                   | Owner-approved Campaign Draft Management scope and approval gate                          |
 | [Phase 5 Implementation Report](development/PHASE_5_IMPLEMENTATION_REPORT.md) | Delivered Phase 5 scope, owner verification results, and formal acceptance record         |
-| [Phase 6 Plan](development/PHASE_6_PLAN.md)                                   | Draft Coupon Configuration and Claim Backend scope and owner approval gate                |
+| [Phase 6 Plan](development/PHASE_6_PLAN.md)                                   | Accepted Coupon Configuration and Claim Backend scope and owner acceptance record          |
+| [Phase 7 Plan](development/PHASE_7_PLAN.md)                                   | Draft Message, Publication Orchestration, and Delivery scope for owner review               |
 | [AI Development Guidelines](development/AI_DEVELOPMENT_GUIDELINES.md)         | How future AI work must use and preserve the docs                                         |
 | [Design Decisions](OPEN_DESIGN_QUESTIONS.md)                                  | Confirmed decisions and Ready-for-Development checklist                                   |
 | [ADR directory](decisions/ADR/)                                               | Decision records and rationale                                                            |
@@ -33,10 +34,9 @@
 - API specification, OpenAPI, database design, ERD, architecture, module design, security design, and testing strategy:
   Approved as part of the v1.5.0 baseline.
 - ADR-001 through ADR-005: Accepted as part of the v1.5.0 baseline.
-- Development guidelines and AI development guidelines: Approved and governing the project; Phases 1–5 are formally
+- Development guidelines and AI development guidelines: Approved and governing the project; Phases 1–6 are formally
   accepted.
-- `IMPLEMENTATION_PLAN.md`: Approved; Phases 0–5 complete and owner-accepted; Phase 6 plan drafted for owner review;
-  Phase 6 implementation is not authorized.
+- `IMPLEMENTATION_PLAN.md`: Approved; Phases 0–6 complete and owner-accepted; Phase 7 plan drafted for owner review; Phase 7 implementation is not authorized.
 - `PHASE_1_IMPLEMENTATION_REPORT.md`: Phase 1 formally accepted (2026-11-26).
 - `PHASE_2_IMPLEMENTATION_REPORT.md`: Phase 2 formally accepted (2026-11-26).
 - `PHASE_3_PLAN.md`: Owner-authorized implementation baseline.
@@ -50,12 +50,10 @@
   by the owner on 2026-11-27.
 - `PHASE_5_IMPLEMENTATION_REPORT.md`: records owner-reported backend startup and Maven verification, frontend checks,
   Phase 5 API suite (29 PASS, 0 FAIL), Audience composition, Campaign UI flow, boundary tests, and formal acceptance.
-- `PHASE_6_PLAN.md`: Coupon Configuration and Claim Backend plan drafted for owner review; implementation is not yet
-  authorized.
+- `PHASE_6_PLAN.md`: Coupon Configuration and Claim Backend plan approved and accepted; implementation complete.
 - `OPEN_DESIGN_QUESTIONS.md`: records confirmed owner decisions, design approval, and phase acceptance gates.
 
-Phases 1 and 2 were accepted on 2026-11-26. Phases 3, 4, and 5 were formally accepted on 2026-11-27. The Phase 5
-implementation report records the owner's successful backend startup/Maven verification, frontend checks, 29/29 API
-suite, Campaign Audience composition, Campaign UI flow, and boundary tests. Phase 6 planning is documented in
-`development/PHASE_6_PLAN.md`; it remains a proposal pending owner approval and explicit implementation authorization.
-Campaign-scoped Audience Preview uses its existing API path and request/response contract.
+Phases 1 and 2 were accepted on 2026-11-26. Phases 3–6 were formally accepted on 2026-11-27. Phase 6 owner-reported verification and the remaining dedicated Coupon race-test hardening item are recorded in `development/PHASE_6_IMPLEMENTATION_REPORT.md`. Phase 7 planning is documented in `development/PHASE_7_PLAN.md` and awaits owner approval and explicit implementation authorization. Campaign-scoped Audience Preview uses its existing API path and request/response contract.
+
+- `PHASE_6_IMPLEMENTATION_REPORT.md`: Phase 6 formally accepted on 2026-11-27 based on owner-reported backend, frontend, API, and Admin UI verification; a dedicated high-contention Coupon race test is tracked for Phase 10 hardening.
+- `PHASE_7_PLAN.md`: Draft for owner review; implementation is not authorized until the plan is approved and the owner explicitly authorizes Phase 7.

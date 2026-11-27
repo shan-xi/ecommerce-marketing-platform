@@ -1016,15 +1016,16 @@ messaging providers, scheduled delivery, Redis, Kafka, or infrastructure that is
 
 ## 17. Document Status and Change Control
 
-This PRD is **Ready for Development** and remains the owner-approved v1.5.0 baseline dated 2026-11-26. The owner
-approved the complete Design Pack. Phase 1 and Phase 2 — Database Foundation were formally accepted on 2026-11-26;
-Phase 3 — Identity and Security was formally accepted on 2026-11-27 after owner verification. Phase 4 — Member and
-Audience was implemented, technically verified, and formally accepted by the owner on
-2026-11-27 under `docs/development/PHASE_4_PLAN.md` and
-`docs/development/PHASE_4_IMPLEMENTATION_REPORT.md`. Phase 5 — Campaign Draft Management is specified in
-`docs/development/PHASE_5_PLAN.md`; the owner approved that plan and separately authorized implementation on
-2026-11-27. Implementation is documented in `docs/development/PHASE_5_IMPLEMENTATION_REPORT.md` and awaits owner
-acceptance. These status updates do not change the approved product scope or requirements.
+This PRD remains **Ready for Development** and is the owner-approved v1.5.0 baseline dated 2026-11-26. The owner
+approved the complete Design Pack. Phases 1 and 2 — Repository and Database Foundation were formally accepted on
+2026-11-26. Phases 3–6 — Identity and Security, Member and Audience, Campaign Draft Management, and Coupon Configuration
+and Claim Backend — were formally accepted by the owner on 2026-11-27; see their phase implementation reports. Phase 6
+acceptance records the owner-reported backend startup, Maven clean verify, frontend tests/typecheck/build/dev, Phase 6
+API verification, and Admin Coupon create/edit checks. A dedicated high-contention Coupon inventory race test is not
+included in the accepted package and is tracked for Phase 10 hardening. Phase 7 — Message, Publication Orchestration,
+and Delivery is documented in `docs/development/PHASE_7_PLAN.md` as a draft for owner review; implementation is not
+authorized until the owner approves the plan and explicitly authorizes development. These status updates do not change
+the approved product scope or requirements.
 
 The v1.5.0 PRD, API/OpenAPI, Database/ERD, Architecture/Module Design, Security Design, Testing Strategy, accepted ADRs,
 and Implementation Plan together form the authoritative MVP Development Baseline. No separate TDD is required to start

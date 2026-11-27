@@ -1,8 +1,7 @@
 # E-commerce Campaign & Coupon Engagement Platform
 
 **Project baseline:** v1.5.0 (owner-approved)  
-**Implementation status:** Phases 0–5 are complete and owner-accepted. Phase 6 Coupon Configuration and Claim Backend is
-implemented for owner verification; formal acceptance and full build/concurrency verification are pending.
+**Implementation status:** Phases 0–6 are complete and owner-accepted. Phase 7 Message, Publication Orchestration, and Delivery is planned; its plan is awaiting owner approval and implementation authorization.
 
 This repository implements the approved MVP described in [`docs/PRD.md`](docs/PRD.md). The project is a modular monolith
 with one Spring Boot backend, one React + TypeScript SPA, and PostgreSQL as the source of truth.
@@ -40,16 +39,18 @@ inventory reservation, successful-request idempotency, audience-snapshot eligibi
 audit records. No schema migration was required. Member claim UI, publication, audience snapshot creation, message
 delivery, public landing page, and analytics remain in their later phases.
 
-Run the Phase 6 Admin coupon API verification against an existing disposable DRAFT campaign:
+Run the Phase 6 Coupon configuration and Claim API verification against an existing disposable DRAFT campaign (and optional ACTIVE claim fixture):
 
 ```zsh
 export PHASE6_DRAFT_CAMPAIGN_ID="<draft-campaign-uuid>"
 zsh scripts/api-tests/suites/phase6-coupon-claim-verification.zsh
 ```
 
-See [`docs/development/PHASE_6_PLAN.md`](docs/development/PHASE_6_PLAN.md) and
-[`docs/development/PHASE_6_IMPLEMENTATION_REPORT.md`](docs/development/PHASE_6_IMPLEMENTATION_REPORT.md). The report
-records which verification commands could not run in this environment; Phase 6 remains pending owner acceptance.
+The owner accepted Phase 6 on 2026-11-27 after reporting successful backend startup, Maven clean verify, frontend tests/typecheck/build/dev, Phase 6 API verification, and Admin Coupon create/edit UI. A dedicated high-contention Coupon inventory race test is not included in this package and is tracked for Phase 10 hardening. See [`docs/development/PHASE_6_PLAN.md`](docs/development/PHASE_6_PLAN.md) and [`docs/development/PHASE_6_IMPLEMENTATION_REPORT.md`](docs/development/PHASE_6_IMPLEMENTATION_REPORT.md).
+
+## Phase 7 — Message, Publication Orchestration, and Delivery
+
+The Phase 7 plan is drafted for owner review. It covers the single campaign message, atomic audience snapshot publication, Pause/Claim serialization, asynchronous inbox delivery, retries/recovery, delivery status, and member inbox APIs. The bounded Admin message/publish/pause/delivery controls are proposed as a UI clarification for owner approval. **Phase 7 implementation is not authorized** until the owner approves [`docs/development/PHASE_7_PLAN.md`](docs/development/PHASE_7_PLAN.md) and explicitly authorizes implementation.
 
 ## Technology versions
 
@@ -154,6 +155,7 @@ docker compose ps
 - Phase 6 implementation report: [
   `docs/development/PHASE_6_IMPLEMENTATION_REPORT.md`](docs/development/PHASE_6_IMPLEMENTATION_REPORT.md)
 - Phase 6 plan: [`docs/development/PHASE_6_PLAN.md`](docs/development/PHASE_6_PLAN.md)
+- Phase 7 plan (draft for owner review): [`docs/development/PHASE_7_PLAN.md`](docs/development/PHASE_7_PLAN.md)
 - Phase 5 implementation report: [
   `docs/development/PHASE_5_IMPLEMENTATION_REPORT.md`](docs/development/PHASE_5_IMPLEMENTATION_REPORT.md)
 - Phase 4 implementation report: [
