@@ -1,8 +1,8 @@
 # Implementation Plan
 
 **Status:** Approved — v1.5.0 baseline accepted; Phase 0 complete; Phase 1 and Phase 2 formally owner-accepted
-(2026-11-26); Phase 3 implemented and awaiting owner verification. **Scope:** Deliver the approved MVP in incremental,
-verifiable phases.
+(2026-11-26); Phase 3 formally owner-accepted (2026-11-27); Phase 4 planning draft prepared for owner review. **Scope:**
+Deliver the approved MVP in incremental, verifiable phases.
 
 ## 1. Execution principles
 
@@ -21,18 +21,20 @@ verifiable phases.
 - **Phase 0 — Design baseline:** COMPLETE.
 - **Phase 1 — Repository foundation:** COMPLETE — formally accepted by the owner on 2026-11-26.
 - **Phase 2 — Database foundation:** COMPLETE — formally accepted by the owner on 2026-11-26.
-- **Phase 3 — Identity and security:** IMPLEMENTED — owner verification pending; see `PHASE_3_IMPLEMENTATION_REPORT.md`.
-  Not yet accepted.
-- **Phases 4–10:** PLANNED; each remains gated by completion and owner acceptance of the preceding phase and explicit
+- **Phase 3 — Identity and security:** COMPLETE — formally accepted by the owner on 2026-11-27; see
+  `PHASE_3_IMPLEMENTATION_REPORT.md`.
+- **Phase 4 — Member and audience:** PLANNING — a bounded planning document has been prepared in
+  `PHASE_4_PLAN.md`; owner review/approval is pending. No Phase 4 implementation is authorized by this planning status.
+- **Phases 5–10:** PLANNED; each remains gated by completion and owner acceptance of the preceding phase and explicit
   owner authorization.
-- Phase 4 or later work must not begin until Phase 3 is verified and formally accepted.
+- Phase 4 implementation may begin only after the owner explicitly approves `PHASE_4_PLAN.md`.
 
 | Phase                                               | Scope                                                                                | Main deliverables                                                                                           | Exit criteria                                                                                                                                                                                    |
 |-----------------------------------------------------|--------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | 0. Design baseline                                  | Review and approve the v1.5.0 Design Pack                                            | Approved PRD, architecture, API/OpenAPI, database/ERD, security, accepted ADRs, and phase plan              | **Complete (2026-11-26):** owner approved the complete baseline, PRD is `Ready for Development`, no blocking open questions remained, and Phase 1 was authorized                                 |
 | 1. Repository foundation                            | Backend/frontend scaffolding and local environment                                   | Spring Boot skeleton, React+TS skeleton, build scripts, local PostgreSQL, README                            | **Complete and owner-accepted (2026-11-26):** backend build/test, frontend checks/build, PostgreSQL health, backend health, and frontend display verified by owner                               |
 | 2. Database foundation                              | Initial schema and seed strategy                                                     | Flyway migrations for all v1.5 tables/constraints, fictional admin/member seed data, repository integration | **Complete and owner-accepted (2026-11-26):** Flyway V1/V2 applied; all 12 tables, seed data, constraints/indexes verified; 15 backend tests and 4 frontend tests passed; typecheck/build passed |
-| 3. Identity and security                            | Login, JWT cookies, refresh rotation, logout, roles, CSRF                            | Auth endpoints, token-family persistence, CSRF config, frontend auth flow                                   | Rotation/reuse/concurrency/logout tests pass; cookie and CSRF behavior verified; role boundaries enforced; frontend does not store tokens in browser storage; owner accepts Phase 3              |
+| 3. Identity and security                            | Login, JWT cookies, refresh rotation, logout, roles, CSRF                            | Auth endpoints, token-family persistence, CSRF config, frontend auth flow                                   | **Complete and owner-accepted (2026-11-27):** backend 30 tests pass; API suite 26/26; frontend 8/8, typecheck/build pass; browser auth/session/role checks pass.                                 |
 | 4. Member and audience                              | Member profile, audience rule validation/evaluation, reusable segments, preview      | Audience use cases and APIs, admin audience UI, canonical field/operator validator                          | Full matrix tests pass; AND/NULL behavior correct; preview count/sample correct. Snapshot persistence is integrated later with Publish in Phase 7.                                               |
 | 5. Campaign draft management                        | Draft create/edit/list/detail and lifecycle validation                               | Campaign CRUD APIs and admin screens; fixed landing-page content fields                                     | Draft validation and date-window rules pass; no publish endpoint/worker yet                                                                                                                      |
 | 6. Coupon configuration and claim backend           | Coupon CRUD/configuration, inventory reservation, claim transaction, claim list      | Coupon APIs, atomic claim service, idempotency, server-side claim audit                                     | Duplicate and oversubscription tests pass; inventory equals successful claims; claim API contract stable                                                                                         |
@@ -82,7 +84,7 @@ workflows, or message delivery workers; those remain later-phase scope.
 
 ### Phase 3 — Identity and security
 
-**Phase status:** IMPLEMENTED — owner verification pending; see `PHASE_3_IMPLEMENTATION_REPORT.md`.
+**Phase status:** COMPLETE — owner formally accepted Phase 3 on 2026-11-27; see `PHASE_3_IMPLEMENTATION_REPORT.md`.
 
 The delivered Phase 3 scope follows the approved Security Design and API Specification:
 
@@ -100,11 +102,15 @@ The delivered Phase 3 scope follows the approved Security Design and API Specifi
   local/session storage.
 - Verify cookie flags, CORS origin allowlist, CSRF behavior, token lifecycle, role boundaries, and security logging.
 
-Phase 3 implementation is delivered within the approved scope. The owner must complete the verification checklist and
-explicitly accept Phase 3 before Phase 4 begins.
+Phase 3 implementation is complete within the approved scope. The owner completed verification and formally accepted
+Phase 3 on 2026-11-27. Phase 4 may now be planned; its implementation remains subject to separate owner authorization.
 
-### Phase 4 — Audience
+### Phase 4 — Member and audience
 
+**Phase status:** PLANNING — see `PHASE_4_PLAN.md`; implementation not yet authorized.
+
+- Implement the authenticated member profile lookup using the identity principal; never accept a client-selected member
+  ID.
 - Implement the canonical field/type/operator matrix and allowlisted rule model/evaluator.
 - Implement saved segment CRUD and preview.
 - Implement campaign audience rule composition according to AND semantics.
@@ -177,5 +183,6 @@ microservices, Redis, Kafka, or third-party production integrations are included
 ## 6. Phase acceptance and authorization gates
 
 Phase 1 and Phase 2 are formally accepted by the owner on 2026-11-26; their results are recorded in
-`PHASE_1_IMPLEMENTATION_REPORT.md` and `PHASE_2_IMPLEMENTATION_REPORT.md`. Phase 3 implementation is delivered and
-awaits owner verification; it is not formally accepted until the owner confirms the acceptance criteria.
+`PHASE_1_IMPLEMENTATION_REPORT.md` and `PHASE_2_IMPLEMENTATION_REPORT.md`. Phase 3 is formally accepted on 2026-11-27;
+its results are recorded in `PHASE_3_IMPLEMENTATION_REPORT.md`. Phase 4 planning is documented separately and is not
+implementation authorization.

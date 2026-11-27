@@ -1,10 +1,10 @@
 import {createContext, type ReactNode, useCallback, useContext, useEffect, useMemo, useState} from 'react';
 import {
-  AuthApiError,
-  type AuthUser,
-  getCurrentUser,
-  login as loginRequest,
-  logout as logoutRequest
+    AuthApiError,
+    type AuthUser,
+    getCurrentUser,
+    login as loginRequest,
+    logout as logoutRequest
 } from '../../shared/lib/authApi';
 
 type AuthState = 'loading' | 'authenticated' | 'anonymous' | 'error';

@@ -1,8 +1,8 @@
 # E-commerce Campaign & Coupon Engagement Platform
 
 **Project baseline:** v1.5.0 (owner-approved)  
-**Implementation status:** Phase 0, Phase 1, and Phase 2 complete and owner-accepted. Phase 3 implementation is included
-in this package; owner verification is pending.
+**Implementation status:** Phases 0–3 complete; Phases 1–3 formally owner-accepted. Phase 4 Member and Audience is in
+planning only; implementation authorization is pending.
 
 This repository implements the approved MVP described in [`docs/PRD.md`](docs/PRD.md). The project is a modular monolith
 with one Spring Boot backend, one React + TypeScript SPA, and PostgreSQL as the source of truth.
@@ -18,13 +18,17 @@ V1/V2, all 12 business tables, seed data, constraints/indexes, 15 backend tests,
 tests, typecheck, and build). See [
 `docs/development/PHASE_2_IMPLEMENTATION_REPORT.md`](docs/development/PHASE_2_IMPLEMENTATION_REPORT.md).
 
-**Phase 3 — Identity and Security: IMPLEMENTED — FINAL REVIEW FIXES INCLUDED; OWNER RE-VERIFICATION PENDING.** Login,
-JWT cookie authentication, refresh rotation, logout, CSRF, CORS, role boundaries, frontend session-state error handling,
-and expanded security lifecycle regression tests are included. No Phase 3 acceptance is implied. See [
+**Phase 3 — Identity and Security: COMPLETE and owner-accepted (2026-11-27).** Login, JWT cookie authentication,
+refresh rotation, logout, CSRF, CORS, role boundaries, frontend session-state handling, and security lifecycle
+regression
+tests passed owner verification. See [
 `docs/development/PHASE_3_IMPLEMENTATION_REPORT.md`](docs/development/PHASE_3_IMPLEMENTATION_REPORT.md).
 
-Member profile, domain repositories/services, business workflows, CRUD APIs, audience evaluation, coupon claiming, and
-delivery workers remain unimplemented and are assigned to later phases.
+**Phase 4 — Member and Audience: PLANNING ONLY.** The planning draft is documented in
+[`docs/development/PHASE_4_PLAN.md`](docs/development/PHASE_4_PLAN.md). It covers member profile lookup, audience rule
+validation/evaluation, reusable segments, preview, and the Admin audience UI within the existing v1.5.0 baseline. Phase
+4
+implementation has not been authorized.
 
 ## Technology versions
 
@@ -120,6 +124,7 @@ docker compose ps
 - Phase plan: [`docs/development/IMPLEMENTATION_PLAN.md`](docs/development/IMPLEMENTATION_PLAN.md)
 - Phase 3 implementation report: [
   `docs/development/PHASE_3_IMPLEMENTATION_REPORT.md`](docs/development/PHASE_3_IMPLEMENTATION_REPORT.md)
+- Phase 4 plan (planning only): [`docs/development/PHASE_4_PLAN.md`](docs/development/PHASE_4_PLAN.md)
 - Phase 3 plan and implementation report: [`docs/development/PHASE_3_PLAN.md`](docs/development/PHASE_3_PLAN.md)
 - AI development protocol: [
   `docs/development/AI_DEVELOPMENT_GUIDELINES.md`](docs/development/AI_DEVELOPMENT_GUIDELINES.md)

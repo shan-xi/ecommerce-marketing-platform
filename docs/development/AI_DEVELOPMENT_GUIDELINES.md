@@ -1,9 +1,9 @@
 # AI Development Guidelines
 
 **Status:** Approved operating contract for AI-assisted implementation under v1.5.0.  
-**Current instruction:** Phase 1 and Phase 2 were formally accepted by the owner on 2026-11-26. Phase 3 — Identity and
-Security implementation has been delivered under explicit owner authorization; owner verification and formal acceptance
-are pending. Do not begin Phase 4 until Phase 3 is verified and accepted.
+**Current instruction:** Phase 1 and Phase 2 were formally accepted by the owner on 2026-11-26; Phase 3 — Identity and
+Security was formally accepted on 2026-11-27. Phase 4 — Member and Audience is in planning only. Read
+`docs/development/PHASE_4_PLAN.md`; do not begin Phase 4 implementation until the owner explicitly approves that plan.
 
 ## 1. Required reading order
 

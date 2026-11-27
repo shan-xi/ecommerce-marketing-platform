@@ -1,8 +1,8 @@
 # Design Decisions and Ready-for-Development Checklist
 
 **Status:** Owner-approved — v1.5.0 Development Baseline approved; Phase 1 and Phase 2 formally accepted on 2026-11-26;
-Phase 3 implemented; owner verification pending. **Scope:** These decisions confirm the existing MVP direction and do
-not authorize scope expansion.
+Phase 3 formally accepted on 2026-11-27; Phase 4 planning draft prepared for owner review. **Scope:** These decisions
+confirm the existing MVP direction and do not authorize scope expansion.
 
 ## 1. Confirmed decisions
 
@@ -46,9 +46,10 @@ publication is completed in Phase 7. Remaining production-only items are retenti
 hosting/secrets, and any measured scale redesign. Token TTL defaults are fixed for MVP configuration (15 minutes / 7
 days) and remain environment-configurable. These do not block MVP implementation.
 
-The owner has explicitly approved the complete v1.5.0 Design Pack. Phase 0 is complete, and Phase 1 — Repository
-Foundation and Phase 2 — Database Foundation were formally accepted on 2026-11-26. Phase 3 — Identity and Security has
-been implemented under explicit owner authorization; owner verification remains pending.
+The owner has explicitly approved the complete v1.5.0 Design Pack. Phase 0 is complete. Phase 1 — Repository Foundation
+and Phase 2 — Database Foundation were formally accepted on 2026-11-26. Phase 3 — Identity and Security was formally
+accepted on 2026-11-27 after owner verification. Phase 4 — Member and Audience is now in planning; implementation is
+not authorized until the owner explicitly approves `docs/development/PHASE_4_PLAN.md`.
 
 ### Ready-for-development checklist
 
@@ -70,7 +71,9 @@ been implemented under explicit owner authorization; owner verification remains 
 - [x] PRD status is explicitly changed to `Ready for Development`.
 - [x] Phase 1 is formally accepted (2026-11-26).
 - [x] Phase 2 — Database Foundation was formally accepted (2026-11-26).
-- [x] Phase 3 — Identity and Security implementation delivered; owner verification and formal acceptance pending.
+- [x] Phase 3 — Identity and Security formally accepted by the owner (2026-11-27).
+- [x] Phase 4 planning document prepared strictly from the approved v1.5.0 project documents.
+- [ ] Owner reviews and explicitly approves `docs/development/PHASE_4_PLAN.md` before Phase 4 implementation.
 
-All design approval gates are complete. Phase 1 and Phase 2 are formally accepted. Phase 4 remains gated until the owner
-verifies and formally accepts Phase 3.
+All design approval gates for the v1.5.0 baseline remain complete. Phases 1–3 are formally accepted. Phase 4 is in
+planning only; its implementation remains gated by explicit owner approval of the Phase 4 plan.

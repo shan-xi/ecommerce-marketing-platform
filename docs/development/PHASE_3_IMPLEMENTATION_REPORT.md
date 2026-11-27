@@ -2,8 +2,8 @@
 
 **Baseline:** `ecommerce-marketing-platform-v0.1.0-phase3-readytodevelop.zip`  
 **Implementation authorization:** Owner instruction received 2026-11-26.  
-**Implementation status:** Implemented — owner verification pending.  
-**Phase acceptance:** NOT ACCEPTED YET.  
+**Implementation status:** COMPLETE — owner-verified.  
+**Phase acceptance:** ACCEPTED by the owner on 2026-11-27.  
 **Database migration:** None added; existing V1/V2 migrations remain unchanged.
 
 ## 1. Delivered scope
@@ -159,7 +159,11 @@ directory. Cookie jars and request bodies retain their explicit restrictive perm
 
 No production database migration or business-module scope was added.
 
-## 4. Verification performed in the implementation environment
+## 4. Verification history and final owner verification
+
+The packaging-environment results and early owner-side failures below are historical records, not the final acceptance
+result. The successful final owner verification is recorded in Section 4.2 and supersedes those earlier blocked/failed
+runs.
 
 | Check                                       | Result  | Notes                                                                                                                                                                   |
 |---------------------------------------------|---------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -186,12 +190,25 @@ The blocked checks are not represented as passing. Owner-side verification is re
 | JWT token service unit tests              | ERROR — corrected, rerun required | `Jwt.getIssuer()` attempted String-to-URL conversion; see Section 3.2.                                                                    |
 | Overall Maven verify                      | FAIL — rerun required             | Owner reported 23 tests: 18 passed, 1 failure, 4 errors. This follow-up ZIP has not yet been run by the owner.                            |
 
-### 4.2 Final-review test additions
+### 4.2 Final owner verification — 2026-11-27
 
-The tests described in Section 3.3 are included in this ZIP but have not been executed against the owner's
-Docker/PostgreSQL environment in this packaging session. The previous owner result of 26 PASS / 0 FAIL applies to the
-earlier API suite; the zsh suite was hardened but its test count and assertions were not changed. Re-run backend
-`verify`, frontend checks, and the API suite against this exact ZIP before marking Phase 3 accepted.
+The owner confirmed that the Phase 3 verification was completed successfully and formally accepted the Phase 3 changes.
+
+| Check                            |   Owner-reported result | Evidence / notes                                                                                                                     |
+|----------------------------------|------------------------:|--------------------------------------------------------------------------------------------------------------------------------------|
+| Backend Maven verification       |    PASS — BUILD SUCCESS | 30 tests; 0 failures, 0 errors, 0 skipped.                                                                                           |
+| Phase 3 authentication API suite | PASS — 26 PASS / 0 FAIL | Includes CSRF cookie/header behavior, login, role boundaries, refresh, logout, anonymous access, and refresh-token replay rejection. |
+| Frontend tests                   |              PASS — 8/8 | All frontend tests passed.                                                                                                           |
+| Frontend TypeScript typecheck    |                    PASS | `npm run typecheck` completed successfully.                                                                                          |
+| Frontend production build        |                    PASS | `npm run build` completed successfully.                                                                                              |
+| Browser login/logout             |                    PASS | Admin and all three seeded Member accounts logged in and out successfully.                                                           |
+| Browser session persistence      |                    PASS | Member session remained authenticated after page refresh.                                                                            |
+| Role boundary                    |                    PASS | Member access to Admin API was rejected with HTTP 403; Admin access to Member API was rejected with HTTP 403.                        |
+| PostgreSQL / Flyway runtime      |                    PASS | Owner's verification included successful PostgreSQL-backed Maven verification and application startup.                               |
+
+The earlier failed verification attempts in Sections 3.1–3.2 and the packaging-environment limitations in Section 4
+are retained as historical troubleshooting evidence. They were superseded by the successful final owner verification
+recorded above. No database migration was added or modified as part of Phase 3.
 
 ## 5. Owner verification checklist
 
@@ -310,13 +327,18 @@ refresh generations in that family to be revoked.
 
 ## 6. Acceptance status
 
-Phase 3 implementation and the final Code Review fixes are delivered for owner verification, but Phase 3 is **not yet
-marked COMPLETE or ACCEPTED**. Please return:
+**Status: OWNER ACCEPTED**
 
-- backend `./mvnw -f backend/pom.xml verify` result,
-- frontend `npm run test`, `npm run typecheck`, and `npm run build` results,
-- Docker Compose/PostgreSQL status,
-- login/refresh/logout/cookie/CSRF/role-boundary observations,
-- any failing logs with secrets and cookie/token values redacted.
+Phase 3 — Identity and Security is **COMPLETE and formally ACCEPTED by the owner on 2026-11-27**.
 
-After reviewing those results, defects will be fixed before requesting formal Phase 3 acceptance.
+The owner confirmed the final verification results in Section 4.2:
+
+- Backend Maven verification: BUILD SUCCESS, 30 tests, 0 failures, 0 errors, 0 skipped.
+- Phase 3 authentication API suite: 26 PASS / 0 FAIL.
+- Frontend tests: 8/8 PASS.
+- Frontend TypeScript typecheck: PASS.
+- Frontend production build: PASS.
+- Browser login/logout, session persistence after refresh, and Admin/Member role boundaries: PASS.
+
+The Phase 3 acceptance gate is closed. Phase 4 planning may proceed under the existing approved baseline. Phase 4
+implementation still requires the owner to review and explicitly authorize its plan.

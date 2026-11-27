@@ -1,10 +1,10 @@
 # Phase 3 Plan — Identity and Security
 
-**Document status:** Owner-authorized implementation baseline — 2026-11-26.  
-**Implementation status:** IMPLEMENTED — owner verification pending.  
+**Document status:** Owner-authorized implementation baseline — accepted 2026-11-27.  
+**Implementation status:** COMPLETE — owner-verified and accepted on 2026-11-27.  
 **Baseline:** Owner-approved v1.5.0 Development Baseline.  
 **Preceding phases:** Phase 1 and Phase 2 formally accepted on 2026-11-26.  
-**Purpose:** Define the bounded Phase 3 work package, implementation scope, and acceptance gates.
+**Purpose:** Record the bounded Phase 3 work package, implementation scope, and acceptance outcome.
 
 > The owner explicitly authorized implementation from `ecommerce-marketing-platform-v0.1.0-phase3-readytodevelop.zip` on
 > 2026-11-26. This plan remains the scope and acceptance authority.
@@ -220,48 +220,48 @@ Implementation preflight decisions applied:
 
 If a required feature appears to fall into this list, stop and obtain a scope decision rather than silently adding it.
 
-## 8. Proposed acceptance criteria
+## 8. Acceptance criteria — owner accepted
 
 ### Authentication and token lifecycle
 
-- [ ] Valid active user credentials authenticate and issue the documented cookies.
-- [ ] Invalid email/password produces a generic authentication failure without account enumeration.
-- [ ] Inactive users cannot authenticate.
-- [ ] Access token is accepted before expiry and rejected after expiry or invalid signature.
-- [ ] Refresh token is validated and rotated; the previous generation cannot be used again.
-- [ ] Only one of two concurrent refresh attempts can consume a generation and create the next generation.
-- [ ] Reuse of a consumed/revoked refresh token revokes the entire token family; all active family tokens subsequently
+- [x] Valid active user credentials authenticate and issue the documented cookies.
+- [x] Invalid email/password produces a generic authentication failure without account enumeration.
+- [x] Inactive users cannot authenticate.
+- [x] Access token is accepted before expiry and rejected after expiry or invalid signature.
+- [x] Refresh token is validated and rotated; the previous generation cannot be used again.
+- [x] Only one of two concurrent refresh attempts can consume a generation and create the next generation.
+- [x] Reuse of a consumed/revoked refresh token revokes the entire token family; all active family tokens subsequently
   fail.
-- [ ] Unknown, expired, and revoked refresh tokens are rejected without leaking account/session existence.
-- [ ] Refresh session rows store only SHA-256 hashes of serialized refresh JWTs; raw tokens never appear in database
+- [x] Unknown, expired, and revoked refresh tokens are rejected without leaking account/session existence.
+- [x] Refresh session rows store only SHA-256 hashes of serialized refresh JWTs; raw tokens never appear in database
   records or logs.
-- [ ] Logout revokes the presented family and clears cookies even when the access token has expired; repeated logout is
+- [x] Logout revokes the presented family and clears cookies even when the access token has expired; repeated logout is
   safe.
-- [ ] Access and refresh TTL defaults are 15 minutes and 7 days and are environment-configurable.
+- [x] Access and refresh TTL defaults are 15 minutes and 7 days and are environment-configurable.
 
 ### Cookies, CSRF, CORS, and authorization
 
-- [ ] Access and refresh cookies are HttpOnly, host-only, use the documented paths and SameSite policy, and set Secure
+- [x] Access and refresh cookies are HttpOnly, host-only, use the documented paths and SameSite policy, and set Secure
   in HTTPS.
-- [ ] Local HTTP Secure-cookie exception is restricted to the local development profile.
-- [ ] CSRF cookie contains no authentication credential; missing/invalid CSRF header rejects login, refresh, logout, and
+- [x] Local HTTP Secure-cookie exception is restricted to the local development profile.
+- [x] CSRF cookie contains no authentication credential; missing/invalid CSRF header rejects login, refresh, logout, and
   state-changing cookie-authenticated requests.
-- [ ] Credentialed CORS accepts only configured origins; wildcard origin is not used.
-- [ ] Anonymous requests cannot access protected Admin or Member route groups.
-- [ ] A `MEMBER` principal is rejected from Admin routes; an `ADMIN` principal is rejected from Member-only routes where
+- [x] Credentialed CORS accepts only configured origins; wildcard origin is not used.
+- [x] Anonymous requests cannot access protected Admin or Member route groups.
+- [x] A `MEMBER` principal is rejected from Admin routes; an `ADMIN` principal is rejected from Member-only routes where
   the contract requires MEMBER.
-- [ ] `/auth/me` returns only the authenticated user's stable user ID and role.
-- [ ] Frontend never stores JWTs in browser storage; refresh is single-flight and request retry is bounded to one retry.
-- [ ] Sensitive credentials, token values, cookie contents, and authorization headers do not appear in logs.
+- [x] `/auth/me` returns only the authenticated user's stable user ID and role.
+- [x] Frontend never stores JWTs in browser storage; refresh is single-flight and request retry is bounded to one retry.
+- [x] Sensitive credentials, token values, cookie contents, and authorization headers do not appear in logs.
 
 ### Regression and reproducibility
 
-- [ ] Backend `./mvnw -f backend/pom.xml verify` passes, including PostgreSQL integration tests.
-- [ ] Frontend `npm run test`, `npm run typecheck`, and `npm run build` pass.
-- [ ] Existing Phase 1/2 health, Flyway, schema, and seed behavior remains intact.
-- [ ] Security tests cover token lifecycle, CSRF, authorization, and concurrent refresh.
-- [ ] API Specification and OpenAPI remain synchronized; any approved contract changes are documented.
-- [ ] Owner verifies the Phase 3 behavior and explicitly accepts Phase 3.
+- [x] Backend `./mvnw -f backend/pom.xml verify` passes, including PostgreSQL integration tests.
+- [x] Frontend `npm run test`, `npm run typecheck`, and `npm run build` pass.
+- [x] Existing Phase 1/2 health, Flyway, schema, and seed behavior remains intact.
+- [x] Security tests cover token lifecycle, CSRF, authorization, and concurrent refresh.
+- [x] API Specification and OpenAPI remain synchronized; any approved contract changes are documented.
+- [x] Owner verifies the Phase 3 behavior and explicitly accepts Phase 3.
 
 ## 9. Risks and controls
 
@@ -275,7 +275,11 @@ If a required feature appears to fall into this list, stop and obtain a scope de
 | Existing seed hashes have no documented plaintext password  | Do not guess; use the opt-in local-profile credential initializer documented in the implementation report. |
 | JWT signing key is weak or reused outside local development | Enforce a minimum 256-bit HS256 key and keep environment-specific keys outside source control              |
 
-## 10. Phase gate
+## 10. Phase gate and acceptance outcome
 
-Implementation has been performed under the owner's explicit instruction. Phase 3 is not considered accepted until the
-owner completes the verification checklist in `PHASE_3_IMPLEMENTATION_REPORT.md` and explicitly accepts the phase.
+Implementation was performed under the owner's explicit instruction. The owner completed the verification checklist
+and formally accepted Phase 3 on 2026-11-27. The final results are recorded in
+`PHASE_3_IMPLEMENTATION_REPORT.md`, Section 4.2.
+
+Phase 3 is COMPLETE and ACCEPTED. The next phase may be planned; implementation of Phase 4 requires a separate explicit
+owner approval of the Phase 4 plan.
