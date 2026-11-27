@@ -1,9 +1,8 @@
 # E-commerce Campaign & Coupon Engagement Platform
 
 **Project baseline:** v1.5.0 (owner-approved)  
-**Implementation status:** Phases 0–3 complete; Phases 1–3 formally owner-accepted. The Phase 4 Member and Audience
-plan was owner-approved on 2026-11-27; implementation has not started and is on hold pending a separate start
-instruction.
+**Implementation status:** Phases 0–3 complete and formally owner-accepted. Phase 4 Member and Audience is implemented
+and technically verified; formal owner acceptance is pending.
 
 This repository implements the approved MVP described in [`docs/PRD.md`](docs/PRD.md). The project is a modular monolith
 with one Spring Boot backend, one React + TypeScript SPA, and PostgreSQL as the source of truth.
@@ -25,11 +24,12 @@ regression
 tests passed owner verification. See [
 `docs/development/PHASE_3_IMPLEMENTATION_REPORT.md`](docs/development/PHASE_3_IMPLEMENTATION_REPORT.md).
 
-**Phase 4 — Member and Audience: PLAN APPROVED; IMPLEMENTATION ON HOLD.** The approved plan is documented in
-[`docs/development/PHASE_4_PLAN.md`](docs/development/PHASE_4_PLAN.md). It covers member profile lookup, audience rule
-validation/evaluation, reusable segments, reusable-segment preview, and the Admin audience UI within the existing
-v1.5.0 baseline. The owner instructed that development must not start yet. Campaign-scoped audience preview is
-integrated in Phase 5 after Campaign read access is available; its existing API contract remains unchanged.
+**Phase 4 — Member and Audience: TECHNICALLY VERIFIED; OWNER ACCEPTANCE PENDING.** Implements authenticated member
+profile lookup, the canonical audience rule validator/evaluator, reusable segment create/list/detail/update APIs,
+reusable-segment preview, AND composition support, and the Admin audience UI. Owner-run backend, frontend, runtime, and
+27-assertion API verification passed. Campaign-scoped audience preview remains a Phase 5 integration. See
+[`docs/development/PHASE_4_PLAN.md`](docs/development/PHASE_4_PLAN.md) and
+[`docs/development/PHASE_4_IMPLEMENTATION_REPORT.md`](docs/development/PHASE_4_IMPLEMENTATION_REPORT.md).
 
 ## Technology versions
 
@@ -87,7 +87,9 @@ The Maven bootstrap script downloads a pinned Maven distribution and verifies it
    npm run dev
    ```
 
-6. Open <http://localhost:5173>. The Phase 3 login screen should appear after the backend health check completes.
+6. Open <http://localhost:5173>. The login screen appears after the backend health check. After signing in as ADMIN, the
+   Audience Segments workspace is available; member profile access is provided by the authenticated
+   `GET /api/v1/member/profile` API; Phase 4 does not add a Member Portal screen.
 
 The backend connects to PostgreSQL and applies Flyway migrations on startup. Use the `.env.example` values for local
 development only; override datasource settings through environment variables in other environments.
@@ -107,6 +109,9 @@ npm run typecheck
 npm run build
 cd ..
 
+# Phase 4 HTTP/API verification (backend must be running)
+zsh scripts/api-tests/suites/phase4-audience-verification.zsh
+
 # PostgreSQL service configuration and health
 docker compose config
 docker compose up -d postgres
@@ -123,9 +128,11 @@ docker compose ps
 - Database design: [`docs/database/DATABASE_DESIGN.md`](docs/database/DATABASE_DESIGN.md) and [
   `docs/database/ERD.md`](docs/database/ERD.md)
 - Phase plan: [`docs/development/IMPLEMENTATION_PLAN.md`](docs/development/IMPLEMENTATION_PLAN.md)
+- Phase 4 implementation report: [
+  `docs/development/PHASE_4_IMPLEMENTATION_REPORT.md`](docs/development/PHASE_4_IMPLEMENTATION_REPORT.md)
 - Phase 3 implementation report: [
   `docs/development/PHASE_3_IMPLEMENTATION_REPORT.md`](docs/development/PHASE_3_IMPLEMENTATION_REPORT.md)
-- Phase 4 plan (owner-approved; implementation on hold): [
+- Phase 4 plan (owner-approved and implementation authorized): [
   `docs/development/PHASE_4_PLAN.md`](docs/development/PHASE_4_PLAN.md)
 - Phase 3 plan and implementation report: [`docs/development/PHASE_3_PLAN.md`](docs/development/PHASE_3_PLAN.md)
 - AI development protocol: [

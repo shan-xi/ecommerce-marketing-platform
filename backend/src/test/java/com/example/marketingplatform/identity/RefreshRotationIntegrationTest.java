@@ -115,6 +115,6 @@ class RefreshRotationIntegrationTest extends AbstractPostgresIntegrationTest {
     void unknownRefreshTokenIsRejectedWithoutCreatingASession() {
         org.assertj.core.api.Assertions.assertThatThrownBy(
                         () -> identity.refresh("unknown-refresh-token", "unknown-refresh-test"))
-                .isInstanceOf(com.example.marketingplatform.identity.application.RefreshRejectedException.class);
+                .isInstanceOf(RefreshRejectedException.class);
     }
 }

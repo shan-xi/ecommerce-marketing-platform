@@ -1,10 +1,26 @@
 import {useEffect, useState} from 'react';
 import {fetchBackendHealth, type HealthStatus} from '../shared/lib/healthApi';
 import {LoginForm} from '../features/auth/LoginForm';
+import {useAuth} from '../features/auth/AuthProvider';
+import {AudienceAdmin} from '../features/audience/AudienceAdmin';
 
 type ConnectionState = 'checking' | 'connected' | 'unavailable';
 
 export function App() {
+    const {user} = useAuth();
+    const [route, setRoute] = useState(window.location.pathname);
+    useEffect(() => {
+        if (user?.role === 'ADMIN' && route === '/') {
+            const destination = '/admin';
+            window.history.replaceState(null, '', destination);
+            setRoute(destination);
+        }
+    }, [user, route]);
+    useEffect(() => {
+        const syncRoute = () => setRoute(window.location.pathname);
+        window.addEventListener('popstate', syncRoute);
+        return () => window.removeEventListener('popstate', syncRoute);
+    }, []);
     const [connectionState, setConnectionState] = useState<ConnectionState>('checking');
     const [healthStatus, setHealthStatus] = useState<HealthStatus>('UNKNOWN');
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -27,10 +43,11 @@ export function App() {
 
     return <main className="page-shell">
         <section className="hero" aria-labelledby="page-title">
-            <p className="eyebrow">PHASE 3 · IDENTITY AND SECURITY</p>
+            <p className="eyebrow">PHASE 4 · MEMBER AND AUDIENCE</p>
             <h1 id="page-title">行銷活動與優惠券平台</h1>
             <p className="subtitle">E-commerce Campaign &amp; Coupon Engagement Platform</p>
-            <p className="intro">Phase 3 建立登入、工作階段與存取控制基礎。管理員與會員的業務功能將依核准階段逐步開發。</p>
+            <p className="intro">Phase 4 提供會員個人資料查詢、受眾規則驗證、可重複使用的 Audience Segment
+                管理與受眾預覽。</p>
         </section>
         <section className="status-card" aria-live="polite">
             <div>
@@ -43,6 +60,10 @@ export function App() {
             <span className={`status-indicator status-${connectionState}`} aria-hidden="true"/>
         </section>
         <LoginForm/>
+        {user?.role === 'ADMIN' &&
+            <nav className="route-nav" aria-label="主要功能"><a href="/admin">Admin Audience</a></nav>}
+        {route === '/admin' && user?.role === 'ADMIN' && <AudienceAdmin/>}
+        {user && route === '/admin' && user.role !== 'ADMIN' && <p className="error-message">此頁面僅供管理員使用。</p>}
         <footer className="footer">
             <span>Development baseline: v1.5.0</span>
             <span>Backend · Spring Boot / Frontend · React + TypeScript</span>

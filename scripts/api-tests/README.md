@@ -98,3 +98,17 @@ The Phase 3 suite checks:
 
 Future feature tests should add their own feature folder and reuse `lib/common.zsh` plus the relevant shared helpers.
 Keep business-specific assertions in feature test scripts rather than duplicating curl, cookie, or PASS/FAIL logic.
+
+## Phase 4 Audience API suite
+
+Run the complete Phase 4 Audience Segment API verification from the repository root:
+
+```zsh
+zsh scripts/api-tests/suites/phase4-audience-verification.zsh
+```
+
+This suite reuses the shared CSRF/authentication helpers and verifies Admin authorization, Segment
+create/list/get/update,
+audience preview response shape, and rejection of unsupported rule fields/operators. See `audience/README.md` for exact
+coverage and the note that each successful run leaves one uniquely named verification Segment (the current API has no
+delete/archive endpoint).

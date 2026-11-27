@@ -118,6 +118,8 @@ paths:
             application/json:
               schema: { $ref: '#/components/schemas/CampaignEnvelope' }
         '404': { $ref: '#/components/responses/NotFound' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
     put:
       summary: Update a draft campaign
       security: [ { accessCookie: [ ] } ]
@@ -177,7 +179,14 @@ paths:
         - $ref: '#/components/parameters/Page'
         - $ref: '#/components/parameters/Size'
       responses:
-        '200': { description: Segment list. }
+        '200':
+          description: Paginated reusable audience segments ordered by createdAt descending.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AudienceSegmentPageEnvelope' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
     post:
       summary: Create reusable audience segment
       security: [ { accessCookie: [ ] } ]
@@ -188,8 +197,14 @@ paths:
           application/json:
             schema: { $ref: '#/components/schemas/AudienceSegmentWrite' }
       responses:
-        '201': { description: Segment created. }
+        '201':
+          description: Segment created.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AudienceSegmentEnvelope' }
         '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
   /admin/audience-segments/preview:
     post:
       summary: Preview audience rules
@@ -202,8 +217,14 @@ paths:
           application/json:
             schema: { $ref: '#/components/schemas/AudienceRules' }
       responses:
-        '200': { description: Matching member count and optional masked sample. }
+        '200':
+          description: Matching member count and up to 10 non-sensitive member display identifiers.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AudiencePreviewEnvelope' }
         '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
   /admin/audience-segments/{segmentId}:
     parameters:
       - name: segmentId
@@ -214,8 +235,14 @@ paths:
       summary: Get reusable audience segment
       security: [ { accessCookie: [ ] } ]
       responses:
-        '200': { description: Audience segment detail. }
+        '200':
+          description: Audience segment detail.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AudienceSegmentEnvelope' }
         '404': { $ref: '#/components/responses/NotFound' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
     put:
       summary: Update reusable audience segment
       security: [ { accessCookie: [ ] } ]
@@ -226,8 +253,15 @@ paths:
           application/json:
             schema: { $ref: '#/components/schemas/AudienceSegmentWrite' }
       responses:
-        '200': { description: Audience segment updated. }
+        '200':
+          description: Audience segment updated.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AudienceSegmentEnvelope' }
         '400': { $ref: '#/components/responses/BadRequest' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
   /admin/campaigns/{campaignId}/audience-preview:
     parameters:
       - $ref: '#/components/parameters/CampaignId'
@@ -237,7 +271,11 @@ paths:
       security: [ { accessCookie: [ ] } ]
       parameters: [ { $ref: '#/components/parameters/CsrfHeader' } ]
       responses:
-        '200': { description: Matching member count and optional masked sample. }
+        '200':
+          description: Matching member count and up to 10 non-sensitive member display identifiers.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AudiencePreviewEnvelope' }
         '400': { $ref: '#/components/responses/BadRequest' }
   /admin/campaigns/{campaignId}/coupons:
     parameters:
@@ -325,8 +363,14 @@ paths:
       summary: Get current member profile
       security: [ { accessCookie: [ ] } ]
       responses:
-        '200': { description: Current member profile summary. }
+        '200':
+          description: Profile for the authenticated MEMBER principal only.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/MemberProfileEnvelope' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
   /member/messages:
     get:
       summary: List current member inbox (deliveredAt descending)
@@ -517,6 +561,7 @@ components:
         rules: { $ref: '#/components/schemas/AudienceRules' }
     AudienceRules:
       type: object
+      additionalProperties: false
       description: >-
         Canonical field/operator matrix: age INTEGER 0..120 supports all comparison and set operators; gender ENUM (FEMALE, MALE, OTHER, UNDISCLOSED) and membershipTier ENUM (STANDARD, SILVER, GOLD, PLATINUM) support only =, !=, IN, NOT IN; registeredAt DATETIME, orderCount INTEGER >= 0, totalSpending DECIMAL >= 0 with at most 2 decimal places, lastOrderAt nullable DATETIME, and lastLoginAt nullable DATETIME support all comparison and set operators. Comparison operators take one non-null scalar; IN/NOT IN take a non-empty array of non-null exact-type values. Enum values are case-sensitive. Ordered comparisons are invalid for enums. NULL member attributes never match any operator, including != and NOT IN. The backend validator enforces the matrix before constructing SQL.
       required: [ version, match, conditions ]
@@ -528,6 +573,7 @@ components:
           minItems: 1
           items:
             type: object
+            additionalProperties: false
             required: [ field, operator, value ]
             properties:
               field:
@@ -545,6 +591,72 @@ components:
                     items:
                       type: [ string, number ]
                 description: Comparison operators require one non-null scalar; IN and NOT IN require a non-empty array of non-null scalars. Values must match the selected field type; NULL values and NULL array items are invalid.
+    AudienceSegmentEnvelope:
+      type: object
+      required: [ data ]
+      properties:
+        data: { $ref: '#/components/schemas/AudienceSegment' }
+    AudienceSegmentPageEnvelope:
+      type: object
+      required: [ data, page ]
+      properties:
+        data: { type: array, items: { $ref: '#/components/schemas/AudienceSegment' } }
+        page:
+          type: object
+          required: [ number, size, totalElements, totalPages ]
+          properties:
+            number: { type: integer }
+            size: { type: integer }
+            totalElements: { type: integer }
+            totalPages: { type: integer }
+    AudienceSegment:
+      type: object
+      required: [ id, name, rules, createdByUserId, createdAt, updatedAt ]
+      properties:
+        id: { type: string, format: uuid }
+        name: { type: string, maxLength: 120 }
+        description: { type: [ string, 'null' ], maxLength: 500 }
+        rules: { $ref: '#/components/schemas/AudienceRules' }
+        createdByUserId: { type: string, format: uuid }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+    AudiencePreviewEnvelope:
+      type: object
+      required: [ data ]
+      properties:
+        data:
+          type: object
+          required: [ count, sample ]
+          properties:
+            count: { type: integer, minimum: 0 }
+            sample:
+              type: array
+              maxItems: 10
+              items:
+                type: object
+                required: [ memberId, displayName ]
+                properties:
+                  memberId: { type: string, format: uuid }
+                  displayName: { type: string }
+    MemberProfileEnvelope:
+      type: object
+      required: [ data ]
+      properties:
+        data:
+          type: object
+          required: [ memberId, displayName, registeredAt, membershipTier, orderCount, totalSpending ]
+          properties:
+            memberId: { type: string, format: uuid }
+            displayName: { type: string }
+            birthDate: { type: [ string, 'null' ], format: date }
+            age: { type: [ integer, 'null' ], description: Derived using the Asia/Taipei calendar date. }
+            gender: { type: [ string, 'null' ], enum: [ FEMALE, MALE, OTHER, UNDISCLOSED, null ] }
+            registeredAt: { type: string, format: date-time }
+            membershipTier: { type: string, enum: [ STANDARD, SILVER, GOLD, PLATINUM ] }
+            orderCount: { type: integer, minimum: 0 }
+            totalSpending: { type: number, minimum: 0 }
+            lastOrderAt: { type: [ string, 'null' ], format: date-time }
+            lastLoginAt: { type: [ string, 'null' ], format: date-time }
     CouponWrite:
       type: object
       required: [ name, discountType, discountValue, totalQuantity, startsAt, endsAt ]

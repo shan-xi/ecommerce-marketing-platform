@@ -1,8 +1,9 @@
 # Implementation Plan
 
 **Status:** Approved — v1.5.0 baseline accepted; Phase 0 complete; Phases 1–3 formally owner-accepted; Phase 4 plan
-formally owner-approved on 2026-11-27, with implementation intentionally held pending a separate start instruction.
-**Scope:** Deliver the approved MVP in incremental, verifiable phases.
+formally owner-approved and implementation explicitly authorized on 2026-11-27; technical verification is
+complete and formal owner acceptance is pending. **Scope:** Deliver the approved MVP in
+incremental, verifiable phases.
 
 ## 1. Execution principles
 
@@ -23,11 +24,11 @@ formally owner-approved on 2026-11-27, with implementation intentionally held pe
 - **Phase 2 — Database foundation:** COMPLETE — formally accepted by the owner on 2026-11-26.
 - **Phase 3 — Identity and security:** COMPLETE — formally accepted by the owner on 2026-11-27; see
   `PHASE_3_IMPLEMENTATION_REPORT.md`.
-- **Phase 4 — Member and audience:** PLAN APPROVED on 2026-11-27; implementation NOT STARTED and intentionally on
-  hold until the owner separately instructs development to begin. See `PHASE_4_PLAN.md`.
+- **Phase 4 — Member and audience:** IMPLEMENTED and TECHNICALLY VERIFIED based on owner-run checks; formal owner
+  acceptance pending. See `PHASE_4_PLAN.md` and `PHASE_4_IMPLEMENTATION_REPORT.md`.
 - **Phases 5–10:** PLANNED; each remains gated by completion and owner acceptance of the preceding phase and explicit
   owner authorization.
-- Approval of the Phase 4 plan is not authorization to start coding. A separate owner instruction is required.
+- Phase 4 authorization does not authorize Phase 5 or any scope beyond the approved Phase 4 plan.
 
 | Phase                                               | Scope                                                                                                      | Main deliverables                                                                                                                                          | Exit criteria                                                                                                                                                                                                                         |
 |-----------------------------------------------------|------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -103,14 +104,14 @@ The delivered Phase 3 scope follows the approved Security Design and API Specifi
 - Verify cookie flags, CORS origin allowlist, CSRF behavior, token lifecycle, role boundaries, and security logging.
 
 Phase 3 implementation is complete within the approved scope. The owner completed verification and formally accepted
-Phase 3 on 2026-11-27. The Phase 4 plan was approved on 2026-11-27; implementation remains on hold until a separate
-explicit owner instruction to begin.
+Phase 3 on 2026-11-27. The Phase 4 plan was approved and implementation explicitly authorized on 2026-11-27;
+implementation has passed owner-run technical verification; formal Phase 4 acceptance remains pending.
 
 ### Phase 4 — Member and audience
 
 **Plan status:** APPROVED by the owner on 2026-11-27.  
-**Implementation status:** NOT STARTED — intentionally on hold until the owner separately instructs development to
-begin.
+**Implementation status:** TECHNICALLY VERIFIED — owner formal acceptance pending; see
+`PHASE_4_IMPLEMENTATION_REPORT.md`.
 
 - Implement the authenticated member profile lookup using the identity principal; never accept a client-selected member
   ID.
@@ -194,7 +195,6 @@ microservices, Redis, Kafka, or third-party production integrations are included
 
 Phase 1 and Phase 2 are formally accepted by the owner on 2026-11-26; their results are recorded in
 `PHASE_1_IMPLEMENTATION_REPORT.md` and `PHASE_2_IMPLEMENTATION_REPORT.md`. Phase 3 is formally accepted on 2026-11-27;
-its results are recorded in `PHASE_3_IMPLEMENTATION_REPORT.md`. The Phase 4 plan was approved by the owner on
-2026-11-27; implementation remains on hold until a separate explicit
-owner instruction to begin. The campaign-scoped audience-preview endpoint is assigned to Phase 5 integration; the
-existing API contract remains unchanged.
+its results are recorded in `PHASE_3_IMPLEMENTATION_REPORT.md`. The Phase 4 plan was approved and implementation
+explicitly authorized by the owner on 2026-11-27. The campaign-scoped
+audience-preview endpoint is assigned to Phase 5 integration; the existing API contract remains unchanged.

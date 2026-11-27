@@ -1,7 +1,7 @@
 # Testing Strategy
 
-**Status:** Approved — part of the owner-approved v1.5.0 Development Baseline; Phase 2 PostgreSQL schema and constraint
-integration tests are being implemented.
+**Status:** Approved — part of the owner-approved v1.5.0 Development Baseline. Phases 1–4 verification results are
+recorded in their implementation reports; this strategy remains the governing test policy for later phases.
 
 ## 1. Test pyramid
 

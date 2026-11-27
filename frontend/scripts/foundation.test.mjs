@@ -8,6 +8,8 @@ const authApi = await readFile(new URL('../src/shared/lib/authApi.ts', import.me
 const authProvider = await readFile(new URL('../src/features/auth/AuthProvider.tsx', import.meta.url), 'utf8');
 const loginForm = await readFile(new URL('../src/features/auth/LoginForm.tsx', import.meta.url), 'utf8');
 const viteConfig = await readFile(new URL('../vite.config.ts', import.meta.url), 'utf8');
+const audienceAdmin = await readFile(new URL('../src/features/audience/AudienceAdmin.tsx', import.meta.url), 'utf8');
+const audienceApi = await readFile(new URL('../src/shared/lib/audienceApi.ts', import.meta.url), 'utf8');
 const tsConfig = JSON.parse(await readFile(new URL('../tsconfig.app.json', import.meta.url), 'utf8'));
 
 test('frontend dependencies are pinned to exact versions', () => {
@@ -46,8 +48,24 @@ test('failed logout is surfaced without claiming local logout succeeded', () => 
 test('auth provider exposes loading, authenticated, and anonymous states', () => {
     assert.match(authProvider, /'loading' \| 'authenticated' \| 'anonymous' \| 'error'/);
 });
-test('Phase 3 app exposes login without implementing business workflows', () => {
-    assert.match(appTs, /PHASE 3/);
+test('Phase 4 app exposes the Admin audience route without later-phase workflows', () => {
+    assert.match(appTs, /PHASE 4/);
     assert.match(appTs, /LoginForm/);
+    assert.match(appTs, /user\?\.role === 'ADMIN'/);
+    assert.match(appTs, /destination = '\/admin'/);
+    assert.match(appTs, /route === '\/admin'/);
+    assert.doesNotMatch(appTs, /MemberProfile|\/member/);
     assert.doesNotMatch(appTs, /coupon claim|campaign create|publish campaign/i);
 });
+test('audience UI supports all eight canonical fields and the documented operator allowlist', () => {
+    for (const field of ['age', 'gender', 'registeredAt', 'membershipTier', 'orderCount', 'totalSpending', 'lastOrderAt', 'lastLoginAt']) assert.match(audienceAdmin, new RegExp(`value:\\s*'${field}'`));
+    for (const op of ['=', '!=', '>', '>=', '<', '<=', 'IN', 'NOT IN']) assert.ok(audienceAdmin.includes(`'${op}'`));
+    assert.match(audienceAdmin, /conditions:\s*rules\.conditions\.map\(parseCondition\)/);
+    assert.match(audienceAdmin, /預覽受眾/);
+});
+test('audience API client uses the documented reusable segment endpoints', () => {
+    for (const path of ['/api/v1/admin/audience-segments', '/preview']) assert.ok(audienceApi.includes(path));
+    assert.match(audienceApi, /listAudienceSegments/);
+    assert.match(audienceApi, /updateAudienceSegment/);
+});
+

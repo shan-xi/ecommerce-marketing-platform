@@ -1,7 +1,8 @@
 # Design Decisions and Ready-for-Development Checklist
 
 **Status:** Owner-approved — v1.5.0 Development Baseline approved; Phases 1–3 formally accepted; Phase 4 plan approved
-on 2026-11-27, with implementation held pending a separate start instruction. **Scope:** These decisions confirm the
+and implementation authorized on 2026-11-27; Phase 4 technical verification complete, formal owner acceptance pending.
+**Scope:** These decisions confirm the
 existing MVP direction and do not authorize scope expansion.
 
 ## 1. Confirmed decisions
@@ -38,9 +39,9 @@ existing MVP direction and do not authorize scope expansion.
 |--:|---------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | 7 | Campaign-scoped Audience Preview sequencing | Phase 4 implements the reusable Audience evaluator, including Segment Rules + Campaign Rules AND composition, and the reusable-segment preview endpoint. The campaign-scoped `POST /api/v1/admin/campaigns/{campaignId}/audience-preview` endpoint is integrated in Phase 5 after Campaign CRUD/read access is available. | Preserve the existing API path and request/response contract. Campaign loads its own persisted configuration and calls the Audience module's application-level interface; no temporary endpoint and no cross-module repository access. |
 
-The owner approved this Phase 4 plan and sequencing on 2026-11-27. This is approval of the plan only: Phase 4
-implementation is
-intentionally on hold until the owner separately instructs development to begin.
+The owner approved this Phase 4 plan and sequencing on 2026-11-27. The owner separately authorized Phase 4
+implementation
+on 2026-11-27; technical verification is complete and formal owner acceptance remains pending.
 
 ## 4. Review outcome and approval record
 
@@ -60,7 +61,8 @@ days) and remain environment-configurable. These do not block MVP implementation
 The owner has explicitly approved the complete v1.5.0 Design Pack. Phase 0 is complete. Phase 1 — Repository Foundation
 and Phase 2 — Database Foundation were formally accepted on 2026-11-26. Phase 3 — Identity and Security was formally
 accepted on 2026-11-27 after owner verification. The owner approved `docs/development/PHASE_4_PLAN.md` on 2026-11-27.
-Phase 4 implementation has not started and remains on hold until a separate explicit owner instruction to begin.
+The owner explicitly authorized Phase 4 implementation on 2026-11-27; owner-run technical verification is complete under
+the approved plan, and formal owner acceptance remains pending.
 
 ### Ready-for-development checklist
 
@@ -86,7 +88,8 @@ Phase 4 implementation has not started and remains on hold until a separate expl
 - [x] Phase 4 planning document prepared strictly from the approved v1.5.0 project documents.
 - [x] Owner approved `docs/development/PHASE_4_PLAN.md` on 2026-11-27.
 - [x] Campaign-scoped Audience Preview assigned to Phase 5 integration; existing API contract preserved.
-- [ ] Owner separately instructs the assistant to begin Phase 4 implementation.
+- [x] Owner explicitly instructed the assistant to begin Phase 4 implementation (2026-11-27).
 
 All design approval gates for the v1.5.0 baseline remain complete. Phases 1–3 are formally accepted. The Phase 4 plan is
-approved, but Phase 4 implementation remains intentionally on hold pending a separate start instruction.
+approved, and Phase 4 implementation was explicitly authorized on 2026-11-27; technical verification is complete and
+formal owner acceptance remains pending.

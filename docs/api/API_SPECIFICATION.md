@@ -168,6 +168,16 @@ delivery job are committed in the publication transaction; it does not promise e
 zero-member snapshot is valid: publication succeeds with a warning and the job is immediately `COMPLETED`. The MVP uses
 one delivery worker and a persisted batch cursor, without worker leases.
 
+### Member profile API
+
+`GET /member/profile` requires an authenticated `MEMBER` principal. The backend resolves the member by the principal
+user ID; a member ID supplied as a query parameter or other client input is ignored and cannot select another profile.
+The response contains the current member profile summary and the derived age using the `Asia/Taipei` calendar date.
+`ADMIN` is not authorized to call this member-only endpoint.
+
+Response data fields: `memberId`, `displayName`, `birthDate`, `age`, `gender`, `registeredAt`, `membershipTier`,
+`orderCount`, `totalSpending`, `lastOrderAt`, and `lastLoginAt`. Nullable member attributes are returned as JSON `null`.
+
 ## 6. Audience segment APIs
 
 | Method | Path                                             | Purpose                             |
@@ -179,7 +189,9 @@ one delivery worker and a persisted batch cursor, without worker leases.
 | POST   | `/admin/audience-segments/preview`               | Preview rule match count/sample     |
 | POST   | `/admin/campaigns/{campaignId}/audience-preview` | Preview campaign effective audience |
 
-Rule JSON supports allowlisted fields and operators only. Comparison operators require one non-null scalar value; `IN`
+Rule JSON supports only the top-level `version`, `match`, and `conditions` properties; each condition contains only
+`field`, `operator`, and `value`. Unknown properties are rejected. Rule JSON supports allowlisted fields and operators
+only. Comparison operators require one non-null scalar value; `IN`
 and `NOT IN` require a non-empty array of non-null scalar values. Values must match the selected field type. Preview
 should return count and optionally a small sample of non-sensitive member display identifiers; do not expose full member
 attributes unnecessarily.

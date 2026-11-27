@@ -1,8 +1,9 @@
 # Phase 4 Plan — Member and Audience
 
 **Document status:** APPROVED — owner approved this Phase 4 plan on 2026-11-27.  
-**Implementation status:** NOT STARTED — implementation is intentionally on hold. Do not modify application code or
-begin Phase 4 implementation until the owner separately instructs the assistant to start development.  
+**Implementation status:** TECHNICALLY VERIFIED — owner formal acceptance pending. The owner explicitly authorized Phase
+4 implementation on 2026-11-27. Work is
+limited to the approved scope and sequencing.  
 **Baseline:** Owner-approved v1.5.0 Development Baseline.  
 **Preceding phases:** Phases 1, 2, and 3 formally accepted.  
 **Purpose:** Define the bounded Phase 4 work package using only the current approved project documents. This plan does
@@ -186,55 +187,57 @@ Before coding:
 
 ### Member profile
 
-- [ ] Anonymous requests are rejected with the documented authentication response.
-- [ ] An authenticated MEMBER receives only their own profile.
-- [ ] A caller cannot select another member by supplying a member ID.
-- [ ] ADMIN is not granted MEMBER-only profile access unless the existing API/security contract explicitly says
+- [x] Anonymous requests are rejected with the documented authentication response.
+- [x] An authenticated MEMBER receives only their own profile.
+- [x] A caller cannot select another member by supplying a member ID.
+- [x] ADMIN is not granted MEMBER-only profile access unless the existing API/security contract explicitly says
   otherwise.
 
 ### Audience validator and evaluator
 
-- [ ] All eight fields and every allowed operator are covered by positive tests.
-- [ ] Unsupported field/operator combinations are rejected.
-- [ ] Scalar versus array shapes, exact types, enum allowlists, integer/decimal bounds, and timestamp parsing are
+- [x] All eight fields and every allowed operator are covered by positive tests.
+- [x] Unsupported field/operator combinations are rejected.
+- [x] Scalar versus array shapes, exact types, enum allowlists, integer/decimal bounds, and timestamp parsing are
   tested.
-- [ ] Enum comparisons are case-sensitive; ordered enum comparisons are rejected.
-- [ ] NULL attributes do not match any supported operator, including `!=` and `NOT IN`.
-- [ ] Explicit NULL checks and NULL values/array elements are rejected.
-- [ ] Age is derived using the `Asia/Taipei` date and the correct preview date.
-- [ ] SQL is generated only from server-owned allowlisted mappings and bound values.
+- [x] Enum comparisons are case-sensitive; ordered enum comparisons are rejected.
+- [x] NULL attributes do not match any supported operator, including `!=` and `NOT IN`.
+- [x] Explicit NULL checks and NULL values/array elements are rejected.
+- [x] Age is derived using the `Asia/Taipei` date and the correct preview date.
+- [x] SQL is generated only from server-owned allowlisted mappings and bound values.
 
 ### Segments and preview
 
-- [ ] Admin-only segment create/list/detail/update and preview APIs follow the documented contract.
-- [ ] Invalid rules cannot be persisted.
-- [ ] Preview count and any sample are consistent with the matching member set.
-- [ ] Preview does not expose unnecessary member attributes.
-- [ ] Segment and campaign-specific rules combine with AND in the reusable audience evaluator; either one alone works;
+- [x] Admin-only segment create/list/detail/update and preview APIs follow the documented contract.
+- [x] Invalid rules cannot be persisted.
+- [x] Preview count and any sample are consistent with the matching member set.
+- [x] Preview does not expose unnecessary member attributes.
+- [x] Segment and campaign-specific rules combine with AND in the reusable audience evaluator; either one alone works;
   absence of both is rejected.
-- [ ] The campaign-scoped preview endpoint is explicitly deferred to Phase 5; Phase 4 does not add a temporary endpoint
+- [x] The campaign-scoped preview endpoint is explicitly deferred to Phase 5; Phase 4 does not add a temporary endpoint
   or change the existing API contract.
 
 ### Frontend and regression
 
-- [ ] Admin audience UI supports the approved segment and preview workflows.
-- [ ] Frontend tests, TypeScript typecheck, and production build pass.
-- [ ] Backend unit, PostgreSQL integration, and API/security tests pass.
-- [ ] Phase 1–3 regression tests remain green.
-- [ ] API Specification and OpenAPI are synchronized with the implemented contract.
-- [ ] Database design/ERD and migrations remain consistent.
-- [ ] README setup and verification instructions remain reproducible.
+- [x] Admin audience UI supports the approved segment and preview workflows.
+- [x] Frontend tests, TypeScript typecheck, and production build pass.
+- [x] Backend unit, PostgreSQL integration, and API/security tests pass.
+- [x] Phase 1–3 regression tests remain green.
+- [x] API Specification and OpenAPI are synchronized with the implemented contract.
+- [x] Database design/ERD and migrations remain consistent.
+- [x] README setup and verification instructions remain reproducible.
 
 ## 8. Exit gate and authorization
 
-A Phase 4 implementation is complete only when all applicable acceptance criteria pass, regression checks are green, and
-the owner formally accepts the implementation result.
+Technical acceptance criteria and regression checks are recorded as passed in `PHASE_4_IMPLEMENTATION_REPORT.md` based
+on
+owner-run verification. Phase 4 is not formally closed until the owner explicitly accepts the result; Phase 5 must not
+begin before that acceptance.
 
 **Plan approval record:** The owner approved this Phase 4 plan on 2026-11-27.
 
-**Implementation authorization:** Plan approval does not mean implementation has started. At the owner's explicit
-request, Phase 4 implementation is on hold. Do not modify application code, tests, migrations, or runtime behavior for
-Phase 4 until the owner separately instructs the assistant to begin development.
+**Implementation authorization:** The owner explicitly instructed implementation to begin on 2026-11-27. The approved
+plan has been implemented and technically verified as recorded in the implementation report. Formal owner
+acceptance remains a separate gate; this does not authorize Phase 5 or any scope beyond this plan.
 
 The Phase 4 implementation must follow the approved sequencing in Section 3.4. Campaign-scoped preview is a Phase 5
 integration task and must retain the existing API contract.
