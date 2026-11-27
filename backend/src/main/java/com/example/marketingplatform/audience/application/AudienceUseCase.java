@@ -13,4 +13,6 @@ public interface AudienceUseCase {
     AudiencePreviewResult previewComposition(UUID savedSegmentId, JsonNode campaignSpecificRules);
 
     void validateComposition(UUID savedSegmentId, JsonNode campaignSpecificRules);
+
+    java.util.List<UUID> resolveMemberIds(UUID savedSegmentId, JsonNode campaignSpecificRules);
 }

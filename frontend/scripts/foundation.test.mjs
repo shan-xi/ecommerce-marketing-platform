@@ -50,8 +50,8 @@ test('failed logout is surfaced without claiming local logout succeeded', () => 
 test('auth provider exposes loading, authenticated, and anonymous states', () => {
     assert.match(authProvider, /'loading' \| 'authenticated' \| 'anonymous' \| 'error'/);
 });
-test('Phase 6 app exposes Admin Audience and Campaign routes with coupon configuration only', () => {
-    assert.match(appTs, /PHASE 6/);
+test('Phase 7 app exposes Admin Audience and Campaign routes with message lifecycle workspace', () => {
+    assert.match(appTs, /PHASE 7/);
     assert.match(appTs, /LoginForm/);
     assert.match(appTs, /user\?\.role === 'ADMIN'/);
     assert.match(appTs, /destination = '\/admin'/);
@@ -59,7 +59,8 @@ test('Phase 6 app exposes Admin Audience and Campaign routes with coupon configu
     assert.match(appTs, /route === '\/admin\/campaigns'/);
     assert.match(appTs, /CampaignAdmin/);
     assert.doesNotMatch(appTs, /MemberProfile|\/member/);
-    assert.doesNotMatch(appTs, /coupon claim|publish campaign/i);
+    assert.match(appTs, /Publish/);
+    assert.match(appTs, /Delivery Status/);
 });
 test('audience UI supports all eight canonical fields and the documented operator allowlist', () => {
     for (const field of ['age', 'gender', 'registeredAt', 'membershipTier', 'orderCount', 'totalSpending', 'lastOrderAt', 'lastLoginAt']) assert.match(audienceAdmin, new RegExp(`value:\\s*'${field}'`));
@@ -80,13 +81,25 @@ test('campaign API client uses Phase 5 CRUD and persisted preview paths', () => 
     assert.match(campaignApi, /updateCampaign/);
     assert.match(campaignApi, /status/);
 });
-test('campaign Admin supports draft editing and stored-audience preview only', () => {
+test('campaign Admin supports draft editing, coupon configuration, and Phase 7 lifecycle controls', () => {
     assert.match(campaignAdmin, /儲存 Draft/);
     assert.match(campaignAdmin, /previewCampaignAudience\(selected\.id\)/);
     assert.match(campaignAdmin, /segmentId/);
     assert.match(campaignAdmin, /campaign-specific rules/);
     assert.match(campaignAdmin, /selected\.status\s*!==\s*'DRAFT'/);
     assert.match(campaignAdmin, /CampaignCoupons/);
-    assert.match(campaignAdmin, /selected && <CampaignCoupons/);
-    assert.doesNotMatch(campaignAdmin, /publishCampaign|pauseCampaign|claimCoupon/i);
+    assert.match(campaignAdmin, /CampaignLifecycle/);
+    assert.match(campaignAdmin, /selected &&/);
+});
+
+const campaignLifecycle = await readFile(new URL('../src/features/campaign/CampaignLifecycle.tsx', import.meta.url), 'utf8');
+test('Phase 7 UI exposes message configuration, publish/pause, delivery status, and failed-only retry', () => {
+    for (const text of ['儲存 Message', 'Publish Campaign', 'Pause Campaign', 'Message Delivery', 'Retry Failed Delivery']) assert.ok(campaignLifecycle.includes(text));
+    assert.match(campaignLifecycle, /delivery\.retryable/);
+    assert.match(campaignLifecycle, /campaignStatus === 'DRAFT'/);
+});
+test('Phase 7 API client uses only documented lifecycle endpoints', () => {
+    for (const path of ['/message', '/publish', '/pause', '/delivery-status', '/delivery/retry']) assert.ok(campaignApi.includes(path));
+    assert.match(campaignApi, /getDeliveryStatus/);
+    assert.match(campaignApi, /retryDelivery/);
 });

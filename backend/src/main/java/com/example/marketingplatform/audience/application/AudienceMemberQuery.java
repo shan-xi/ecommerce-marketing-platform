@@ -10,4 +10,6 @@ import java.util.List;
  */
 public interface AudienceMemberQuery {
     AudiencePreviewResult preview(List<AudienceRuleSet.Condition> conditions, LocalDate asOfDate, int sampleSize);
+
+    List<java.util.UUID> findMemberIds(List<AudienceRuleSet.Condition> conditions, LocalDate asOfDate);
 }

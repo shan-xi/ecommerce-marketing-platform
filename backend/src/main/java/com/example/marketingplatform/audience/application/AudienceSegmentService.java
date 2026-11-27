@@ -98,6 +98,19 @@ public class AudienceSegmentService implements AudienceUseCase {
         return evaluator.preview(saved, specific, 10);
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public List<UUID> resolveMemberIds(UUID segmentId, JsonNode campaignRules) {
+        AudienceRuleSet saved = null;
+        if (segmentId != null) {
+            try { saved = validator.validate(get(segmentId).rules()); }
+            catch (AudienceResourceNotFoundException ex) { throw new InvalidAudienceRuleException("Referenced audience segment does not exist."); }
+        }
+        AudienceRuleSet specific = campaignRules == null ? null : validator.validate(campaignRules);
+        if (saved == null && specific == null) throw new InvalidAudienceRuleException("At least one audience definition is required.");
+        return evaluator.resolveMemberIds(saved, specific);
+    }
+
     private Segment toSegment(AudienceSegmentRepository.SegmentRow row) {
         try {
             return new Segment(row.id(), row.name(), row.description(), mapper.readTree(row.rulesJson()),

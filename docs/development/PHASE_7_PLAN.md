@@ -1,7 +1,7 @@
 # Phase 7 Plan — Message, Publication Orchestration, and Delivery
 
-**Document status:** DRAFT — prepared for owner review on 2026-11-27; not yet approved.
-**Implementation status:** NOT AUTHORIZED — implementation must not begin until the owner approves this plan and explicitly authorizes Phase 7.
+**Document status:** OWNER-APPROVED / IMPLEMENTATION AUTHORIZED — owner explicitly authorized Phase 7 development on 2026-11-27.
+**Implementation status:** IMPLEMENTED — owner reported core verification passed (23 API assertions); final code-review corrections require regression verification and owner acceptance.
 **Baseline:** Owner-approved v1.5.0 Development Baseline, with Phase 6 formally accepted on 2026-11-27.
 **Preceding phases:** Phases 1–6 complete and owner-accepted.
 
@@ -61,7 +61,7 @@ If implementation inspection finds a conflict between code and the approved cont
 - Atomically commit each batch's inbox inserts and delivery cursor update so a retry cannot create duplicate inbox rows.
 - Use the existing job states `PENDING`, `PROCESSING`, `COMPLETED`, and `FAILED`.
 - At a cursor, allow one initial attempt plus three automatic retries with 1s/2s/4s backoff. `attemptCount` records automatic retries consumed (0–3) and resets after a successful batch. A fourth total failure moves the job to `FAILED` with a sanitized error.
-- On worker restart, recover an interrupted `PROCESSING` job to `PENDING` and resume from the last committed cursor.
+- On worker restart, recover an interrupted `PROCESSING` job to `PENDING` and resume from the last committed cursor. This in-process recovery assumes exactly one running backend instance; multi-instance deployment is unsupported until a separately approved ownership/lease design exists. Startup recovery failure is fail-fast: the application must not continue serving while interrupted jobs may remain stranded.
 - Implement delivery status retrieval and manual retry of `FAILED` jobs only. Manual retry clears the last error, resets retry count, preserves the last committed cursor, and returns the job to `PENDING`.
 - Do not add a lease, `SKIP LOCKED`, snapshot-job table, scheduled delivery, or external messaging infrastructure.
 
@@ -82,7 +82,7 @@ If implementation inspection finds a conflict between code and the approved cont
 - Redis, Kafka, microservices, a worker lease, `SKIP LOCKED`, or a separate snapshot-job state machine.
 - A new database migration unless code inspection proves the approved V1 schema is insufficient. Never edit an already-applied migration.
 
-### 3.3 Proposed UI clarification for owner review
+### 3.3 Bounded Admin UI clarification — owner-authorized
 
 The approved PRD requires Admins to configure one message and operate the campaign lifecycle, while the Phase 7 implementation-plan row currently names APIs/services and worker deliverables rather than screens. This plan proposes a bounded extension to the existing Admin Campaign workspace:
 
@@ -91,7 +91,7 @@ The approved PRD requires Admins to configure one message and operate the campai
 - Pause action for an ACTIVE campaign.
 - Delivery status display and manual Retry action only when status is `FAILED`.
 
-This is a proposal for owner approval, not an implementation authorization. It must not grow into a general page builder or message-template system. Member inbox presentation is not added by this clarification; Phase 7 guarantees the inbox APIs, and any Member Portal UI scope must remain consistent with the Phase 8 plan unless the owner explicitly changes sequencing.
+The owner authorized this bounded extension with the Phase 7 implementation instruction on 2026-11-27. It must not grow into a general page builder or message-template system. Member inbox presentation is not added by this clarification; Phase 7 guarantees the inbox APIs, and any Member Portal UI scope must remain consistent with the Phase 8 plan unless the owner explicitly changes sequencing.
 
 ## 4. Existing API contract
 
@@ -204,19 +204,22 @@ Pause must update the same campaign row that Phase 6 ClaimCoupon locks with `SEL
 4. Implement PublishCampaign transaction and PauseCampaign lock protocol.
 5. Implement delivery job orchestration, bounded worker, cursor/retry state transitions, and startup recovery.
 6. Implement delivery status/manual retry and member inbox read APIs.
-7. If the owner approves Section 3.3, implement only the bounded Admin Campaign workspace message/lifecycle/delivery controls.
+7. Implement the owner-authorized bounded Admin Campaign workspace message/lifecycle/delivery controls in Section 3.3.
 8. Add unit, PostgreSQL integration, concurrency, restart/recovery, API, and frontend regression tests.
 9. Update API/OpenAPI/error docs only for approved clarifications; synchronize operational and phase documentation.
 10. Submit the Phase 7 implementation report and ZIP for owner verification. Do not begin Phase 8 until Phase 7 is formally accepted.
 
 ## 9. Approval gate
 
+Phase 7 implementation authorization was explicitly granted by the owner on 2026-11-27 with the instruction to begin Phase 7 development strictly according to this document. The bounded Admin lifecycle UI in Section 3.3 was implemented as part of the authorized Phase 7 workspace scope.
+
 Phase 6 was formally accepted by the owner on 2026-11-27 based on the owner-reported verification of backend startup, Maven verification, frontend tests/typecheck/build/dev, Phase 6 coupon/claim API verification, and Admin coupon UI create/edit. The source ZIP does not contain a dedicated high-contention coupon inventory integration test; retain this as a documented hardening item for Phase 10 rather than claiming that a race test was executed.
 
-**Owner review required:**
+**Owner acceptance remains required after verification:**
 
-- [ ] Approve `PHASE_7_PLAN.md` as written, or request changes.
-- [ ] Approve or reject the bounded Admin message/publish/pause/delivery UI clarification in Section 3.3.
-- [ ] Explicitly authorize Phase 7 implementation.
+- [x] Owner authorized Phase 7 implementation on 2026-11-27.
+- [x] Bounded Admin message/publish/pause/delivery UI in Section 3.3 implemented.
+- [ ] Complete Maven/PostgreSQL integration verification, frontend typecheck/build, and API verification in the owner environment.
+- [ ] Owner formally accepts Phase 7.
 
-A Phase 7 plan approval alone does not authorize code changes. Implementation begins only after explicit owner authorization.
+Implementation authorization is not the same as final phase acceptance.

@@ -25,3 +25,13 @@ export const previewCampaignAudience = async (id: string) => (await apiRequest<{
 }>(`/api/v1/admin/campaigns/${id}/audience-preview`, {
     method: 'POST', headers: {'Content-Type': 'application/json'}, body: '{}'
 })).data;
+
+export type CampaignMessage = { id: string; campaignId: string; title: string; body: string; createdAt: string; updatedAt: string };
+export type DeliveryStatus = { status: 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'FAILED'; totalCount: number; processedCount: number; cursorMemberId: string | null; attemptCount: number; lastError: string | null; retryable: boolean };
+export type PublishResult = { campaignId: string; status: 'ACTIVE'; audienceCount: number; deliveryStatus: DeliveryStatus['status']; warningCode: 'NO_AUDIENCE_MEMBERS' | null; publishedAt: string };
+export const getCampaignMessage = async (id: string) => (await apiRequest<{data: CampaignMessage}>(`/api/v1/admin/campaigns/${id}/message`)).data;
+export const saveCampaignMessage = async (id: string, title: string, body: string) => (await apiRequest<{data: CampaignMessage}>(`/api/v1/admin/campaigns/${id}/message`, {method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({title, body})})).data;
+export const publishCampaign = async (id: string) => (await apiRequest<{data: PublishResult}>(`/api/v1/admin/campaigns/${id}/publish`, {method: 'POST'})).data;
+export const pauseCampaign = async (id: string) => apiRequest<{data: {campaignId: string; status: 'PAUSED'}}>(`/api/v1/admin/campaigns/${id}/pause`, {method: 'POST'});
+export const getDeliveryStatus = async (id: string) => (await apiRequest<{data: DeliveryStatus}>(`/api/v1/admin/campaigns/${id}/delivery-status`)).data;
+export const retryDelivery = async (id: string) => apiRequest<{data: {campaignId: string; status: 'PENDING'}}>(`/api/v1/admin/campaigns/${id}/delivery/retry`, {method: 'POST'});

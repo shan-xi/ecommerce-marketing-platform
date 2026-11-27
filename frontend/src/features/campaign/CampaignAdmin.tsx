@@ -10,6 +10,7 @@ import {
 import type {AudiencePreview, AudienceRules, AudienceSegment} from '../../shared/types/audience';
 import type {Campaign, CampaignStatus, CampaignWrite} from '../../shared/types/campaign';
 import {CampaignCoupons} from './CampaignCoupons';
+import {CampaignLifecycle} from './CampaignLifecycle';
 
 const emptyRules = (): AudienceRules => ({
     version: 1,
@@ -223,6 +224,6 @@ export function CampaignAdmin() {
                     </li>)}</ul>
                 </div>}</form>
         </div>
-        {selected && <CampaignCoupons campaignId={selected.id} editable={selected.status === 'DRAFT'}/>}
+        {selected && <><CampaignCoupons campaignId={selected.id} editable={selected.status === 'DRAFT'}/><CampaignLifecycle campaignId={selected.id} campaignStatus={selected.status} onUpdated={async () => { await openCampaign(selected.id); await refresh(page, status); }}/></>}
     </section>;
 }

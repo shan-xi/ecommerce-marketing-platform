@@ -153,3 +153,20 @@ The DRAFT test creates one coupon and leaves it on the supplied disposable campa
 successful claim for the configured test member and leaves that claim in the database. Concurrency, final-inventory
 race, audit-row inspection, and failure rollback still require the PostgreSQL integration fixtures described in
 `docs/development/PHASE_6_PLAN.md`; this HTTP suite does not replace those tests.
+
+
+## Phase 7 Message, Publication, and Delivery API verification
+
+Run against an existing disposable DRAFT campaign whose time window includes the current time (`startsAt <= now < endsAt`), with a valid audience
+and at least one configured coupon. The suite checks the time window before changing the campaign message and reports the schedule if it is not active:
+
+```zsh
+export PHASE7_DRAFT_CAMPAIGN_ID="<disposable-draft-campaign-uuid>"
+zsh scripts/api-tests/suites/phase7-message-publication-delivery-verification.zsh
+```
+
+**Destructive lifecycle note:** this suite saves/overwrites the campaign message, publishes the campaign, waits for
+delivery to complete, and pauses the campaign. It cannot be rerun against the same campaign because publication is
+not reversible. Use a fresh disposable DRAFT campaign for each run. It checks message validation and Admin role
+boundaries, publication, asynchronous delivery completion, Member inbox authorization, Pause, and rejection of retry
+for a non-FAILED job. It does not inject delivery failures or replace PostgreSQL worker-recovery/concurrency tests.

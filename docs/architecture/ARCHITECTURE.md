@@ -81,7 +81,9 @@ but must not bypass one another's public application interfaces to manipulate an
    complete member snapshot, changes campaign status, and writes one delivery job/outbox record. The MVP assumes this
    single snapshot transaction is practical for the initial/demo audience size.
 4. One delivery worker processes the committed job in bounded batches; Pause does not cancel it, even if it remains
-   `PENDING` until the worker picks it up. Multi-worker leases and `FOR UPDATE SKIP LOCKED` are deferred.
+   `PENDING` until the worker picks it up. Exactly one backend instance/replica is supported because startup recovery
+   resets all `PROCESSING` jobs. Multi-instance worker leases and `FOR UPDATE SKIP LOCKED` are deferred. Recovery
+   failure aborts application startup rather than allowing the service to run with potentially stranded jobs.
 5. For each snapshot member, it creates a member inbox record using a unique campaign/member key. Re-running a batch is
    safe.
 6. Inbox inserts and the last processed member cursor are committed in the same batch transaction. Batches contain 100
@@ -176,13 +178,14 @@ need.
 
 ## 8. Operational baseline
 
-- One Spring Boot backend instance is sufficient for the initial demo; design must remain stateless at the web tier
-  except for persisted refresh-token state.
+- Exactly one Spring Boot backend instance/replica is supported for the Phase 7 MVP worker model; design must remain
+  stateless at the web tier except for persisted refresh-token state. Do not horizontally scale the backend until a
+  separately approved worker-ownership/recovery design is implemented.
 - PostgreSQL is the source of truth. Composite foreign keys enforce campaign/message/coupon ownership for inbox and
   engagement rows.
-- The MVP runs one database-backed delivery worker and uses bounded batches plus a persisted cursor. If multiple worker
-  instances are introduced later, add safe row claiming/leases (for example, `FOR UPDATE SKIP LOCKED`) through a
-  reviewed design change.
+- The MVP runs one database-backed delivery worker and uses bounded batches plus a persisted cursor. Startup recovery
+  resets interrupted `PROCESSING` jobs to `PENDING`; if recovery fails, application startup fails. If multiple worker
+  instances are introduced later, add a separately reviewed and approved ownership/recovery design before deployment.
 - Provide health endpoints, structured logs, request correlation IDs, and metrics for publication, delivery
   backlog/failures, event ingestion, and coupon claims.
 - Time storage: persist timestamps as `timestamptz` in UTC; present campaign times in `Asia/Taipei` unless product owner

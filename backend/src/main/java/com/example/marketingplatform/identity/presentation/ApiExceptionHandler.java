@@ -7,6 +7,7 @@ import com.example.marketingplatform.coupon.application.CouponService;
 import com.example.marketingplatform.identity.application.AuthenticationException;
 import com.example.marketingplatform.identity.application.RefreshRejectedException;
 import com.example.marketingplatform.member.application.MemberProfileService;
+import com.example.marketingplatform.message.application.Phase7Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -44,6 +45,16 @@ public class ApiExceptionHandler {
         return problem(HttpStatus.NOT_FOUND, "Resource not found", "RESOURCE_NOT_FOUND", "The requested resource does not exist or is not visible.");
     }
 
+
+    @ExceptionHandler(Phase7Service.Conflict.class)
+    public ProblemDetail phase7Conflict(Phase7Service.Conflict ex) {
+        return problem(HttpStatus.CONFLICT, "Campaign lifecycle conflict", ex.code, ex.getMessage());
+    }
+
+    @ExceptionHandler(Phase7Service.NotFound.class)
+    public ProblemDetail phase7NotFound(Phase7Service.NotFound ex) {
+        return problem(HttpStatus.NOT_FOUND, "Resource not found", "RESOURCE_NOT_FOUND", "The requested resource does not exist or is not visible.");
+    }
 
     @ExceptionHandler(CouponService.Conflict.class)
     public ProblemDetail couponConflict(CouponService.Conflict ex) {

@@ -332,7 +332,12 @@ paths:
       summary: Get the campaign's single in-app message
       security: [ { accessCookie: [ ] } ]
       responses:
-        '200': { description: Campaign message configuration. }
+        '200':
+          description: Campaign message configuration.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CampaignMessageEnvelope' }
+        '404': { $ref: '#/components/responses/NotFound' }
     put:
       summary: Create or update the campaign's single in-app message while draft
       security: [ { accessCookie: [ ] } ]
@@ -345,10 +350,17 @@ paths:
               type: object
               required: [ title, body ]
               properties:
-                title: { type: string, maxLength: 160 }
-                body: { type: string, maxLength: 10000 }
+                title: { type: string, minLength: 1, maxLength: 160 }
+                body: { type: string, minLength: 1, maxLength: 10000 }
       responses:
-        '200': { description: Campaign message saved. }
+        '200':
+          description: Campaign message saved.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CampaignMessageEnvelope' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
         '409': { $ref: '#/components/responses/Conflict' }
   /admin/campaigns/{campaignId}/delivery-status:
     parameters:
@@ -363,6 +375,7 @@ paths:
           content:
             application/json:
               schema: { $ref: '#/components/schemas/DeliveryStatusEnvelope' }
+        '404': { $ref: '#/components/responses/NotFound' }
   /member/profile:
     get:
       summary: Get current member profile
@@ -384,7 +397,11 @@ paths:
         - { name: page, in: query, schema: { type: integer, minimum: 0, default: 0 } }
         - { name: size, in: query, schema: { type: integer, minimum: 1, maximum: 100, default: 20 } }
       responses:
-        '200': { description: Current member inbox page. }
+        '200':
+          description: Current member inbox page, scoped to the authenticated member.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/MemberMessagePageEnvelope' }
   /member/messages/{messageId}:
     parameters:
       - name: messageId
@@ -395,7 +412,11 @@ paths:
       summary: Get a message from the current member inbox
       security: [ { accessCookie: [ ] } ]
       responses:
-        '200': { description: Inbox message detail. }
+        '200':
+          description: Inbox message detail for the authenticated member only.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/MemberMessageEnvelope' }
         '404': { $ref: '#/components/responses/NotFound' }
   /member/coupons:
     get:
@@ -749,6 +770,51 @@ components:
             audienceCount: { type: integer }
             deliveryStatus: { type: string, enum: [ PENDING, PROCESSING, COMPLETED, FAILED ] }
             warningCode: { type: [ string, 'null' ], enum: [ NO_AUDIENCE_MEMBERS, null ], description: Present when audienceCount is zero. }
+            publishedAt: { type: string, format: date-time }
+    CampaignMessageEnvelope:
+      type: object
+      required: [ data ]
+      properties:
+        data:
+          type: object
+          required: [ id, campaignId, title, body, createdAt, updatedAt ]
+          properties:
+            id: { type: string, format: uuid }
+            campaignId: { type: string, format: uuid }
+            title: { type: string, minLength: 1, maxLength: 160 }
+            body: { type: string, minLength: 1, maxLength: 10000 }
+            createdAt: { type: string, format: date-time }
+            updatedAt: { type: string, format: date-time }
+    MemberMessage:
+      type: object
+      required: [ id, campaignId, campaignName, title, body, deliveredAt ]
+      properties:
+        id: { type: string, format: uuid, description: Member inbox row ID. }
+        campaignId: { type: string, format: uuid }
+        campaignName: { type: string }
+        title: { type: string }
+        body: { type: string }
+        deliveredAt: { type: string, format: date-time }
+    MemberMessageEnvelope:
+      type: object
+      required: [ data ]
+      properties:
+        data: { $ref: '#/components/schemas/MemberMessage' }
+    MemberMessagePageEnvelope:
+      type: object
+      required: [ data, page ]
+      properties:
+        data:
+          type: array
+          items: { $ref: '#/components/schemas/MemberMessage' }
+        page:
+          type: object
+          required: [ number, size, totalElements, totalPages ]
+          properties:
+            number: { type: integer, minimum: 0 }
+            size: { type: integer, minimum: 1, maximum: 100 }
+            totalElements: { type: integer, minimum: 0 }
+            totalPages: { type: integer, minimum: 0 }
     DeliveryStatusEnvelope:
       type: object
       properties:

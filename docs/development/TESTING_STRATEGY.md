@@ -71,6 +71,19 @@ recorded in their implementation reports; this strategy remains the governing te
 - A committed delivery job still in `PENDING` when the campaign is paused is processed to completion; the worker does
   not gate on campaign status.
 
+### Phase 7 message, publication, and inbox coverage
+
+- Message configuration is limited to one row per campaign, validates title/body length and required content, and is
+  writable only in DRAFT; ADMIN role and CSRF boundaries are verified.
+- Publish atomically commits the complete publication-time audience snapshot, ACTIVE transition, and one delivery job;
+  missing message/coupon, invalid campaign window, and duplicate publication leave no partial effects.
+- Zero-member publication returns `NO_AUDIENCE_MEMBERS`, creates a COMPLETED job, and creates no inbox records.
+- Worker batch size is 100; inbox rows and cursor commit together, uniqueness prevents duplicate campaign/member rows,
+  automatic retries follow 1s/2s/4s, successful batches reset retries, and a fourth total failure becomes FAILED.
+- Worker startup recovers PROCESSING jobs to PENDING; manual retry is FAILED-only and resumes from the committed cursor.
+- Pause serializes against coupon claims and does not cancel committed delivery.
+- Member inbox pagination and detail are principal-scoped; a member cannot access another member's inbox row.
+
 ### Coupon claim correctness
 
 - Claim succeeds for eligible member and available coupon.

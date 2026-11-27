@@ -1,7 +1,7 @@
 # E-commerce Campaign & Coupon Engagement Platform
 
 **Project baseline:** v1.5.0 (owner-approved)  
-**Implementation status:** Phases 0–6 are complete and owner-accepted. Phase 7 Message, Publication Orchestration, and Delivery is planned; its plan is awaiting owner approval and implementation authorization.
+**Implementation status:** Phases 0–6 are complete and owner-accepted. Phase 7 implementation has been delivered; full verification is pending. Phase 7 is not yet owner-accepted.
 
 This repository implements the approved MVP described in [`docs/PRD.md`](docs/PRD.md). The project is a modular monolith
 with one Spring Boot backend, one React + TypeScript SPA, and PostgreSQL as the source of truth.
@@ -36,8 +36,7 @@ campaign configuration. See
 The Admin Campaign workspace at `/admin/campaigns` now includes coupon list/create/edit for a selected DRAFT campaign.
 The backend provides campaign-scoped coupon configuration, authenticated member claim and claim-list APIs, PostgreSQL
 inventory reservation, successful-request idempotency, audience-snapshot eligibility, and server-generated claim-attempt
-audit records. No schema migration was required. Member claim UI, publication, audience snapshot creation, message
-delivery, public landing page, and analytics remain in their later phases.
+audit records. No schema migration was required. Member claim UI, public landing page, engagement events, and analytics remain in later phases.
 
 Run the Phase 6 Coupon configuration and Claim API verification against an existing disposable DRAFT campaign (and optional ACTIVE claim fixture):
 
@@ -50,7 +49,14 @@ The owner accepted Phase 6 on 2026-11-27 after reporting successful backend star
 
 ## Phase 7 — Message, Publication Orchestration, and Delivery
 
-The Phase 7 plan is drafted for owner review. It covers the single campaign message, atomic audience snapshot publication, Pause/Claim serialization, asynchronous inbox delivery, retries/recovery, delivery status, and member inbox APIs. The bounded Admin message/publish/pause/delivery controls are proposed as a UI clarification for owner approval. **Phase 7 implementation is not authorized** until the owner approves [`docs/development/PHASE_7_PLAN.md`](docs/development/PHASE_7_PLAN.md) and explicitly authorizes implementation.
+Phase 7 adds the single campaign message, atomic audience snapshot publication, Pause/Claim serialization, asynchronous inbox delivery, retries/recovery, delivery status, and member inbox APIs. The Admin Campaign workspace includes bounded Message, Publish, Pause, Delivery Status, and failed-job Retry controls. No database migration was required because the approved V1 schema already contains the message, audience snapshot, delivery job, and inbox tables. The owner authorized implementation on 2026-11-27 and subsequently reported Spring Boot startup, Maven clean verify, `npm run dev`, and Phase 7 API verification (23 PASS, 0 FAIL). The final code-review corrections require a fresh regression run before formal acceptance. See [`docs/development/PHASE_7_PLAN.md`](docs/development/PHASE_7_PLAN.md) and [`docs/development/PHASE_7_IMPLEMENTATION_REPORT.md`](docs/development/PHASE_7_IMPLEMENTATION_REPORT.md).
+
+Run the Phase 7 lifecycle API suite against a fresh disposable DRAFT campaign with a valid audience and at least one Coupon. The suite publishes and pauses the campaign, so do not reuse a campaign that must remain editable or active:
+
+```zsh
+export PHASE7_DRAFT_CAMPAIGN_ID="<disposable-draft-campaign-uuid>"
+zsh scripts/api-tests/suites/phase7-message-publication-delivery-verification.zsh
+```
 
 ## Technology versions
 
@@ -89,7 +95,7 @@ The Maven bootstrap script downloads a pinned Maven distribution and verifies it
 
    ```bash
    set -a; . ./.env; set +a
-   ./mvnw -f backend/pom.xml spring-boot:run
+   ./scripts/dev/run-backend.zsh
    ```
 
    Verify the health endpoint:
@@ -109,10 +115,10 @@ The Maven bootstrap script downloads a pinned Maven distribution and verifies it
    ```
 
 6. Open <http://localhost:5173>. The login screen appears after the backend health check. After signing in as ADMIN, the
-   Audience Segments and Campaigns workspaces are available; member profile access is provided by the authenticated
+   Audience Segments and Campaigns workspaces are available; select a DRAFT Campaign to configure Coupons and the Phase 7 in-app message, then publish or pause and inspect delivery status; member profile access is provided by the authenticated
    `GET /api/v1/member/profile` API; Phase 4 does not add a Member Portal screen.
 
-The backend connects to PostgreSQL and applies Flyway migrations on startup. Use the `.env.example` values for local
+The backend connects to PostgreSQL and applies Flyway migrations on startup. **Phase 7 deployment constraint:** run exactly one backend application instance/replica. Startup recovery resets all `PROCESSING` delivery jobs to `PENDING`; running multiple instances can reset jobs owned by another live worker. Multi-instance deployment is unsupported until a separately approved worker-ownership design is implemented. If startup recovery fails, the application aborts startup; check PostgreSQL availability/permissions and restart the single instance after resolving the cause. See [`docs/development/PHASE_7_OPERATIONS.md`](docs/development/PHASE_7_OPERATIONS.md) for the recovery runbook. Use the `.env.example` values for local
 development only; override datasource settings through environment variables in other environments.
 
 ## Verification commands
@@ -155,7 +161,8 @@ docker compose ps
 - Phase 6 implementation report: [
   `docs/development/PHASE_6_IMPLEMENTATION_REPORT.md`](docs/development/PHASE_6_IMPLEMENTATION_REPORT.md)
 - Phase 6 plan: [`docs/development/PHASE_6_PLAN.md`](docs/development/PHASE_6_PLAN.md)
-- Phase 7 plan (draft for owner review): [`docs/development/PHASE_7_PLAN.md`](docs/development/PHASE_7_PLAN.md)
+- Phase 7 implementation and verification report: [`docs/development/PHASE_7_IMPLEMENTATION_REPORT.md`](docs/development/PHASE_7_IMPLEMENTATION_REPORT.md)
+- Phase 7 worker deployment and recovery runbook: [`docs/development/PHASE_7_OPERATIONS.md`](docs/development/PHASE_7_OPERATIONS.md)
 - Phase 5 implementation report: [
   `docs/development/PHASE_5_IMPLEMENTATION_REPORT.md`](docs/development/PHASE_5_IMPLEMENTATION_REPORT.md)
 - Phase 4 implementation report: [

@@ -75,6 +75,35 @@ public class JdbcAudienceMemberQuery implements AudienceMemberQuery {
         return new AudiencePreviewResult(count, sample);
     }
 
+
+    @Override
+    public List<UUID> findMemberIds(List<AudienceRuleSet.Condition> conditions, LocalDate asOfDate) {
+        if (conditions == null || conditions.isEmpty()) throw new IllegalArgumentException("At least one audience condition is required.");
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        List<String> clauses = new ArrayList<>();
+        int index = 0;
+        for (AudienceRuleSet.Condition condition : conditions) {
+            String column = "age".equals(condition.field())
+                    ? "CAST(EXTRACT(YEAR FROM age(CAST(:asOfDate AS date), m.birth_date)) AS integer)"
+                    : COLUMNS.get(condition.field());
+            if (column == null) throw new IllegalArgumentException("Unsupported audience field.");
+            String operator = SQL_OPERATORS.get(condition.operator());
+            if (operator == null) throw new IllegalArgumentException("Unsupported audience operator.");
+            if (ENUM_FIELDS.contains(condition.field()) && !Set.of("=", "!=", "IN", "NOT IN").contains(operator))
+                throw new IllegalArgumentException("Ordered enum comparisons are not supported.");
+            String nullGuard = "age".equals(condition.field()) ? "m.birth_date IS NOT NULL AND "
+                    : NULLABLE_FIELDS.contains(condition.field()) ? column + " IS NOT NULL AND " : "";
+            String parameter = "condition" + index++;
+            if ("age".equals(condition.field())) params.addValue("asOfDate", asOfDate);
+            params.addValue(parameter, condition.value());
+            if (operator.equals("IN") || operator.equals("NOT IN"))
+                clauses.add("(" + nullGuard + column + (operator.equals("IN") ? " IN (:" : " NOT IN (:") + parameter + "))");
+            else clauses.add("(" + nullGuard + column + " " + operator + " :" + parameter + ")");
+        }
+        return jdbc.query("SELECT m.id FROM members m WHERE " + String.join(" AND ", clauses) + " ORDER BY m.id", params,
+                (rs, row) -> rs.getObject(1, UUID.class));
+    }
+
     private record PreviewRow(long count, UUID memberId, String displayName) {
     }
 }

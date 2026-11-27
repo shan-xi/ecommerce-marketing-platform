@@ -249,10 +249,10 @@ metadata only in the MVP.
 
 | Method | Path                                            | Purpose                                                      |
 |--------|-------------------------------------------------|--------------------------------------------------------------|
-| PUT    | `/admin/campaigns/{campaignId}/message`         | Create/update the single message while draft                 |
-| GET    | `/admin/campaigns/{campaignId}/message`         | Get message configuration                                    |
-| GET    | `/admin/campaigns/{campaignId}/delivery-status` | Delivery progress and failures                               |
-| POST   | `/admin/campaigns/{campaignId}/delivery/retry`  | Manually retry a `FAILED` job from its last committed cursor |
+| PUT    | `/admin/campaigns/{campaignId}/message`         | Create/update the single message while DRAFT (ADMIN + CSRF)  |
+| GET    | `/admin/campaigns/{campaignId}/message`         | Get message configuration (ADMIN)                            |
+| GET    | `/admin/campaigns/{campaignId}/delivery-status` | Delivery progress and failures (ADMIN)                       |
+| POST   | `/admin/campaigns/{campaignId}/delivery/retry`  | Manually retry a `FAILED` job from its last committed cursor (ADMIN + CSRF) |
 
 Delivery status response includes `status`, `totalCount` (audience snapshot count), `processedCount` (created inbox
 rows), `cursorMemberId`, `attemptCount` (automatic retries consumed, 0–3), `lastError` (sanitized), and `retryable`
@@ -263,8 +263,11 @@ Manual retry is allowed only for `FAILED`; it resets the retry count, clears the
 committed cursor, and returns the job to `PENDING`. An interrupted `PROCESSING` job returns to `PENDING` on worker
 restart. An empty audience snapshot creates a `COMPLETED` job during publication.
 
-A database unique constraint on `campaign_messages.campaign_id` enforces one message per campaign. A campaign must have
-at least one configured coupon with `totalQuantity >= 1` before publication, matching the PRD acceptance criteria.
+A database unique constraint on `campaign_messages.campaign_id` enforces one message per campaign. Message `title` is
+required and limited to 160 characters; `body` is required and limited to 10,000 characters. Both fields are editable only
+while the campaign is `DRAFT`. A campaign must have at least one configured coupon with `totalQuantity >= 1` before
+publication, matching the PRD acceptance criteria. The message response contains `id`, `campaignId`, `title`, `body`,
+`createdAt`, and `updatedAt`.
 
 ## 9. Member APIs
 
@@ -272,8 +275,14 @@ at least one configured coupon with `totalQuantity >= 1` before publication, mat
 |--------|--------------------------------|------------------------------------|
 | GET    | `/member/profile`              | Current member profile summary     |
 | GET    | `/member/messages`             | Current member inbox               |
-| GET    | `/member/messages/{messageId}` | Message detail                     |
-| GET    | `/member/coupons`              | Current member's successful claims |
+| GET    | `/member/messages/{messageId}` | Message detail for a delivered inbox row |
+| GET    | `/member/coupons`              | Current member's successful claims       |
+
+Member inbox list accepts `page` (zero-based, default 0) and `size` (1–100, default 20), ordered by
+`deliveredAt DESC` with a stable ID tie-breaker. Both list and detail responses are scoped to the authenticated
+`MEMBER` principal; `messageId` identifies the member's inbox row, not a campaign-wide message. Each row returns
+`id`, `campaignId`, `campaignName`, `title`, `body`, and `deliveredAt`. An inbox detail outside the current member's
+records returns the generic `RESOURCE_NOT_FOUND` response.
 
 Member identity is derived from the access-token principal. No endpoint accepts a member ID to choose whose private data
 is returned.
