@@ -1,8 +1,9 @@
 # E-commerce Campaign & Coupon Engagement Platform
 
 **Project baseline:** v1.5.0 (owner-approved)  
-**Implementation status:** Phases 0–3 complete; Phases 1–3 formally owner-accepted. Phase 4 Member and Audience is in
-planning only; implementation authorization is pending.
+**Implementation status:** Phases 0–3 complete; Phases 1–3 formally owner-accepted. The Phase 4 Member and Audience
+plan was owner-approved on 2026-11-27; implementation has not started and is on hold pending a separate start
+instruction.
 
 This repository implements the approved MVP described in [`docs/PRD.md`](docs/PRD.md). The project is a modular monolith
 with one Spring Boot backend, one React + TypeScript SPA, and PostgreSQL as the source of truth.
@@ -24,11 +25,11 @@ regression
 tests passed owner verification. See [
 `docs/development/PHASE_3_IMPLEMENTATION_REPORT.md`](docs/development/PHASE_3_IMPLEMENTATION_REPORT.md).
 
-**Phase 4 — Member and Audience: PLANNING ONLY.** The planning draft is documented in
+**Phase 4 — Member and Audience: PLAN APPROVED; IMPLEMENTATION ON HOLD.** The approved plan is documented in
 [`docs/development/PHASE_4_PLAN.md`](docs/development/PHASE_4_PLAN.md). It covers member profile lookup, audience rule
-validation/evaluation, reusable segments, preview, and the Admin audience UI within the existing v1.5.0 baseline. Phase
-4
-implementation has not been authorized.
+validation/evaluation, reusable segments, reusable-segment preview, and the Admin audience UI within the existing
+v1.5.0 baseline. The owner instructed that development must not start yet. Campaign-scoped audience preview is
+integrated in Phase 5 after Campaign read access is available; its existing API contract remains unchanged.
 
 ## Technology versions
 
@@ -124,7 +125,8 @@ docker compose ps
 - Phase plan: [`docs/development/IMPLEMENTATION_PLAN.md`](docs/development/IMPLEMENTATION_PLAN.md)
 - Phase 3 implementation report: [
   `docs/development/PHASE_3_IMPLEMENTATION_REPORT.md`](docs/development/PHASE_3_IMPLEMENTATION_REPORT.md)
-- Phase 4 plan (planning only): [`docs/development/PHASE_4_PLAN.md`](docs/development/PHASE_4_PLAN.md)
+- Phase 4 plan (owner-approved; implementation on hold): [
+  `docs/development/PHASE_4_PLAN.md`](docs/development/PHASE_4_PLAN.md)
 - Phase 3 plan and implementation report: [`docs/development/PHASE_3_PLAN.md`](docs/development/PHASE_3_PLAN.md)
 - AI development protocol: [
   `docs/development/AI_DEVELOPMENT_GUIDELINES.md`](docs/development/AI_DEVELOPMENT_GUIDELINES.md)

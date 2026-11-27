@@ -1,8 +1,8 @@
 # Design Decisions and Ready-for-Development Checklist
 
-**Status:** Owner-approved — v1.5.0 Development Baseline approved; Phase 1 and Phase 2 formally accepted on 2026-11-26;
-Phase 3 formally accepted on 2026-11-27; Phase 4 planning draft prepared for owner review. **Scope:** These decisions
-confirm the existing MVP direction and do not authorize scope expansion.
+**Status:** Owner-approved — v1.5.0 Development Baseline approved; Phases 1–3 formally accepted; Phase 4 plan approved
+on 2026-11-27, with implementation held pending a separate start instruction. **Scope:** These decisions confirm the
+existing MVP direction and do not authorize scope expansion.
 
 ## 1. Confirmed decisions
 
@@ -32,9 +32,20 @@ confirm the existing MVP direction and do not authorize scope expansion.
 | Identity model                    | Shared `users` table with `ADMIN` / `MEMBER` role; member-only attributes in one-to-one `members` profile.                                                                                         | Previously confirmed; unchanged.                                                                                                  |
 | Delivery simplification           | One worker, bounded batches, persisted cursor; no lease, `SKIP LOCKED`, or snapshot-job table.                                                                                                     | Previously confirmed; unchanged.                                                                                                  |
 
-## 3. Review outcome and approval record
+## 3. Additional phase-sequencing decision
 
-The six owner decisions above remain confirmed. The v1.5.0 baseline also adopts the following implementation defaults
+| # | Decision                                    | Confirmed behavior                                                                                                                                                                                                                                                                                                        | Key implications                                                                                                                                                                                                                       |
+|--:|---------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 7 | Campaign-scoped Audience Preview sequencing | Phase 4 implements the reusable Audience evaluator, including Segment Rules + Campaign Rules AND composition, and the reusable-segment preview endpoint. The campaign-scoped `POST /api/v1/admin/campaigns/{campaignId}/audience-preview` endpoint is integrated in Phase 5 after Campaign CRUD/read access is available. | Preserve the existing API path and request/response contract. Campaign loads its own persisted configuration and calls the Audience module's application-level interface; no temporary endpoint and no cross-module repository access. |
+
+The owner approved this Phase 4 plan and sequencing on 2026-11-27. This is approval of the plan only: Phase 4
+implementation is
+intentionally on hold until the owner separately instructs development to begin.
+
+## 4. Review outcome and approval record
+
+The six original owner decisions above remain confirmed. The v1.5.0 baseline also adopts the following implementation
+defaults
 without expanding product scope: (1) the PRD field/type/operator matrix is authoritative; (2) delivery uses one worker,
 batch size 100, 1s/2s/4s retry backoff, one initial attempt plus three automatic retries before FAILED, and admin retry
 from the last committed cursor; (3) refresh-token rows represent individual generations grouped by token_family_id, and
@@ -48,8 +59,8 @@ days) and remain environment-configurable. These do not block MVP implementation
 
 The owner has explicitly approved the complete v1.5.0 Design Pack. Phase 0 is complete. Phase 1 — Repository Foundation
 and Phase 2 — Database Foundation were formally accepted on 2026-11-26. Phase 3 — Identity and Security was formally
-accepted on 2026-11-27 after owner verification. Phase 4 — Member and Audience is now in planning; implementation is
-not authorized until the owner explicitly approves `docs/development/PHASE_4_PLAN.md`.
+accepted on 2026-11-27 after owner verification. The owner approved `docs/development/PHASE_4_PLAN.md` on 2026-11-27.
+Phase 4 implementation has not started and remains on hold until a separate explicit owner instruction to begin.
 
 ### Ready-for-development checklist
 
@@ -73,7 +84,9 @@ not authorized until the owner explicitly approves `docs/development/PHASE_4_PLA
 - [x] Phase 2 — Database Foundation was formally accepted (2026-11-26).
 - [x] Phase 3 — Identity and Security formally accepted by the owner (2026-11-27).
 - [x] Phase 4 planning document prepared strictly from the approved v1.5.0 project documents.
-- [ ] Owner reviews and explicitly approves `docs/development/PHASE_4_PLAN.md` before Phase 4 implementation.
+- [x] Owner approved `docs/development/PHASE_4_PLAN.md` on 2026-11-27.
+- [x] Campaign-scoped Audience Preview assigned to Phase 5 integration; existing API contract preserved.
+- [ ] Owner separately instructs the assistant to begin Phase 4 implementation.
 
-All design approval gates for the v1.5.0 baseline remain complete. Phases 1–3 are formally accepted. Phase 4 is in
-planning only; its implementation remains gated by explicit owner approval of the Phase 4 plan.
+All design approval gates for the v1.5.0 baseline remain complete. Phases 1–3 are formally accepted. The Phase 4 plan is
+approved, but Phase 4 implementation remains intentionally on hold pending a separate start instruction.

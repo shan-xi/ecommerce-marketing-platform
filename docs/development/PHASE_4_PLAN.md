@@ -1,13 +1,13 @@
 # Phase 4 Plan — Member and Audience
 
-**Document status:** Planning draft — prepared for owner review on 2026-11-27.  
-**Implementation status:** NOT AUTHORIZED — no Phase 4 implementation work may begin until the owner explicitly approves
-this plan.  
+**Document status:** APPROVED — owner approved this Phase 4 plan on 2026-11-27.  
+**Implementation status:** NOT STARTED — implementation is intentionally on hold. Do not modify application code or
+begin Phase 4 implementation until the owner separately instructs the assistant to start development.  
 **Baseline:** Owner-approved v1.5.0 Development Baseline.  
 **Preceding phases:** Phases 1, 2, and 3 formally accepted.  
 **Purpose:** Define the bounded Phase 4 work package using only the current approved project documents. This plan does
-not
-change the PRD, API contract, database model, architecture, or MVP scope.
+not change the PRD, API contract, database model, architecture, or MVP scope. The owner-approved sequencing decision
+places the campaign-scoped preview endpoint in Phase 5; its existing API contract remains unchanged.
 
 ## 1. Objective
 
@@ -17,9 +17,13 @@ Deliver the member-profile lookup and audience-management foundation required by
 - Validate audience-rule documents against the canonical allowlist of fields, types, operators, and values.
 - Evaluate supported audience conditions against seeded member attributes.
 - Create, update, list, retrieve, and preview reusable audience segments.
-- Support campaign audience composition semantics: a saved segment and campaign-specific rules are combined with AND;
-  either one may be used alone, and at least one audience definition is required.
+- Implement the reusable audience evaluator so it supports the documented composition semantics: a saved segment and
+  campaign-specific rules are combined with AND; either one may be used alone, and at least one audience definition is
+  required.
 - Provide the Admin audience-management UI specified by the implementation plan.
+
+Phase 4 delivers the reusable-segment preview endpoint and the underlying audience composition capability. The
+campaign-scoped endpoint is integrated in Phase 5 after Campaign CRUD/read access is available.
 
 Phase 4 does **not** persist the campaign audience snapshot. Snapshot persistence and its atomic coordination with the
 delivery job belong to Phase 7.
@@ -120,13 +124,22 @@ Use the existing `audience_segments` table and its documented columns: `name`, `
 - Apply the same rule-composition semantics to preview and the later publication-time audience resolution.
 - A preview is an estimate. The authoritative member set is resolved at publication time in Phase 7.
 
-**Sequencing dependency to resolve before implementation:** The API specification also defines
-`POST /api/v1/admin/campaigns/{campaignId}/audience-preview`, while campaign draft creation and retrieval are assigned
-to
-Phase 5. Phase 4 must not implement campaign CRUD or invent a temporary API. Before implementing this campaign-scoped
-route, reconcile its dependency on the Phase 5 campaign read model against the existing API and module contracts. Keep
-the documented route and request/response contract unchanged unless the owner approves a documentation change. The
-reusable-segment preview and core audience evaluator can be developed independently of campaign CRUD.
+**Phase boundary — campaign-scoped preview is deferred to Phase 5:** The API specification defines
+`POST /api/v1/admin/campaigns/{campaignId}/audience-preview`, but the campaign draft/read model is delivered in Phase 5.
+By owner-approved sequencing, Phase 4 does not implement this campaign-scoped route. Phase 4 must not implement campaign
+CRUD, create temporary campaign records, or invent a temporary API.
+
+Phase 4 must nevertheless implement and test the reusable audience evaluator's composition capability: a supplied
+saved segment and campaign-specific rules are combined with AND; either may be used alone; absence of both is rejected.
+Tests may provide these two definitions directly to the evaluator/application use case without creating a Campaign
+record.
+
+In Phase 5, after Campaign CRUD and campaign retrieval are available, implement the already-documented
+`POST /api/v1/admin/campaigns/{campaignId}/audience-preview` endpoint. The Campaign module must load the campaign
+through its own read model and call the Audience module's application-level interface to evaluate the saved segment
+and campaign rules. Do not access another module's repository directly. Preserve the existing API path and
+request/response contract; do not add a temporary endpoint or alter OpenAPI/API specifications for this sequencing
+decision.
 
 ## 4. Frontend scope
 
@@ -163,8 +176,8 @@ Before coding:
 3. Confirm how the current security configuration exposes authenticated `MEMBER` and `ADMIN` principals to the new
    endpoints.
 4. Confirm the existing member seed attributes and `audience_segments` schema against the database design.
-5. Resolve the campaign-scoped preview sequencing dependency described in Section 3.4 without changing the API contract
-   silently.
+5. Follow the owner-approved sequencing in Section 3.4: implement core audience composition and reusable-segment
+   preview in Phase 4; defer the campaign-scoped preview endpoint to Phase 5, without changing its API contract.
 6. Confirm error codes and OpenAPI request/response schemas before implementation.
 7. Prepare backend unit/integration tests and frontend tests for the acceptance criteria below.
 8. Do not add migrations unless a documented schema mismatch is proven and the owner explicitly approves the correction.
@@ -197,8 +210,10 @@ Before coding:
 - [ ] Invalid rules cannot be persisted.
 - [ ] Preview count and any sample are consistent with the matching member set.
 - [ ] Preview does not expose unnecessary member attributes.
-- [ ] Segment and campaign-specific rules combine with AND; either one alone works; absence of both is rejected.
-- [ ] Campaign-scoped preview route sequencing is resolved without undocumented endpoint or contract changes.
+- [ ] Segment and campaign-specific rules combine with AND in the reusable audience evaluator; either one alone works;
+  absence of both is rejected.
+- [ ] The campaign-scoped preview endpoint is explicitly deferred to Phase 5; Phase 4 does not add a temporary endpoint
+  or change the existing API contract.
 
 ### Frontend and regression
 
@@ -213,7 +228,13 @@ Before coding:
 ## 8. Exit gate and authorization
 
 A Phase 4 implementation is complete only when all applicable acceptance criteria pass, regression checks are green, and
-the owner formally accepts the result.
+the owner formally accepts the implementation result.
 
-This document is a planning artifact only. **It does not authorize implementation.** The owner must explicitly approve
-this Phase 4 plan before code changes begin.
+**Plan approval record:** The owner approved this Phase 4 plan on 2026-11-27.
+
+**Implementation authorization:** Plan approval does not mean implementation has started. At the owner's explicit
+request, Phase 4 implementation is on hold. Do not modify application code, tests, migrations, or runtime behavior for
+Phase 4 until the owner separately instructs the assistant to begin development.
+
+The Phase 4 implementation must follow the approved sequencing in Section 3.4. Campaign-scoped preview is a Phase 5
+integration task and must retain the existing API contract.

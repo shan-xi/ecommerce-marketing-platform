@@ -1,8 +1,8 @@
 # Implementation Plan
 
-**Status:** Approved — v1.5.0 baseline accepted; Phase 0 complete; Phase 1 and Phase 2 formally owner-accepted
-(2026-11-26); Phase 3 formally owner-accepted (2026-11-27); Phase 4 planning draft prepared for owner review. **Scope:**
-Deliver the approved MVP in incremental, verifiable phases.
+**Status:** Approved — v1.5.0 baseline accepted; Phase 0 complete; Phases 1–3 formally owner-accepted; Phase 4 plan
+formally owner-approved on 2026-11-27, with implementation intentionally held pending a separate start instruction.
+**Scope:** Deliver the approved MVP in incremental, verifiable phases.
 
 ## 1. Execution principles
 
@@ -16,32 +16,32 @@ Deliver the approved MVP in incremental, verifiable phases.
 
 ## 2. Phase plan
 
-### Current execution gate (2026-11-26)
+### Current execution gate (2026-11-27)
 
 - **Phase 0 — Design baseline:** COMPLETE.
 - **Phase 1 — Repository foundation:** COMPLETE — formally accepted by the owner on 2026-11-26.
 - **Phase 2 — Database foundation:** COMPLETE — formally accepted by the owner on 2026-11-26.
 - **Phase 3 — Identity and security:** COMPLETE — formally accepted by the owner on 2026-11-27; see
   `PHASE_3_IMPLEMENTATION_REPORT.md`.
-- **Phase 4 — Member and audience:** PLANNING — a bounded planning document has been prepared in
-  `PHASE_4_PLAN.md`; owner review/approval is pending. No Phase 4 implementation is authorized by this planning status.
+- **Phase 4 — Member and audience:** PLAN APPROVED on 2026-11-27; implementation NOT STARTED and intentionally on
+  hold until the owner separately instructs development to begin. See `PHASE_4_PLAN.md`.
 - **Phases 5–10:** PLANNED; each remains gated by completion and owner acceptance of the preceding phase and explicit
   owner authorization.
-- Phase 4 implementation may begin only after the owner explicitly approves `PHASE_4_PLAN.md`.
+- Approval of the Phase 4 plan is not authorization to start coding. A separate owner instruction is required.
 
-| Phase                                               | Scope                                                                                | Main deliverables                                                                                           | Exit criteria                                                                                                                                                                                    |
-|-----------------------------------------------------|--------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| 0. Design baseline                                  | Review and approve the v1.5.0 Design Pack                                            | Approved PRD, architecture, API/OpenAPI, database/ERD, security, accepted ADRs, and phase plan              | **Complete (2026-11-26):** owner approved the complete baseline, PRD is `Ready for Development`, no blocking open questions remained, and Phase 1 was authorized                                 |
-| 1. Repository foundation                            | Backend/frontend scaffolding and local environment                                   | Spring Boot skeleton, React+TS skeleton, build scripts, local PostgreSQL, README                            | **Complete and owner-accepted (2026-11-26):** backend build/test, frontend checks/build, PostgreSQL health, backend health, and frontend display verified by owner                               |
-| 2. Database foundation                              | Initial schema and seed strategy                                                     | Flyway migrations for all v1.5 tables/constraints, fictional admin/member seed data, repository integration | **Complete and owner-accepted (2026-11-26):** Flyway V1/V2 applied; all 12 tables, seed data, constraints/indexes verified; 15 backend tests and 4 frontend tests passed; typecheck/build passed |
-| 3. Identity and security                            | Login, JWT cookies, refresh rotation, logout, roles, CSRF                            | Auth endpoints, token-family persistence, CSRF config, frontend auth flow                                   | **Complete and owner-accepted (2026-11-27):** backend 30 tests pass; API suite 26/26; frontend 8/8, typecheck/build pass; browser auth/session/role checks pass.                                 |
-| 4. Member and audience                              | Member profile, audience rule validation/evaluation, reusable segments, preview      | Audience use cases and APIs, admin audience UI, canonical field/operator validator                          | Full matrix tests pass; AND/NULL behavior correct; preview count/sample correct. Snapshot persistence is integrated later with Publish in Phase 7.                                               |
-| 5. Campaign draft management                        | Draft create/edit/list/detail and lifecycle validation                               | Campaign CRUD APIs and admin screens; fixed landing-page content fields                                     | Draft validation and date-window rules pass; no publish endpoint/worker yet                                                                                                                      |
-| 6. Coupon configuration and claim backend           | Coupon CRUD/configuration, inventory reservation, claim transaction, claim list      | Coupon APIs, atomic claim service, idempotency, server-side claim audit                                     | Duplicate and oversubscription tests pass; inventory equals successful claims; claim API contract stable                                                                                         |
-| 7. Message, publication orchestration, and delivery | Single message configuration, publish, immutable snapshot, delivery job/worker/retry | Message APIs, publish orchestration, snapshot + job transaction, batch worker, delivery status/manual retry | Publish atomically commits snapshot and job; empty snapshot completes immediately; delivery retries/recovery and no-duplicate inbox tests pass                                                   |
-| 8. Landing page and engagement                      | Public landing page, member claim UI, impression/click/page-view events              | Landing route, eligibility/claim states, sign-in return flow, event ingestion                               | Paused/ended public page behavior, anonymous behavior, eligibility display, event dedup all pass                                                                                                 |
-| 9. Analytics                                        | Campaign funnel and coupon reports                                                   | Analytics APIs and Admin screens                                                                            | Metrics match source records; target-based rates and zero-denominator handling verified                                                                                                          |
-| 10. Hardening and delivery                          | E2E, concurrency, security, docs, reproducible demo                                  | Full test suite, deployment/local run instructions, final README                                            | All PRD acceptance scenarios pass; clean setup reproducible; limitations documented                                                                                                              |
+| Phase                                               | Scope                                                                                                      | Main deliverables                                                                                                                                          | Exit criteria                                                                                                                                                                                                                         |
+|-----------------------------------------------------|------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 0. Design baseline                                  | Review and approve the v1.5.0 Design Pack                                                                  | Approved PRD, architecture, API/OpenAPI, database/ERD, security, accepted ADRs, and phase plan                                                             | **Complete (2026-11-26):** owner approved the complete baseline, PRD is `Ready for Development`, no blocking open questions remained, and Phase 1 was authorized                                                                      |
+| 1. Repository foundation                            | Backend/frontend scaffolding and local environment                                                         | Spring Boot skeleton, React+TS skeleton, build scripts, local PostgreSQL, README                                                                           | **Complete and owner-accepted (2026-11-26):** backend build/test, frontend checks/build, PostgreSQL health, backend health, and frontend display verified by owner                                                                    |
+| 2. Database foundation                              | Initial schema and seed strategy                                                                           | Flyway migrations for all v1.5 tables/constraints, fictional admin/member seed data, repository integration                                                | **Complete and owner-accepted (2026-11-26):** Flyway V1/V2 applied; all 12 tables, seed data, constraints/indexes verified; 15 backend tests and 4 frontend tests passed; typecheck/build passed                                      |
+| 3. Identity and security                            | Login, JWT cookies, refresh rotation, logout, roles, CSRF                                                  | Auth endpoints, token-family persistence, CSRF config, frontend auth flow                                                                                  | **Complete and owner-accepted (2026-11-27):** backend 30 tests pass; API suite 26/26; frontend 8/8, typecheck/build pass; browser auth/session/role checks pass.                                                                      |
+| 4. Member and audience                              | Member profile, audience rule validation/evaluation, reusable segments, reusable-segment preview           | Audience use cases and APIs, admin audience UI, canonical field/operator validator; evaluator supports Segment Rules + Campaign Rules composition          | Full matrix tests pass; AND/NULL behavior correct; reusable-segment preview count/sample correct; composition semantics tested. Campaign-scoped preview integration is deferred to Phase 5. Snapshot persistence remains Phase 7.     |
+| 5. Campaign draft management                        | Draft create/edit/list/detail, campaign read model, lifecycle validation, campaign-scoped audience preview | Campaign CRUD APIs and admin screens; fixed landing-page content fields; existing campaign audience-preview API integrated with Phase 4 Audience evaluator | Draft validation/date-window rules pass; campaign-scoped preview loads persisted campaign rules through Campaign read model and calls Audience application interface; existing API contract unchanged; no publish endpoint/worker yet |
+| 6. Coupon configuration and claim backend           | Coupon CRUD/configuration, inventory reservation, claim transaction, claim list                            | Coupon APIs, atomic claim service, idempotency, server-side claim audit                                                                                    | Duplicate and oversubscription tests pass; inventory equals successful claims; claim API contract stable                                                                                                                              |
+| 7. Message, publication orchestration, and delivery | Single message configuration, publish, immutable snapshot, delivery job/worker/retry                       | Message APIs, publish orchestration, snapshot + job transaction, batch worker, delivery status/manual retry                                                | Publish atomically commits snapshot and job; empty snapshot completes immediately; delivery retries/recovery and no-duplicate inbox tests pass                                                                                        |
+| 8. Landing page and engagement                      | Public landing page, member claim UI, impression/click/page-view events                                    | Landing route, eligibility/claim states, sign-in return flow, event ingestion                                                                              | Paused/ended public page behavior, anonymous behavior, eligibility display, event dedup all pass                                                                                                                                      |
+| 9. Analytics                                        | Campaign funnel and coupon reports                                                                         | Analytics APIs and Admin screens                                                                                                                           | Metrics match source records; target-based rates and zero-denominator handling verified                                                                                                                                               |
+| 10. Hardening and delivery                          | E2E, concurrency, security, docs, reproducible demo                                                        | Full test suite, deployment/local run instructions, final README                                                                                           | All PRD acceptance scenarios pass; clean setup reproducible; limitations documented                                                                                                                                                   |
 
 ## 3. Phase details and dependencies
 
@@ -103,17 +103,23 @@ The delivered Phase 3 scope follows the approved Security Design and API Specifi
 - Verify cookie flags, CORS origin allowlist, CSRF behavior, token lifecycle, role boundaries, and security logging.
 
 Phase 3 implementation is complete within the approved scope. The owner completed verification and formally accepted
-Phase 3 on 2026-11-27. Phase 4 may now be planned; its implementation remains subject to separate owner authorization.
+Phase 3 on 2026-11-27. The Phase 4 plan was approved on 2026-11-27; implementation remains on hold until a separate
+explicit owner instruction to begin.
 
 ### Phase 4 — Member and audience
 
-**Phase status:** PLANNING — see `PHASE_4_PLAN.md`; implementation not yet authorized.
+**Plan status:** APPROVED by the owner on 2026-11-27.  
+**Implementation status:** NOT STARTED — intentionally on hold until the owner separately instructs development to
+begin.
 
 - Implement the authenticated member profile lookup using the identity principal; never accept a client-selected member
   ID.
 - Implement the canonical field/type/operator matrix and allowlisted rule model/evaluator.
-- Implement saved segment CRUD and preview.
-- Implement campaign audience rule composition according to AND semantics.
+- Implement saved segment CRUD and reusable-segment preview.
+- Implement and test audience composition in the reusable evaluator: Segment Rules AND Campaign Rules; either one alone
+  is valid, and at least one definition is required.
+- Do not implement the campaign-scoped preview HTTP endpoint in Phase 4; that endpoint is integrated in Phase 5 after
+  the Campaign read model exists. Preserve its existing API contract.
 - Do not persist the final campaign snapshot in this phase; publication snapshot + delivery job are one transaction in
   Phase 7.
 
@@ -121,6 +127,10 @@ Phase 3 on 2026-11-27. Phase 4 may now be planned; its implementation remains su
 
 - Implement draft create/update/list/detail and campaign date validation.
 - Implement fixed landing-page headline/body fields.
+- Integrate the already-specified `POST /api/v1/admin/campaigns/{campaignId}/audience-preview` endpoint after
+  Campaign CRUD/read access is available. Campaign loads its own campaign data and invokes the Audience module's
+  application-level evaluator interface; do not access Audience repositories directly. Keep the API path and
+  request/response contract unchanged.
 - Publish and Pause endpoints are integrated in Phase 7 after coupon/message prerequisites are available.
 
 ### Phase 6 — Coupon configuration and claim backend
@@ -184,5 +194,7 @@ microservices, Redis, Kafka, or third-party production integrations are included
 
 Phase 1 and Phase 2 are formally accepted by the owner on 2026-11-26; their results are recorded in
 `PHASE_1_IMPLEMENTATION_REPORT.md` and `PHASE_2_IMPLEMENTATION_REPORT.md`. Phase 3 is formally accepted on 2026-11-27;
-its results are recorded in `PHASE_3_IMPLEMENTATION_REPORT.md`. Phase 4 planning is documented separately and is not
-implementation authorization.
+its results are recorded in `PHASE_3_IMPLEMENTATION_REPORT.md`. The Phase 4 plan was approved by the owner on
+2026-11-27; implementation remains on hold until a separate explicit
+owner instruction to begin. The campaign-scoped audience-preview endpoint is assigned to Phase 5 integration; the
+existing API contract remains unchanged.

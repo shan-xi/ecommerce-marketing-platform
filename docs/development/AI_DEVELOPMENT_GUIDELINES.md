@@ -2,8 +2,11 @@
 
 **Status:** Approved operating contract for AI-assisted implementation under v1.5.0.  
 **Current instruction:** Phase 1 and Phase 2 were formally accepted by the owner on 2026-11-26; Phase 3 — Identity and
-Security was formally accepted on 2026-11-27. Phase 4 — Member and Audience is in planning only. Read
-`docs/development/PHASE_4_PLAN.md`; do not begin Phase 4 implementation until the owner explicitly approves that plan.
+Security was formally accepted on 2026-11-27. The owner approved `docs/development/PHASE_4_PLAN.md` on 2026-11-27,
+but explicitly instructed that implementation must not begin yet. Do not modify application code, tests, migrations, or
+runtime behavior for Phase 4 until the owner separately instructs the assistant to start development. Follow the
+approved sequencing: Phase 4 delivers the core Audience evaluator and reusable-segment preview; the existing
+campaign-scoped audience-preview endpoint is integrated in Phase 5 after Campaign read access exists.
 
 ## 1. Required reading order
 
