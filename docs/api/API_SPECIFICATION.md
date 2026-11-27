@@ -247,11 +247,11 @@ metadata only in the MVP.
 
 ## 8. Campaign message APIs
 
-| Method | Path                                            | Purpose                                                      |
-|--------|-------------------------------------------------|--------------------------------------------------------------|
-| PUT    | `/admin/campaigns/{campaignId}/message`         | Create/update the single message while DRAFT (ADMIN + CSRF)  |
-| GET    | `/admin/campaigns/{campaignId}/message`         | Get message configuration (ADMIN)                            |
-| GET    | `/admin/campaigns/{campaignId}/delivery-status` | Delivery progress and failures (ADMIN)                       |
+| Method | Path                                            | Purpose                                                                     |
+|--------|-------------------------------------------------|-----------------------------------------------------------------------------|
+| PUT    | `/admin/campaigns/{campaignId}/message`         | Create/update the single message while DRAFT (ADMIN + CSRF)                 |
+| GET    | `/admin/campaigns/{campaignId}/message`         | Get message configuration (ADMIN)                                           |
+| GET    | `/admin/campaigns/{campaignId}/delivery-status` | Delivery progress and failures (ADMIN)                                      |
 | POST   | `/admin/campaigns/{campaignId}/delivery/retry`  | Manually retry a `FAILED` job from its last committed cursor (ADMIN + CSRF) |
 
 Delivery status response includes `status`, `totalCount` (audience snapshot count), `processedCount` (created inbox
@@ -264,17 +264,18 @@ committed cursor, and returns the job to `PENDING`. An interrupted `PROCESSING` 
 restart. An empty audience snapshot creates a `COMPLETED` job during publication.
 
 A database unique constraint on `campaign_messages.campaign_id` enforces one message per campaign. Message `title` is
-required and limited to 160 characters; `body` is required and limited to 10,000 characters. Both fields are editable only
+required and limited to 160 characters; `body` is required and limited to 10,000 characters. Both fields are editable
+only
 while the campaign is `DRAFT`. A campaign must have at least one configured coupon with `totalQuantity >= 1` before
 publication, matching the PRD acceptance criteria. The message response contains `id`, `campaignId`, `title`, `body`,
 `createdAt`, and `updatedAt`.
 
 ## 9. Member APIs
 
-| Method | Path                           | Purpose                            |
-|--------|--------------------------------|------------------------------------|
-| GET    | `/member/profile`              | Current member profile summary     |
-| GET    | `/member/messages`             | Current member inbox               |
+| Method | Path                           | Purpose                                  |
+|--------|--------------------------------|------------------------------------------|
+| GET    | `/member/profile`              | Current member profile summary           |
+| GET    | `/member/messages`             | Current member inbox                     |
 | GET    | `/member/messages/{messageId}` | Message detail for a delivered inbox row |
 | GET    | `/member/coupons`              | Current member's successful claims       |
 

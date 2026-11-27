@@ -1,7 +1,8 @@
 # Phase 6 Plan — Coupon Configuration and Claim Backend
 
 **Document status:** Owner-approved and owner-accepted on 2026-11-27.  
-**Implementation status:** COMPLETE — the owner approved the delivered Phase 6 changes after reporting successful backend, frontend, API, and Admin Coupon UI verification.  
+**Implementation status:** COMPLETE — the owner approved the delivered Phase 6 changes after reporting successful
+backend, frontend, API, and Admin Coupon UI verification.  
 **Baseline:** Owner-approved v1.5.0 Development Baseline.  
 **Preceding phases:** Phases 1–5 formally accepted; Phase 5 accepted by the owner on 2026-11-27.  
 **Purpose:** Define the bounded Phase 6 work package from the approved PRD, API/OpenAPI contract, database design,
@@ -325,14 +326,18 @@ compatible. Cover:
 - [x] Only DRAFT campaigns accept coupon configuration changes.
 - [x] Coupon validation and server-managed inventory fields are enforced.
 - [x] Member claim and member coupon-list APIs use the authenticated principal.
-- [x] Inventory reservation uses an atomic conditional database update and a database quantity constraint; dedicated high-contention Coupon race coverage remains a Phase 10 hardening item.
+- [x] Inventory reservation uses an atomic conditional database update and a database quantity constraint; dedicated
+  high-contention Coupon race coverage remains a Phase 10 hardening item.
 - [x] One successful claim per member/campaign coupon is enforced by database constraints.
 - [x] Successful idempotency replay and cross-target conflict semantics match the API specification.
 - [x] Failed attempts do not reserve inventory or persist successful claims.
 - [x] Server-generated `CLAIM_ATTEMPT` audit behavior is correct for SUCCEEDED/FAILED/REPLAYED.
 - [x] Campaign row locking is compatible with the Phase 7 Pause protocol.
-- [x] Owner-reported Maven verification, frontend test/typecheck/build, Phase 6 API verification, and prior regression checks passed. A dedicated high-contention Coupon race test is not present in this ZIP and is explicitly tracked for Phase 10 hardening.
-- [x] API/OpenAPI, error codes, database docs (no schema change was required), README, implementation plan, and report are synchronized; no API contract change was introduced.
+- [x] Owner-reported Maven verification, frontend test/typecheck/build, Phase 6 API verification, and prior regression
+  checks passed. A dedicated high-contention Coupon race test is not present in this ZIP and is explicitly tracked for
+  Phase 10 hardening.
+- [x] API/OpenAPI, error codes, database docs (no schema change was required), README, implementation plan, and report
+  are synchronized; no API contract change was introduced.
 - [x] Owner formally accepted Phase 6 on 2026-11-27; see `PHASE_6_IMPLEMENTATION_REPORT.md`.
 
 ## 10. Dependencies and implementation sequence
@@ -347,12 +352,18 @@ compatible. Cover:
 6. Implement the claim use case with campaign shared lock, idempotency ordering, eligibility, conditional inventory
    reservation, claim insert, and server-generated audit.
 7. Implement member claim-list use case and controller.
-8. Add unit, PostgreSQL integration, and API verification tests. The owner-reported verification passed; a dedicated high-contention inventory race test was not included in this package and is tracked for Phase 10 hardening.
+8. Add unit, PostgreSQL integration, and API verification tests. The owner-reported verification passed; a dedicated
+   high-contention inventory race test was not included in this package and is tracked for Phase 10 hardening.
 9. Run all Phase 1–5 regression checks; update API/OpenAPI/error docs only if a genuine contract clarification is
    approved.
-10. Submit `PHASE_6_IMPLEMENTATION_REPORT.md` and updated ZIP for owner verification; Phase 6 was accepted by the owner on 2026-11-27. Phase 7 planning may now proceed, but Phase 7 implementation still requires separate plan approval and explicit authorization.
+10. Submit `PHASE_6_IMPLEMENTATION_REPORT.md` and updated ZIP for owner verification; Phase 6 was accepted by the owner
+    on 2026-11-27. Phase 7 planning may now proceed, but Phase 7 implementation still requires separate plan approval
+    and explicit authorization.
 
 ## 11. Approval gate
 
 Phase 5 was formally accepted on 2026-11-27. The owner explicitly approved this Phase 6 plan, authorized implementation,
-and approved the bounded Admin coupon UI clarification in Section 3.3 on 2026-11-27. The owner formally accepted the delivered Phase 6 changes on 2026-11-27 after reporting successful verification. A dedicated high-contention Coupon inventory race test is not included in this ZIP and is tracked for Phase 10 hardening. Any additional change to product scope, API semantics, schema, or phase sequencing requires explicit review.
+and approved the bounded Admin coupon UI clarification in Section 3.3 on 2026-11-27. The owner formally accepted the
+delivered Phase 6 changes on 2026-11-27 after reporting successful verification. A dedicated high-contention Coupon
+inventory race test is not included in this ZIP and is tracked for Phase 10 hardening. Any additional change to product
+scope, API semantics, schema, or phase sequencing requires explicit review.

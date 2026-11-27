@@ -1,6 +1,7 @@
 # Design Decisions and Ready-for-Development Checklist
 
-**Status:** Owner-approved v1.5.0 Development Baseline; Phases 1–6 formally accepted; Phase 7 implementation authorized and delivered, pending full verification and owner acceptance. **Scope:**
+**Status:** Owner-approved v1.5.0 Development Baseline; Phases 1–6 formally accepted; Phase 7 implementation authorized
+and delivered, pending full verification and owner acceptance. **Scope:**
 These decisions confirm the existing MVP direction and do not authorize scope expansion.
 
 ## 1. Confirmed decisions
@@ -59,7 +60,9 @@ The owner has explicitly approved the complete v1.5.0 Design Pack. Phase 0 is co
 and Phase 2 — Database Foundation were formally accepted on 2026-11-26. Phases 3 and 4 were formally accepted on
 2026-11-27 after owner verification. The owner formally accepted Phase 5 on 2026-11-27 after reporting successful
 backend, frontend, API (29 PASS, 0 FAIL), Campaign Audience composition, Campaign UI, and boundary verification.
-The owner formally accepted Phase 6 on 2026-11-27 after reporting successful verification. The owner explicitly authorized Phase 7 implementation on 2026-11-27; the implementation report records delivered scope and remaining verification.
+The owner formally accepted Phase 6 on 2026-11-27 after reporting successful verification. The owner explicitly
+authorized Phase 7 implementation on 2026-11-27; the implementation report records delivered scope and remaining
+verification.
 
 ### Ready-for-development checklist
 
@@ -92,12 +95,17 @@ The owner formally accepted Phase 6 on 2026-11-27 after reporting successful ver
   pagination/status only, no `q` clarification.
 - [x] Owner explicitly authorizes Phase 5 implementation (2026-11-27).
 - [x] Owner verifies and formally accepts Phase 5 implementation (2026-11-27).
-- [x] Phase 6 Coupon Configuration and Claim Backend plan approved and implemented from the approved PRD/API/database baseline.
+- [x] Phase 6 Coupon Configuration and Claim Backend plan approved and implemented from the approved PRD/API/database
+  baseline.
 - [x] Owner explicitly authorized Phase 6 implementation and approved the bounded Admin coupon UI clarification.
-- [x] Owner formally accepted Phase 6 on 2026-11-27 after reporting successful backend, frontend, API, and Admin UI verification.
+- [x] Owner formally accepted Phase 6 on 2026-11-27 after reporting successful backend, frontend, API, and Admin UI
+  verification.
 - [x] Phase 7 Message, Publication Orchestration, and Delivery plan drafted from the approved PRD/API/database baseline.
 - [x] Owner explicitly authorized Phase 7 implementation on 2026-11-27.
 - [x] Bounded Admin message/publish/pause/delivery UI clarification in `PHASE_7_PLAN.md` Section 3.3 implemented.
-- [ ] Complete full Phase 7 backend, frontend, API, and owner-environment verification; then obtain formal owner acceptance.
+- [ ] Complete full Phase 7 backend, frontend, API, and owner-environment verification; then obtain formal owner
+  acceptance.
 
-All design approval gates for the v1.5.0 baseline remain complete. Phases 1–6 are formally accepted. A dedicated high-contention Coupon inventory race test is not included in the accepted Phase 6 package and is tracked for Phase 10 hardening. Phase 7 implementation is delivered but not yet formally accepted; its full verification remains outstanding.
+All design approval gates for the v1.5.0 baseline remain complete. Phases 1–6 are formally accepted. A dedicated
+high-contention Coupon inventory race test is not included in the accepted Phase 6 package and is tracked for Phase 10
+hardening. Phase 7 implementation is delivered but not yet formally accepted; its full verification remains outstanding.

@@ -224,6 +224,11 @@ export function CampaignAdmin() {
                     </li>)}</ul>
                 </div>}</form>
         </div>
-        {selected && <><CampaignCoupons campaignId={selected.id} editable={selected.status === 'DRAFT'}/><CampaignLifecycle campaignId={selected.id} campaignStatus={selected.status} onUpdated={async () => { await openCampaign(selected.id); await refresh(page, status); }}/></>}
+        {selected && <><CampaignCoupons campaignId={selected.id}
+                                        editable={selected.status === 'DRAFT'}/><CampaignLifecycle
+            campaignId={selected.id} campaignStatus={selected.status} onUpdated={async () => {
+            await openCampaign(selected.id);
+            await refresh(page, status);
+        }}/></>}
     </section>;
 }

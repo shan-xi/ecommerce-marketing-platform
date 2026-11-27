@@ -154,11 +154,12 @@ successful claim for the configured test member and leaves that claim in the dat
 race, audit-row inspection, and failure rollback still require the PostgreSQL integration fixtures described in
 `docs/development/PHASE_6_PLAN.md`; this HTTP suite does not replace those tests.
 
-
 ## Phase 7 Message, Publication, and Delivery API verification
 
-Run against an existing disposable DRAFT campaign whose time window includes the current time (`startsAt <= now < endsAt`), with a valid audience
-and at least one configured coupon. The suite checks the time window before changing the campaign message and reports the schedule if it is not active:
+Run against an existing disposable DRAFT campaign whose time window includes the current time
+(`startsAt <= now < endsAt`), with a valid audience
+and at least one configured coupon. The suite checks the time window before changing the campaign message and reports
+the schedule if it is not active:
 
 ```zsh
 export PHASE7_DRAFT_CAMPAIGN_ID="<disposable-draft-campaign-uuid>"

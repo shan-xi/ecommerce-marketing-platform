@@ -103,11 +103,15 @@ public class AudienceSegmentService implements AudienceUseCase {
     public List<UUID> resolveMemberIds(UUID segmentId, JsonNode campaignRules) {
         AudienceRuleSet saved = null;
         if (segmentId != null) {
-            try { saved = validator.validate(get(segmentId).rules()); }
-            catch (AudienceResourceNotFoundException ex) { throw new InvalidAudienceRuleException("Referenced audience segment does not exist."); }
+            try {
+                saved = validator.validate(get(segmentId).rules());
+            } catch (AudienceResourceNotFoundException ex) {
+                throw new InvalidAudienceRuleException("Referenced audience segment does not exist.");
+            }
         }
         AudienceRuleSet specific = campaignRules == null ? null : validator.validate(campaignRules);
-        if (saved == null && specific == null) throw new InvalidAudienceRuleException("At least one audience definition is required.");
+        if (saved == null && specific == null)
+            throw new InvalidAudienceRuleException("At least one audience definition is required.");
         return evaluator.resolveMemberIds(saved, specific);
     }
 

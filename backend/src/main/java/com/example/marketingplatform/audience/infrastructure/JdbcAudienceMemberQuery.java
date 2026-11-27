@@ -78,7 +78,8 @@ public class JdbcAudienceMemberQuery implements AudienceMemberQuery {
 
     @Override
     public List<UUID> findMemberIds(List<AudienceRuleSet.Condition> conditions, LocalDate asOfDate) {
-        if (conditions == null || conditions.isEmpty()) throw new IllegalArgumentException("At least one audience condition is required.");
+        if (conditions == null || conditions.isEmpty())
+            throw new IllegalArgumentException("At least one audience condition is required.");
         MapSqlParameterSource params = new MapSqlParameterSource();
         List<String> clauses = new ArrayList<>();
         int index = 0;
