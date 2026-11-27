@@ -1,8 +1,7 @@
 # E-commerce Campaign & Coupon Engagement Platform
 
 **Project baseline:** v1.5.0 (owner-approved)  
-**Implementation status:** Phases 0–6 are complete and owner-accepted. Phase 7 implementation has been delivered; full
-verification is pending. Phase 7 is not yet owner-accepted.
+**Implementation status:** Phases 0–7 are complete and owner-accepted. Phase 8 is planned; its plan is prepared but implementation has not been authorized.
 
 This repository implements the approved MVP described in [`docs/PRD.md`](docs/PRD.md). The project is a modular monolith
 with one Spring Boot backend, one React + TypeScript SPA, and PostgreSQL as the source of truth.
@@ -59,10 +58,7 @@ inventory race test is not included in this package and is tracked for Phase 10 
 Phase 7 adds the single campaign message, atomic audience snapshot publication, Pause/Claim serialization, asynchronous
 inbox delivery, retries/recovery, delivery status, and member inbox APIs. The Admin Campaign workspace includes bounded
 Message, Publish, Pause, Delivery Status, and failed-job Retry controls. No database migration was required because the
-approved V1 schema already contains the message, audience snapshot, delivery job, and inbox tables. The owner authorized
-implementation on 2026-11-27 and subsequently reported Spring Boot startup, Maven clean verify, `npm run dev`, and Phase
-7 API verification (23 PASS, 0 FAIL). The final code-review corrections require a fresh regression run before formal
-acceptance. See [`docs/development/PHASE_7_PLAN.md`](docs/development/PHASE_7_PLAN.md) and [
+approved V1 schema already contains the message, audience snapshot, delivery job, and inbox tables. The owner authorized implementation on 2026-11-27 and formally accepted Phase 7 on 2026-11-27 after reporting Spring Boot startup, Maven clean verify, `npm run dev`, script automation tests, and Phase 7 API verification (23 PASS, 0 FAIL). Final code-review corrections are included in the accepted package. See [`docs/development/PHASE_7_PLAN.md`](docs/development/PHASE_7_PLAN.md) and [
 `docs/development/PHASE_7_IMPLEMENTATION_REPORT.md`](docs/development/PHASE_7_IMPLEMENTATION_REPORT.md).
 
 Run the Phase 7 lifecycle API suite against a fresh disposable DRAFT campaign with a valid audience and at least one
@@ -72,6 +68,10 @@ Coupon. The suite publishes and pauses the campaign, so do not reuse a campaign 
 export PHASE7_DRAFT_CAMPAIGN_ID="<disposable-draft-campaign-uuid>"
 zsh scripts/api-tests/suites/phase7-message-publication-delivery-verification.zsh
 ```
+
+## Phase 8 — Member Landing Page, Coupon Claim Experience, and Engagement
+
+Phase 8 planning is prepared in [`docs/development/PHASE_8_PLAN.md`](docs/development/PHASE_8_PLAN.md) from the approved PRD, API/OpenAPI, database, and architecture baseline. It covers the public campaign landing page, member coupon claim experience and sign-in return flow, and idempotent impression/click/authenticated page-view event ingestion. **Planning only: Phase 8 implementation has not yet been authorized.** The owner must approve the plan and explicitly authorize development before code changes begin.
 
 ## Technology versions
 
@@ -186,6 +186,7 @@ docker compose ps
 - Phase 6 plan: [`docs/development/PHASE_6_PLAN.md`](docs/development/PHASE_6_PLAN.md)
 - Phase 7 implementation and verification report: [
   `docs/development/PHASE_7_IMPLEMENTATION_REPORT.md`](docs/development/PHASE_7_IMPLEMENTATION_REPORT.md)
+- Phase 8 implementation plan: [`docs/development/PHASE_8_PLAN.md`](docs/development/PHASE_8_PLAN.md)
 - Phase 7 worker deployment and recovery runbook: [
   `docs/development/PHASE_7_OPERATIONS.md`](docs/development/PHASE_7_OPERATIONS.md)
 - Phase 5 implementation report: [

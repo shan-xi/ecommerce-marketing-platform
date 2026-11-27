@@ -160,3 +160,16 @@ campaign creation/publication, member delivery, coupon claim, duplicate claim, c
 - No known regression in previously completed phases.
 - API/DB/documentation changes are synchronized.
 - Build and test commands are documented and reproducible.
+
+
+### Phase 8 landing page and engagement coverage (planned)
+
+- Anonymous reads can access published campaign/coupon content only; DRAFT campaigns are not public.
+- PAUSED/ENDED published pages remain readable while new claims are unavailable.
+- Authenticated member state is principal-scoped; audience-snapshot ineligibility is explicit and cannot be inferred from stock.
+- Claim UI reuses Phase 6 claim/idempotency semantics; duplicate submission and network retry do not consume inventory twice.
+- Anonymous claim redirects through login and returns only to a validated same-origin campaign route; no automatic claim after login.
+- Impression/click requires a matching delivered `member_messages` row; landing-page view requires MEMBER authentication; anonymous page views are not attributed.
+- Duplicate `eventId` does not inflate event counts; unsupported event types and client-submitted claim/delivery events are rejected.
+- Event ingestion failure does not block public page rendering or claim interaction.
+- Phase 8 automated coverage must include API authorization/CSRF, PostgreSQL event deduplication/context constraints, frontend route/state tests, and browser-level login-return/claim scenarios.

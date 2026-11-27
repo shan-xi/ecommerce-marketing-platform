@@ -2,8 +2,8 @@
 
 **Plan:** `PHASE_7_PLAN.md`  
 **Owner authorization:** Explicitly granted 2026-11-27.  
-**Implementation status:** Delivered in source; full verification pending.  
-**Owner acceptance:** Not yet recorded.
+**Implementation status:** COMPLETE.  
+**Owner acceptance:** FORMALLY ACCEPTED on 2026-11-27.
 
 ## 1. Delivered scope
 
@@ -133,71 +133,25 @@
 - The current build environment does not include the `zsh` executable, so a native `zsh -n` syntax check and a live
   rerun could not be performed here. Please rerun the API suite in the owner environment.
 
-## 4. Verification performed in this build environment
+## 4. Owner-reported final verification and acceptance
 
-| Check                                          | Result       | Notes                                                                                                                                                                           |
-|------------------------------------------------|--------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Frontend static tests                          | PASS — 14/14 | `cd frontend && npm test`                                                                                                                                                       |
-| Maven compile                                  | NOT RUN      | Maven wrapper attempted to download pinned Maven 3.10.2; network DNS/download unavailable (`curl: Could not resolve host`).                                                     |
-| Maven clean verify / PostgreSQL Testcontainers | NOT RUN      | Maven distribution/dependencies unavailable; Docker CLI is not present in this build environment.                                                                               |
-| Frontend typecheck/build                       | NOT RUN      | `npm ci --offline` could not find the pinned Vite package in local npm cache. A global TypeScript fallback lacks React/Node type packages and is not a valid project typecheck. |
-| Phase 7 API suite                              | NOT RUN      | Requires a running local PostgreSQL-backed application and disposable DRAFT campaign; script is included for owner execution.                                                   |
-| Browser/manual UI verification                 | NOT RUN      | Requires running backend and installed frontend dependencies.                                                                                                                   |
+The owner reported the following successful checks against the final Phase 7 approved package on 2026-11-27:
 
-No claim is made that Maven, Testcontainers, frontend typecheck/build, or the API verification suite passed. The
-delivered ZIP is therefore an implementation handoff for owner-environment verification, not a formally accepted Phase 7
-release.
+| Verification | Result |
+|---|---|
+| Spring Boot startup | PASS |
+| `./mvnw -f backend/pom.xml clean verify` | PASS |
+| `npm run dev` | PASS |
+| Script automation test | PASS |
+| `scripts/api-tests/suites/phase7-message-publication-delivery-verification.zsh` | PASS — 23 PASS, 0 FAIL |
 
-## 5. Owner verification instructions
+The owner explicitly stated Phase 7 testing was complete and approved the Phase 7 changes. Phase 7 is formally owner-accepted. These are owner-reported results; they are not represented as independently rerun in the documentation packaging environment.
 
-From the extracted project root, use the existing `.env.example` setup and local PostgreSQL instructions in `README.md`.
+## 5. Operational acceptance constraints
 
-1. Install dependencies and start PostgreSQL/backend/frontend using the README.
-2. Run `./mvnw -f backend/pom.xml clean verify` with Docker available for Testcontainers.
-3. Run `cd frontend && npm ci && npm test && npm run typecheck && npm run build`.
-4. Create a disposable DRAFT campaign whose time window includes the current time, configure at least one coupon, and
-   configure a valid audience.
-5. Run the Phase 7 API suite. It will publish and then pause the supplied campaign; do not use a campaign that must
-   remain editable or active.
+- Exactly one backend application instance/replica may run with the in-process delivery worker.
+- Startup recovery is fail-fast. If recovery fails, resolve PostgreSQL connectivity/permission issues and restart the single instance using `PHASE_7_OPERATIONS.md`.
+- Multi-instance worker ownership, leases, `SKIP LOCKED`, and external queue infrastructure remain outside the accepted Phase 7 scope.
+- The accepted package includes the final code-review corrections: `SKIP LOCKED` removal, single-instance deployment documentation, and recovery failure handling/runbook.
 
-```zsh
-export PHASE7_DRAFT_CAMPAIGN_ID="<disposable-draft-campaign-uuid>"
-zsh scripts/api-tests/suites/phase7-message-publication-delivery-verification.zsh
-```
-
-6. In `/admin/campaigns`, select a DRAFT campaign, save the in-app message, publish, inspect delivery status, and pause
-   an ACTIVE campaign. Verify that an already committed delivery job completes after Pause.
-7. Verify the seeded member inbox via `GET /api/v1/member/messages` and verify a different member cannot retrieve
-   another member's inbox-row ID.
-
-## 6. Remaining exit criteria
-
-- [ ] Maven clean verify and PostgreSQL integration tests pass in the owner environment.
-- [ ] Frontend test, typecheck, and production build pass with locked dependencies installed.
-- [ ] Phase 7 API verification suite passes against a disposable campaign.
-- [ ] Verify worker retry timing/failure injection and restart recovery in the owner environment.
-- [ ] Verify Pause/Claim lock ordering under a controlled concurrency test.
-- [ ] Owner confirms UI behavior and formally accepts Phase 7.
-
-Phase 8 must not begin until Phase 7 is fully verified and formally accepted.
-
-### Owner-reported verification before final review corrections (2026-11-27)
-
-The owner reported successful execution of Spring Boot startup, `./mvnw clean verify`, `npm run dev`, and the Phase 7
-message/publication/delivery API suite (23 PASS, 0 FAIL). These results apply to the pre-correction package. The final
-code-review changes below still require a regression run in the owner environment.
-
-### Final code-review corrections (2026-11-27)
-
-- Removed `SKIP LOCKED` from `DeliveryWorkerTransactions.claimNextJob()` to conform to the explicit Phase 7 plan. The
-  row lock and conditional status update remain within the claim transaction.
-- Documented the operational constraint that exactly one backend instance/replica may run. Startup recovery updates all
-  `PROCESSING` delivery jobs, so multiple live instances are unsupported and can interfere with one another.
-- Hardened startup recovery failure handling in `MessageDeliveryWorker`: recovery success is logged; a recovery
-  exception is logged with PostgreSQL/permissions/restart guidance and rethrown as an `IllegalStateException` so
-  application startup fails rather than silently serving with potentially stranded jobs.
-- Added `docs/development/PHASE_7_OPERATIONS.md` with deployment constraints, startup recovery behavior, failure
-  response, and manual recovery guidance. Updated the Phase 7 plan, architecture, and root README to keep the constraint
-  visible.
-- No API, database schema, migration, or frontend behavior was changed.
-
+Phase 7 is complete. Phase 8 planning is recorded in `PHASE_8_PLAN.md`; Phase 8 implementation remains gated on owner approval and explicit authorization.

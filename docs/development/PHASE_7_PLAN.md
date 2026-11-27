@@ -1,8 +1,6 @@
 # Phase 7 Plan — Message, Publication Orchestration, and Delivery
 
-**Document status:** OWNER-APPROVED / IMPLEMENTATION AUTHORIZED — owner explicitly authorized Phase 7 development on
-2026-11-27. **Implementation status:** IMPLEMENTED — owner reported core verification passed (23 API assertions); final
-code-review corrections require regression verification and owner acceptance. **Baseline:** Owner-approved v1.5.0
+**Document status:** OWNER-APPROVED / IMPLEMENTATION AUTHORIZED — owner explicitly authorized Phase 7 development on 2026-11-27. **Implementation status:** COMPLETE. **Owner acceptance:** FORMALLY ACCEPTED on 2026-11-27 after owner-reported verification (23 API assertions passed) and acceptance of final code-review corrections. **Baseline:** Owner-approved v1.5.0
 Development Baseline, with Phase 6 formally accepted on 2026-11-27. **Preceding phases:** Phases 1–6 complete and
 owner-accepted.
 
@@ -264,12 +262,17 @@ Maven verification, frontend tests/typecheck/build/dev, Phase 6 coupon/claim API
 create/edit. The source ZIP does not contain a dedicated high-contention coupon inventory integration test; retain this
 as a documented hardening item for Phase 10 rather than claiming that a race test was executed.
 
-**Owner acceptance remains required after verification:**
+**Owner acceptance record:**
 
 - [x] Owner authorized Phase 7 implementation on 2026-11-27.
 - [x] Bounded Admin message/publish/pause/delivery UI in Section 3.3 implemented.
-- [ ] Complete Maven/PostgreSQL integration verification, frontend typecheck/build, and API verification in the owner
-  environment.
-- [ ] Owner formally accepts Phase 7.
+- [x] Owner-reported Spring Boot startup, Maven clean verify, `npm run dev`, script automation test, and API verification (23 PASS, 0 FAIL) completed on 2026-11-27.
+- [x] Final code-review corrections accepted: remove `SKIP LOCKED`, document single-instance deployment, and make startup recovery fail-fast with an operations runbook.
+- [x] Owner formally accepted Phase 7 on 2026-11-27.
 
-Implementation authorization is not the same as final phase acceptance.
+Phase 7 is formally accepted. Phase 8 remains subject to its own approval and explicit implementation authorization.
+
+
+## 7. Owner acceptance record
+
+The owner formally approved the Phase 7 implementation and final code-review corrections on 2026-11-27. The owner reported: Spring Boot startup PASS; `./mvnw -f backend/pom.xml clean verify` PASS; `npm run dev` PASS; script automation test PASS; and `phase7-message-publication-delivery-verification.zsh` PASS (23 PASS, 0 FAIL). The final corrections removed the unapproved `SKIP LOCKED`, documented the exactly-one-backend-instance deployment restriction and recovery operations, and made startup recovery fail-fast. Phase 7 is accepted. The single-instance constraint remains binding; multi-instance worker coordination is not supported.
