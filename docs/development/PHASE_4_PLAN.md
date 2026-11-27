@@ -1,9 +1,9 @@
 # Phase 4 Plan — Member and Audience
 
 **Document status:** APPROVED — owner approved this Phase 4 plan on 2026-11-27.  
-**Implementation status:** TECHNICALLY VERIFIED — owner formal acceptance pending. The owner explicitly authorized Phase
-4 implementation on 2026-11-27. Work is
-limited to the approved scope and sequencing.  
+**Implementation status:** COMPLETE — formally accepted by the owner on 2026-11-27 after technical verification.
+The owner explicitly authorized Phase 4 implementation on 2026-11-27. Work was limited to the approved scope and
+sequencing.  
 **Baseline:** Owner-approved v1.5.0 Development Baseline.  
 **Preceding phases:** Phases 1, 2, and 3 formally accepted.  
 **Purpose:** Define the bounded Phase 4 work package using only the current approved project documents. This plan does
@@ -228,16 +228,16 @@ Before coding:
 
 ## 8. Exit gate and authorization
 
-Technical acceptance criteria and regression checks are recorded as passed in `PHASE_4_IMPLEMENTATION_REPORT.md` based
-on
-owner-run verification. Phase 4 is not formally closed until the owner explicitly accepts the result; Phase 5 must not
-begin before that acceptance.
+Technical acceptance criteria and regression checks are recorded as passed in
+`PHASE_4_IMPLEMENTATION_REPORT.md` based on owner-run verification. The owner formally accepted Phase 4 on
+2026-11-27. The Phase 4 acceptance gate is closed.
 
 **Plan approval record:** The owner approved this Phase 4 plan on 2026-11-27.
 
-**Implementation authorization:** The owner explicitly instructed implementation to begin on 2026-11-27. The approved
-plan has been implemented and technically verified as recorded in the implementation report. Formal owner
-acceptance remains a separate gate; this does not authorize Phase 5 or any scope beyond this plan.
+**Implementation authorization:** The owner explicitly instructed implementation to begin on 2026-11-27.
+Implementation and technical verification were completed within the approved scope. The owner formally accepted the
+result on 2026-11-27. Phase 5 planning may proceed under a separate plan; Phase 5 implementation requires its own
+explicit approval and authorization.
 
 The Phase 4 implementation must follow the approved sequencing in Section 3.4. Campaign-scoped preview is a Phase 5
 integration task and must retain the existing API contract.

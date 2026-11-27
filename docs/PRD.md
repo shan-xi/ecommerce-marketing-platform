@@ -1018,9 +1018,11 @@ messaging providers, scheduled delivery, Redis, Kafka, or infrastructure that is
 
 This PRD is **Ready for Development** and remains the owner-approved v1.5.0 baseline dated 2026-11-26. The owner
 approved the complete Design Pack. Phase 1 and Phase 2 — Database Foundation were formally accepted on 2026-11-26;
-Phase 3 — Identity and Security was formally accepted on 2026-11-27 after owner verification. Phase 4 — Member and
-Audience is in planning only under `docs/development/PHASE_4_PLAN.md`; implementation remains gated by explicit owner
-approval. These status updates do not change the approved product scope or requirements.
+Phase 3 — Identity and Security was formally accepted on 2026-11-27 after owner verification. Phase 4 — Member and Audience was implemented, technically verified, and formally accepted by the owner on
+2026-11-27 under `docs/development/PHASE_4_PLAN.md` and
+`docs/development/PHASE_4_IMPLEMENTATION_REPORT.md`. Phase 5 — Campaign Draft Management is being planned under
+`docs/development/PHASE_5_PLAN.md`; that plan is pending owner approval and does not authorize implementation. These
+status updates do not change the approved product scope or requirements.
 
 The v1.5.0 PRD, API/OpenAPI, Database/ERD, Architecture/Module Design, Security Design, Testing Strategy, accepted ADRs,
 and Implementation Plan together form the authoritative MVP Development Baseline. No separate TDD is required to start

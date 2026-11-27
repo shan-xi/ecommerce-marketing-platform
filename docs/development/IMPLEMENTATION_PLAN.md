@@ -1,9 +1,8 @@
 # Implementation Plan
 
-**Status:** Approved — v1.5.0 baseline accepted; Phase 0 complete; Phases 1–3 formally owner-accepted; Phase 4 plan
-formally owner-approved and implementation explicitly authorized on 2026-11-27; technical verification is
-complete and formal owner acceptance is pending. **Scope:** Deliver the approved MVP in
-incremental, verifiable phases.
+**Status:** Approved — v1.5.0 baseline accepted; Phases 0–4 complete and formally owner-accepted (Phase 4 accepted
+2026-11-27); Phase 5 plan drafted for owner review and not yet authorized for implementation. **Scope:** Deliver the
+approved MVP in incremental, verifiable phases.
 
 ## 1. Execution principles
 
@@ -24,11 +23,14 @@ incremental, verifiable phases.
 - **Phase 2 — Database foundation:** COMPLETE — formally accepted by the owner on 2026-11-26.
 - **Phase 3 — Identity and security:** COMPLETE — formally accepted by the owner on 2026-11-27; see
   `PHASE_3_IMPLEMENTATION_REPORT.md`.
-- **Phase 4 — Member and audience:** IMPLEMENTED and TECHNICALLY VERIFIED based on owner-run checks; formal owner
-  acceptance pending. See `PHASE_4_PLAN.md` and `PHASE_4_IMPLEMENTATION_REPORT.md`.
-- **Phases 5–10:** PLANNED; each remains gated by completion and owner acceptance of the preceding phase and explicit
+- **Phase 4 — Member and audience:** COMPLETE and formally owner-accepted on 2026-11-27. See
+  `PHASE_4_PLAN.md` and `PHASE_4_IMPLEMENTATION_REPORT.md`.
+- **Phase 5 — Campaign draft management:** PLAN DRAFTED for owner review in `PHASE_5_PLAN.md`; implementation has
+  not started and is not authorized.
+- **Phases 6–10:** PLANNED; each remains gated by completion and owner acceptance of the preceding phase and explicit
   owner authorization.
-- Phase 4 authorization does not authorize Phase 5 or any scope beyond the approved Phase 4 plan.
+- Phase 4 acceptance permits Phase 5 planning only; Phase 5 implementation requires its own explicit approval and
+  authorization.
 
 | Phase                                               | Scope                                                                                                      | Main deliverables                                                                                                                                          | Exit criteria                                                                                                                                                                                                                         |
 |-----------------------------------------------------|------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -104,13 +106,13 @@ The delivered Phase 3 scope follows the approved Security Design and API Specifi
 - Verify cookie flags, CORS origin allowlist, CSRF behavior, token lifecycle, role boundaries, and security logging.
 
 Phase 3 implementation is complete within the approved scope. The owner completed verification and formally accepted
-Phase 3 on 2026-11-27. The Phase 4 plan was approved and implementation explicitly authorized on 2026-11-27;
-implementation has passed owner-run technical verification; formal Phase 4 acceptance remains pending.
+Phase 3 on 2026-11-27. The Phase 4 plan was approved and implementation explicitly authorized on 2026-11-27; implementation passed
+owner-run technical verification and was formally accepted by the owner on 2026-11-27.
 
 ### Phase 4 — Member and audience
 
 **Plan status:** APPROVED by the owner on 2026-11-27.  
-**Implementation status:** TECHNICALLY VERIFIED — owner formal acceptance pending; see
+**Implementation status:** COMPLETE and formally owner-accepted on 2026-11-27; see
 `PHASE_4_IMPLEMENTATION_REPORT.md`.
 
 - Implement the authenticated member profile lookup using the identity principal; never accept a client-selected member
@@ -125,6 +127,9 @@ implementation has passed owner-run technical verification; formal Phase 4 accep
   Phase 7.
 
 ### Phase 5 — Campaign draft management
+
+**Plan status:** DRAFT FOR OWNER REVIEW; see `PHASE_5_PLAN.md`.  
+**Implementation status:** NOT STARTED; implementation is not authorized.
 
 - Implement draft create/update/list/detail and campaign date validation.
 - Implement fixed landing-page headline/body fields.
@@ -195,6 +200,7 @@ microservices, Redis, Kafka, or third-party production integrations are included
 
 Phase 1 and Phase 2 are formally accepted by the owner on 2026-11-26; their results are recorded in
 `PHASE_1_IMPLEMENTATION_REPORT.md` and `PHASE_2_IMPLEMENTATION_REPORT.md`. Phase 3 is formally accepted on 2026-11-27;
-its results are recorded in `PHASE_3_IMPLEMENTATION_REPORT.md`. The Phase 4 plan was approved and implementation
-explicitly authorized by the owner on 2026-11-27. The campaign-scoped
-audience-preview endpoint is assigned to Phase 5 integration; the existing API contract remains unchanged.
+its results are recorded in `PHASE_3_IMPLEMENTATION_REPORT.md`. The Phase 4 plan was approved and implementation explicitly authorized by the owner on 2026-11-27; Phase 4 was
+formally accepted on 2026-11-27. The Phase 5 plan is drafted in `PHASE_5_PLAN.md` and awaits owner approval.
+The campaign-scoped audience-preview endpoint is assigned to Phase 5 integration; its existing API path and
+request/response contract remain unchanged unless an explicitly approved clarification is made.

@@ -3,7 +3,7 @@
 **Baseline:** Owner-approved v1.5.0 Development Baseline  
 **Plan:** `PHASE_4_PLAN.md` (approved 2026-11-27)  
 **Implementation authorization:** Explicitly granted by the owner on 2026-11-27  
-**Status:** IMPLEMENTED AND TECHNICALLY VERIFIED — OWNER FORMAL ACCEPTANCE PENDING.
+**Status:** COMPLETE — TECHNICALLY VERIFIED AND FORMALLY OWNER-ACCEPTED (2026-11-27).
 
 ## 1. Scope delivered in this source snapshot
 
@@ -158,9 +158,11 @@ Independent checks run during this final review:
   are also unavailable here. The owner's successful Maven, npm, Docker, and zsh results above remain the runtime
   verification evidence.
 
-## 6. Remaining verification / acceptance gates
+## 6. Acceptance record and remaining phase boundaries
 
 - Technical verification is complete based on the owner-reported results above.
-- Formal owner acceptance of Phase 4 remains pending. Do not begin Phase 5 until the owner explicitly accepts Phase 4.
+- The owner explicitly approved the Phase 4 modifications and formally accepted Phase 4 on 2026-11-27.
+- Phase 4 is closed. Phase 5 planning is recorded separately in `PHASE_5_PLAN.md`; Phase 5 implementation still
+  requires owner approval of that plan and an explicit instruction to begin.
 - The Member profile capability is an authenticated API only; Phase 4 does not include a Member Portal profile screen.
-- Campaign-scoped preview remains a Phase 5 integration task; campaign audience snapshot persistence remains Phase 7.
+- Campaign-scoped preview is a Phase 5 integration task; campaign audience snapshot persistence remains Phase 7.

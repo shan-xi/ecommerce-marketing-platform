@@ -1,8 +1,8 @@
 # E-commerce Campaign & Coupon Engagement Platform
 
 **Project baseline:** v1.5.0 (owner-approved)  
-**Implementation status:** Phases 0–3 complete and formally owner-accepted. Phase 4 Member and Audience is implemented
-and technically verified; formal owner acceptance is pending.
+**Implementation status:** Phases 0–4 complete and formally owner-accepted. Phase 5 Campaign Draft Management is planned
+and awaiting owner approval; implementation has not started.
 
 This repository implements the approved MVP described in [`docs/PRD.md`](docs/PRD.md). The project is a modular monolith
 with one Spring Boot backend, one React + TypeScript SPA, and PostgreSQL as the source of truth.
@@ -24,7 +24,7 @@ regression
 tests passed owner verification. See [
 `docs/development/PHASE_3_IMPLEMENTATION_REPORT.md`](docs/development/PHASE_3_IMPLEMENTATION_REPORT.md).
 
-**Phase 4 — Member and Audience: TECHNICALLY VERIFIED; OWNER ACCEPTANCE PENDING.** Implements authenticated member
+**Phase 4 — Member and Audience: COMPLETE and owner-accepted (2026-11-27).** Implements authenticated member
 profile lookup, the canonical audience rule validator/evaluator, reusable segment create/list/detail/update APIs,
 reusable-segment preview, AND composition support, and the Admin audience UI. Owner-run backend, frontend, runtime, and
 27-assertion API verification passed. Campaign-scoped audience preview remains a Phase 5 integration. See
@@ -134,6 +134,8 @@ docker compose ps
   `docs/development/PHASE_3_IMPLEMENTATION_REPORT.md`](docs/development/PHASE_3_IMPLEMENTATION_REPORT.md)
 - Phase 4 plan (owner-approved and implementation authorized): [
   `docs/development/PHASE_4_PLAN.md`](docs/development/PHASE_4_PLAN.md)
+- Phase 5 plan (draft for owner review; implementation not authorized): [
+  `docs/development/PHASE_5_PLAN.md`](docs/development/PHASE_5_PLAN.md)
 - Phase 3 plan and implementation report: [`docs/development/PHASE_3_PLAN.md`](docs/development/PHASE_3_PLAN.md)
 - AI development protocol: [
   `docs/development/AI_DEVELOPMENT_GUIDELINES.md`](docs/development/AI_DEVELOPMENT_GUIDELINES.md)
