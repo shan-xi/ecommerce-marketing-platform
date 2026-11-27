@@ -1,7 +1,9 @@
 # AI Development Guidelines
 
 **Status:** Approved operating contract for AI-assisted implementation under v1.5.0.  
-**Current instruction:** Phase 1 and Phase 2 were formally accepted by the owner on 2026-11-26. Phase 3 — Identity and Security has a planning document (`PHASE_3_PLAN.md`) for owner review only. Phase 3 implementation is not authorized; do not modify code, dependencies, database schema, or runtime configuration for Phase 3 until the owner explicitly approves the plan and authorizes development.
+**Current instruction:** Phase 1 and Phase 2 were formally accepted by the owner on 2026-11-26. Phase 3 — Identity and
+Security implementation has been delivered under explicit owner authorization; owner verification and formal acceptance
+are pending. Do not begin Phase 4 until Phase 3 is verified and accepted.
 
 ## 1. Required reading order
 
@@ -18,7 +20,8 @@ Before writing or modifying code, read:
 9. `docs/development/IMPLEMENTATION_PLAN.md`
 10. Relevant ADRs under `docs/decisions/ADR/`
 
-If the requested task is narrow, read the relevant documents plus the PRD and development guidelines; do not assume prior chat context is a substitute for repository documentation.
+If the requested task is narrow, read the relevant documents plus the PRD and development guidelines; do not assume
+prior chat context is a substitute for repository documentation.
 
 ## 2. Source-of-truth hierarchy
 
@@ -59,7 +62,8 @@ Ask the owner before proceeding when:
 - A concurrency approach cannot preserve the coupon inventory/claim invariants.
 - A phase cannot meet its exit criteria without changing an approved design.
 
-For routine, reversible implementation details within the documented design, choose a conservative default and record it where appropriate rather than asking about every small decision.
+For routine, reversible implementation details within the documented design, choose a conservative default and record it
+where appropriate rather than asking about every small decision.
 
 ## 5. Prohibited shortcuts
 
@@ -89,4 +93,6 @@ Every completed implementation task should report:
 
 ## 7. Documentation maintenance
 
-When code changes a documented behavior, update the appropriate document in the same task. For a significant architectural choice, add an ADR with context, decision, alternatives, consequences, and status. Do not rewrite unrelated docs or change the approved PRD status without explicit owner approval.
+When code changes a documented behavior, update the appropriate document in the same task. For a significant
+architectural choice, add an ADR with context, decision, alternatives, consequences, and status. Do not rewrite
+unrelated docs or change the approved PRD status without explicit owner approval.

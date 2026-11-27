@@ -1,20 +1,19 @@
 package com.example.marketingplatform.database;
 
 import com.example.marketingplatform.AbstractPostgresIntegrationTest;
-import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.annotation.Transactional;
-import org.testcontainers.junit.jupiter.Testcontainers;
+
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @SpringBootTest
-@Testcontainers(disabledWithoutDocker = true)
 @Transactional
 class DatabaseSchemaIntegrationTest extends AbstractPostgresIntegrationTest {
 

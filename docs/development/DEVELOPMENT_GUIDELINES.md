@@ -6,7 +6,8 @@
 
 - Follow `PRD.md`, architecture, database, API, and security documents as the project contract.
 - Prefer the simplest design that satisfies the approved requirements.
-- Do not introduce microservices, Redis, Kafka, external providers, or additional infrastructure without an approved ADR.
+- Do not introduce microservices, Redis, Kafka, external providers, or additional infrastructure without an approved
+  ADR.
 - Keep backend and frontend source under their respective top-level directories.
 - Use UTC instants in persistence and APIs; display in the configured business timezone.
 - Do not put real credentials or personal data in source control.
@@ -33,7 +34,8 @@
 - Keep access/refresh tokens out of browser storage; rely on HttpOnly cookies and CSRF header contract.
 - Handle 401 refresh once per request flow; avoid infinite refresh loops.
 - Model loading, empty, success, and error states explicitly.
-- Use generated OpenAPI types where practical; do not hand-maintain duplicated request/response definitions without reason.
+- Use generated OpenAPI types where practical; do not hand-maintain duplicated request/response definitions without
+  reason.
 
 ## 4. Database conventions
 

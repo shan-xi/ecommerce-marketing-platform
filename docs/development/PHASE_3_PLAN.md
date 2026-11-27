@@ -1,12 +1,13 @@
 # Phase 3 Plan — Identity and Security
 
-**Document status:** Draft for owner review — planning only.  
-**Implementation status:** NOT AUTHORIZED.  
+**Document status:** Owner-authorized implementation baseline — 2026-11-26.  
+**Implementation status:** IMPLEMENTED — owner verification pending.  
 **Baseline:** Owner-approved v1.5.0 Development Baseline.  
 **Preceding phases:** Phase 1 and Phase 2 formally accepted on 2026-11-26.  
-**Purpose:** Define the bounded Phase 3 work package and acceptance gates before any implementation begins.
+**Purpose:** Define the bounded Phase 3 work package, implementation scope, and acceptance gates.
 
-> Approval of this planning document and explicit authorization to begin development are required before code, dependency, schema, or runtime-configuration changes are made.
+> The owner explicitly authorized implementation from `ecommerce-marketing-platform-v0.1.0-phase3-readytodevelop.zip` on
+> 2026-11-26. This plan remains the scope and acceptance authority.
 
 ## 1. Objective
 
@@ -20,72 +21,86 @@ Implement the identity and security foundation required by the approved MVP:
 - Protect cookie-authenticated state-changing requests with CSRF.
 - Provide the frontend login/session flow without storing access or refresh tokens in browser storage.
 
-Phase 3 is limited to identity and security. It does not implement member profile, audience, campaign, coupon, messaging, landing-page, or analytics business features.
+Phase 3 is limited to identity and security. It does not implement member profile, audience, campaign, coupon,
+messaging, landing-page, or analytics business features.
 
 ## 2. Authoritative source documents
 
 Phase 3 implementation must follow these approved documents:
 
 1. `docs/PRD.md` — product scope and user roles.
-2. `docs/architecture/SECURITY_DESIGN.md` — authentication, token lifecycle, cookies, CSRF, authorization, password handling, and security tests.
+2. `docs/architecture/SECURITY_DESIGN.md` — authentication, token lifecycle, cookies, CSRF, authorization, password
+   handling, and security tests.
 3. `docs/api/API_SPECIFICATION.md` — authentication endpoint and cookie/CSRF contract.
 4. `docs/api/openapi.yaml` — machine-readable API contract.
 5. `docs/api/ERROR_CODES.md` — stable error response codes.
 6. `docs/database/DATABASE_DESIGN.md` and `docs/database/ERD.md` — refresh-session persistence model.
-7. `docs/architecture/ARCHITECTURE.md` and `docs/architecture/MODULE_DESIGN.md` — modular monolith boundaries and identity ownership.
-8. `docs/development/DEVELOPMENT_GUIDELINES.md` and `docs/development/TESTING_STRATEGY.md` — implementation and verification requirements.
+7. `docs/architecture/ARCHITECTURE.md` and `docs/architecture/MODULE_DESIGN.md` — modular monolith boundaries and
+   identity ownership.
+8. `docs/development/DEVELOPMENT_GUIDELINES.md` and `docs/development/TESTING_STRATEGY.md` — implementation and
+   verification requirements.
 9. Relevant accepted ADRs, especially `ADR-001` and `ADR-002`.
 
-If these documents conflict or an implementation choice changes their approved security contract, stop and ask the owner. Do not silently change the contract.
+If these documents conflict or an implementation choice changes their approved security contract, stop and ask the
+owner. Do not silently change the contract.
 
 ## 3. Scope
 
 ### 3.1 Backend — identity module
 
 - Add Spring Security integration compatible with the repository's Spring Boot 4.2.0 / Java 21 baseline.
-- Implement password verification against `users.password_hash`; use a secure one-way password encoder consistent with the existing BCrypt seed hashes unless a reviewed decision requires otherwise.
-- Implement authentication of active users and generic credential-failure responses that do not disclose whether an email exists.
-- Issue access and refresh JWTs with minimal claims: subject/user ID, role, issued-at, expiry, token ID, and issuer/audience as appropriate. Do not embed member profile, coupon, or audience attributes.
+- Implement password verification against `users.password_hash`; use a secure one-way password encoder consistent with
+  the existing BCrypt seed hashes unless a reviewed decision requires otherwise.
+- Implement authentication of active users and generic credential-failure responses that do not disclose whether an
+  email exists.
+- Issue access and refresh JWTs with minimal claims: subject/user ID, role, issued-at, expiry, token ID, and
+  issuer/audience as appropriate. Do not embed member profile, coupon, or audience attributes.
 - Use configurable TTL defaults from the approved design: access token 15 minutes; refresh token 7 days.
-- Persist only a SHA-256 hash of the complete serialized refresh JWT in `refresh_token_sessions`; never persist or log the raw refresh token.
+- Persist only a SHA-256 hash of the complete serialized refresh JWT in `refresh_token_sessions`; never persist or log
+  the raw refresh token.
 - Use one `token_family_id` per login session. Each refresh token generation has its own row.
 - Consume the presented refresh-token row and create/link the next generation in one database transaction.
 - Ensure only one concurrent request can consume a token generation.
 - On reuse of a consumed or revoked token, revoke all still-active rows in that token family.
-- Reject unknown, expired, revoked, or otherwise invalid refresh tokens without disclosing whether a user/session exists.
-- Implement logout using the refresh cookie, so logout still revokes the family and clears cookies when the access token has expired.
-- Implement `/api/v1/auth/me` from the authenticated principal; member identity must be resolved server-side in later member use cases.
+- Reject unknown, expired, revoked, or otherwise invalid refresh tokens without disclosing whether a user/session
+  exists.
+- Implement logout using the refresh cookie, so logout still revokes the family and clears cookies when the access token
+  has expired.
+- Implement `/api/v1/auth/me` from the authenticated principal; member identity must be resolved server-side in later
+  member use cases.
 
 ### 3.2 Backend — HTTP security boundary
 
 Implement the approved authentication endpoints:
 
-| Method | Path | Access | Purpose |
-|---|---|---|---|
-| GET | `/api/v1/auth/csrf` | Anonymous | Initialize/return the CSRF cookie/token |
-| POST | `/api/v1/auth/login` | Anonymous + CSRF | Verify credentials and set access/refresh cookies |
-| POST | `/api/v1/auth/refresh` | Refresh cookie + CSRF | Consume/rotate refresh token and issue new cookies |
-| POST | `/api/v1/auth/logout` | Optional refresh cookie + CSRF | Revoke the token family when available, clear auth cookies, return 204 |
-| GET | `/api/v1/auth/me` | Authenticated | Return current user ID and role |
+| Method | Path                   | Access                         | Purpose                                                                |
+|--------|------------------------|--------------------------------|------------------------------------------------------------------------|
+| GET    | `/api/v1/auth/csrf`    | Anonymous                      | Initialize/return the CSRF cookie/token                                |
+| POST   | `/api/v1/auth/login`   | Anonymous + CSRF               | Verify credentials and set access/refresh cookies                      |
+| POST   | `/api/v1/auth/refresh` | Refresh cookie + CSRF          | Consume/rotate refresh token and issue new cookies                     |
+| POST   | `/api/v1/auth/logout`  | Optional refresh cookie + CSRF | Revoke the token family when available, clear auth cookies, return 204 |
+| GET    | `/api/v1/auth/me`      | Authenticated                  | Return current user ID and role                                        |
 
 - Configure stateless request authentication using the access cookie.
-- Enforce role boundaries for `/api/v1/admin/**` and `/api/v1/member/**` route groups, even though business endpoints are delivered in later phases.
+- Enforce role boundaries for `/api/v1/admin/**` and `/api/v1/member/**` route groups, even though business endpoints
+  are delivered in later phases.
 - Keep public health endpoints and explicitly public authentication/CSRF routes accessible as documented.
 - Require CSRF validation for login, refresh, logout, and all state-changing cookie-authenticated requests.
 - Configure credentialed CORS with an explicit frontend-origin allowlist; never use wildcard origins with credentials.
 - Validate `Origin` / `Referer` as defense in depth where feasible.
-- Return the documented error envelope and stable application codes; do not expose stack traces, SQL, secrets, or internal class names.
+- Return the documented error envelope and stable application codes; do not expose stack traces, SQL, secrets, or
+  internal class names.
 - Do not add Redis, an external identity provider, or a separate authentication service.
 
 ### 3.3 Cookie contract
 
 Use the approved defaults from `SECURITY_DESIGN.md` and `API_SPECIFICATION.md`:
 
-| Cookie | JavaScript-readable? | Path | Policy |
-|---|---:|---|---|
-| `access_token` | No (`HttpOnly`) | `/api/v1` | `SameSite=Lax`; `Secure` in HTTPS; host-only |
-| `refresh_token` | No (`HttpOnly`) | `/api/v1/auth` | `SameSite=Lax`; `Secure` in HTTPS; host-only |
-| `XSRF-TOKEN` | Yes | Frontend/API-compatible path | Contains only the CSRF token, never an authentication credential |
+| Cookie          | JavaScript-readable? | Path                         | Policy                                                           |
+|-----------------|---------------------:|------------------------------|------------------------------------------------------------------|
+| `access_token`  |      No (`HttpOnly`) | `/api/v1`                    | `SameSite=Lax`; `Secure` in HTTPS; host-only                     |
+| `refresh_token` |      No (`HttpOnly`) | `/api/v1/auth`               | `SameSite=Lax`; `Secure` in HTTPS; host-only                     |
+| `XSRF-TOKEN`    |                  Yes | Frontend/API-compatible path | Contains only the CSRF token, never an authentication credential |
 
 - The local development profile may disable `Secure` only for plain HTTP localhost.
 - Do not set a cookie `Domain` unless a separately reviewed deployment requirement exists.
@@ -99,13 +114,16 @@ Use the approved defaults from `SECURITY_DESIGN.md` and `API_SPECIFICATION.md`:
 - Add a minimal login interaction consistent with the existing single React SPA; no separate frontend application.
 - Use `credentials: 'include'` for cookie-authenticated requests.
 - Send `X-CSRF-TOKEN` for state-changing requests using the readable CSRF cookie.
-- Implement a single-flight refresh operation so concurrent requests encountering an expired access token share one refresh request.
+- Implement a single-flight refresh operation so concurrent requests encountering an expired access token share one
+  refresh request.
 - Retry an eligible request at most once after successful refresh; avoid infinite refresh loops.
 - On refresh failure, clear frontend authentication state and return to the anonymous/login state.
-- Do not store access tokens or refresh tokens in `localStorage`, `sessionStorage`, IndexedDB, or application-managed persistent storage.
+- Do not store access tokens or refresh tokens in `localStorage`, `sessionStorage`, IndexedDB, or application-managed
+  persistent storage.
 - Frontend route guards are UX only; backend authorization remains authoritative.
 
-The Phase 3 frontend deliverable is the authentication/session foundation. Full Admin and Member business screens remain later-phase work.
+The Phase 3 frontend deliverable is the authentication/session foundation. Full Admin and Member business screens remain
+later-phase work.
 
 ## 4. Token lifecycle and transaction expectations
 
@@ -126,7 +144,8 @@ The Phase 3 frontend deliverable is the authentication/session foundation. Full 
 4. Insert the next generation with the same user and token family; set the predecessor's `replaced_by_token_id`.
 5. Commit before returning the new cookie pair.
 6. If the token was already consumed/revoked, revoke all active rows in that family and reject the request.
-7. Handle concurrent requests so exactly one request consumes a generation; the losing/reuse path must not issue another valid generation.
+7. Handle concurrent requests so exactly one request consumes a generation; the losing/reuse path must not issue another
+   valid generation.
 
 ### Logout
 
@@ -137,17 +156,21 @@ The Phase 3 frontend deliverable is the authentication/session foundation. Full 
 
 ## 5. Expected implementation areas
 
-The following are planning-level file/module areas, not a command to create them now. Exact package names and class boundaries should be confirmed against the existing repository before implementation.
+The following are planning-level file/module areas, not a command to create them now. Exact package names and class
+boundaries should be confirmed against the existing repository before implementation.
 
 ### Backend
 
 - `backend/pom.xml` — Spring Security and selected JWT support dependencies.
-- `backend/src/main/resources/application.yml` — security configuration binding, cookie policy, TTLs, issuer/audience, CORS allowlist, and signing-key configuration through environment variables.
+- `backend/src/main/resources/application.yml` — security configuration binding, cookie policy, TTLs, issuer/audience,
+  CORS allowlist, and signing-key configuration through environment variables.
 - `identity/domain` — user identity, role, refresh-token family/generation concepts and policies.
 - `identity/application` — authenticate, refresh, logout, and get-current-principal use cases.
-- `identity/infrastructure` — JDBC repositories for users and refresh sessions, password encoder, JWT issuer/verifier, clock and cookie adapters.
+- `identity/infrastructure` — JDBC repositories for users and refresh sessions, password encoder, JWT issuer/verifier,
+  clock and cookie adapters.
 - `identity/presentation` — authentication controllers, request/response DTOs, and exception mapping.
-- Security configuration — stateless filter chain, access-cookie authentication, route authorization, CSRF, CORS, and security headers.
+- Security configuration — stateless filter chain, access-cookie authentication, route authorization, CSRF, CORS, and
+  security headers.
 - Tests — unit, PostgreSQL integration, MockMvc/API security, and refresh concurrency coverage.
 
 ### Frontend
@@ -157,20 +180,30 @@ The following are planning-level file/module areas, not a command to create them
 - `frontend/src/app/` — authentication provider and minimal route integration.
 - Tests for auth state, CSRF header behavior, single-flight refresh, and retry limits.
 
-Avoid creating empty abstractions or speculative modules. Follow the existing modular-monolith and clean-architecture rules.
+Avoid creating empty abstractions or speculative modules. Follow the existing modular-monolith and clean-architecture
+rules.
 
 ## 6. Prerequisites and implementation preflight
 
-Before Phase 3 implementation starts:
+Implementation preflight decisions applied:
 
-- Phase 1 and Phase 2 remain accepted; no regression or unresolved database defect is known from the recorded verification.
+- Phase 1 and Phase 2 remain accepted; no regression or unresolved database defect is known from the recorded
+  verification.
 - Re-read the authoritative documents listed in Section 2.
-- Confirm the exact JWT signing algorithm/library and key configuration compatible with Spring Boot 4.2.0 / Java 21. Keep keys external to source control. If the choice changes the approved security posture, document and obtain approval before coding.
-- Confirm the configured frontend origin(s) for local development and the credentialed CORS allowlist.
-- Define a safe, reproducible local demo-login credential path. The existing V2 seed migration contains BCrypt hashes but does not document the corresponding plaintext demo password. Do not guess the password, expose a real credential, or edit the already-applied V2 migration. Use test fixtures for automated tests; agree on a local-only demo credential mechanism before promising interactive seeded-account login.
-- Confirm cookie behavior for local HTTP versus HTTPS environments.
-- Confirm the policy for inactive users (`users.status`) and ensure inactive accounts cannot authenticate.
-- Confirm no new infrastructure is required. PostgreSQL remains the only persistence store; no Redis/Kafka or external identity provider.
+- JWT implementation uses Spring Security JOSE / Nimbus with HS256 and a Base64-encoded key of at least 256 bits
+  supplied by `JWT_SECRET_BASE64`. The key is external to source control; `.env.example` contains a local-only
+  placeholder key.
+- Configured local frontend origin is `http://localhost:5173`; `FRONTEND_ORIGIN` is the explicit credentialed CORS
+  allowlist entry.
+- Local seeded-account login uses an opt-in initializer restricted to the `local` Spring profile. A developer supplies
+  `DEMO_SEED_PASSWORD` through an untracked `.env`; the initializer hashes it and updates only the four fictional
+  `@example.test` accounts. Blank/unset leaves V2 hashes unchanged. No plaintext password is committed and V2 is not
+  edited.
+- Local HTTP uses the `local` profile to disable Secure; other profiles default to Secure cookies.
+- Inactive-user policy: only `users.status = 'ACTIVE'` can authenticate; inactive users receive the same generic
+  credential failure.
+- No new infrastructure is required. PostgreSQL remains the only persistence store; no Redis/Kafka or external identity
+  provider was added.
 
 ## 7. Explicitly out of scope
 
@@ -182,7 +215,8 @@ Before Phase 3 implementation starts:
 - Password reset, email verification, MFA, social login, account registration, and external identity providers.
 - Multi-tenant identity, organization management, and admin user-management UI.
 - Redis, Kafka, microservices, distributed session storage, and new infrastructure.
-- Production hosting/deployment, production secret-manager integration, and formal key-rotation operations beyond documenting the environment configuration.
+- Production hosting/deployment, production secret-manager integration, and formal key-rotation operations beyond
+  documenting the environment configuration.
 
 If a required feature appears to fall into this list, stop and obtain a scope decision rather than silently adding it.
 
@@ -196,20 +230,26 @@ If a required feature appears to fall into this list, stop and obtain a scope de
 - [ ] Access token is accepted before expiry and rejected after expiry or invalid signature.
 - [ ] Refresh token is validated and rotated; the previous generation cannot be used again.
 - [ ] Only one of two concurrent refresh attempts can consume a generation and create the next generation.
-- [ ] Reuse of a consumed/revoked refresh token revokes the entire token family; all active family tokens subsequently fail.
+- [ ] Reuse of a consumed/revoked refresh token revokes the entire token family; all active family tokens subsequently
+  fail.
 - [ ] Unknown, expired, and revoked refresh tokens are rejected without leaking account/session existence.
-- [ ] Refresh session rows store only SHA-256 hashes of serialized refresh JWTs; raw tokens never appear in database records or logs.
-- [ ] Logout revokes the presented family and clears cookies even when the access token has expired; repeated logout is safe.
+- [ ] Refresh session rows store only SHA-256 hashes of serialized refresh JWTs; raw tokens never appear in database
+  records or logs.
+- [ ] Logout revokes the presented family and clears cookies even when the access token has expired; repeated logout is
+  safe.
 - [ ] Access and refresh TTL defaults are 15 minutes and 7 days and are environment-configurable.
 
 ### Cookies, CSRF, CORS, and authorization
 
-- [ ] Access and refresh cookies are HttpOnly, host-only, use the documented paths and SameSite policy, and set Secure in HTTPS.
+- [ ] Access and refresh cookies are HttpOnly, host-only, use the documented paths and SameSite policy, and set Secure
+  in HTTPS.
 - [ ] Local HTTP Secure-cookie exception is restricted to the local development profile.
-- [ ] CSRF cookie contains no authentication credential; missing/invalid CSRF header rejects login, refresh, logout, and state-changing cookie-authenticated requests.
+- [ ] CSRF cookie contains no authentication credential; missing/invalid CSRF header rejects login, refresh, logout, and
+  state-changing cookie-authenticated requests.
 - [ ] Credentialed CORS accepts only configured origins; wildcard origin is not used.
 - [ ] Anonymous requests cannot access protected Admin or Member route groups.
-- [ ] A `MEMBER` principal is rejected from Admin routes; an `ADMIN` principal is rejected from Member-only routes where the contract requires MEMBER.
+- [ ] A `MEMBER` principal is rejected from Admin routes; an `ADMIN` principal is rejected from Member-only routes where
+  the contract requires MEMBER.
 - [ ] `/auth/me` returns only the authenticated user's stable user ID and role.
 - [ ] Frontend never stores JWTs in browser storage; refresh is single-flight and request retry is bounded to one retry.
 - [ ] Sensitive credentials, token values, cookie contents, and authorization headers do not appear in logs.
@@ -225,24 +265,17 @@ If a required feature appears to fall into this list, stop and obtain a scope de
 
 ## 9. Risks and controls
 
-| Risk | Control |
-|---|---|
-| Concurrent refresh requests consume one token twice | Atomic conditional consume/row lock and PostgreSQL concurrency test |
-| Refresh-token replay after rotation | Revoke the full token family and test all subsequent generations |
-| CSRF protection accidentally disabled on auth routes | Explicit tests for login, refresh, logout, and generic state-changing routes |
-| CORS wildcard combined with credentials | Explicit allowlist and configuration tests |
-| JWT or cookie values leak through logs or responses | Redaction, negative log assertions, and response contract tests |
-| Existing seed hashes have no documented plaintext password | Do not guess; define local-only demo credential setup before interactive demo |
-| JWT library/algorithm choice changes security posture | Preflight compatibility/security review and owner approval for material changes |
+| Risk                                                        | Control                                                                                                    |
+|-------------------------------------------------------------|------------------------------------------------------------------------------------------------------------|
+| Concurrent refresh requests consume one token twice         | Atomic conditional consume/row lock and PostgreSQL concurrency test                                        |
+| Refresh-token replay after rotation                         | Revoke the full token family and test all subsequent generations                                           |
+| CSRF protection accidentally disabled on auth routes        | Explicit tests for login, refresh, logout, and generic state-changing routes                               |
+| CORS wildcard combined with credentials                     | Explicit allowlist and configuration tests                                                                 |
+| JWT or cookie values leak through logs or responses         | Redaction, negative log assertions, and response contract tests                                            |
+| Existing seed hashes have no documented plaintext password  | Do not guess; use the opt-in local-profile credential initializer documented in the implementation report. |
+| JWT signing key is weak or reused outside local development | Enforce a minimum 256-bit HS256 key and keep environment-specific keys outside source control              |
 
 ## 10. Phase gate
 
-This document is a proposed work plan only. It does not authorize implementation.
-
-Phase 3 may start only after the owner:
-
-1. Reviews and approves this Phase 3 scope and acceptance criteria.
-2. Resolves or accepts the preflight items in Section 6.
-3. Explicitly instructs the team to begin Phase 3 development.
-
-Until then, do not change source code, dependencies, Flyway migrations, application configuration, or frontend behavior for Phase 3.
+Implementation has been performed under the owner's explicit instruction. Phase 3 is not considered accepted until the
+owner completes the verification checklist in `PHASE_3_IMPLEMENTATION_REPORT.md` and explicitly accepts the phase.

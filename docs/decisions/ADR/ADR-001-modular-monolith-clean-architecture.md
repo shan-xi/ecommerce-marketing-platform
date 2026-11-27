@@ -5,16 +5,19 @@
 
 ## Context
 
-The MVP contains related business capabilities (identity, members, audience, campaigns, messaging, coupons, engagement, analytics). The project needs clear boundaries but does not require independent scaling/deployment of each capability.
+The MVP contains related business capabilities (identity, members, audience, campaigns, messaging, coupons, engagement,
+analytics). The project needs clear boundaries but does not require independent scaling/deployment of each capability.
 
 ## Decision
 
-Use one Spring Boot deployable organized as a modular monolith. Apply Clean Architecture dependency direction within meaningful modules.
+Use one Spring Boot deployable organized as a modular monolith. Apply Clean Architecture dependency direction within
+meaningful modules.
 
 ## Alternatives considered
 
 - **Microservices:** rejected for MVP due to deployment, distributed transaction, and observability overhead.
-- **Unstructured layered monolith:** rejected because it risks cross-module coupling and business logic leakage into controllers/repositories.
+- **Unstructured layered monolith:** rejected because it risks cross-module coupling and business logic leakage into
+  controllers/repositories.
 
 ## Consequences
 

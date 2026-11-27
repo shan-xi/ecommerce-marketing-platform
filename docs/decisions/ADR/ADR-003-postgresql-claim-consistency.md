@@ -5,11 +5,20 @@
 
 ## Context
 
-Coupon inventory is limited and many members may claim concurrently. Successful claims must never exceed configured quantity, and one member may claim a campaign coupon only once.
+Coupon inventory is limited and many members may claim concurrently. Successful claims must never exceed configured
+quantity, and one member may claim a campaign coupon only once.
 
 ## Decision
 
-Use PostgreSQL as source of truth. Reserve inventory with one conditional atomic UPDATE and insert the claim record in the same transaction. Enforce uniqueness with database constraints on `(campaign_id, campaign_coupon_id, member_id)` and `(member_id, idempotency_key)`. Enforce that `coupon_claims.campaign_id` matches the campaign that owns `campaign_coupon_id` with a composite foreign key. A retry using the same member/idempotency key for the same campaign/coupon returns the original successful claim even if the campaign has since been paused or ended; replay is checked before new-claim eligibility. Reuse for a different request returns `IDEMPOTENCY_KEY_CONFLICT`. Failed attempts are not response-cached. For a new claim, lock the campaign row with `SELECT ... FOR SHARE` before checking eligibility, then re-check the idempotency key to cover concurrent requests. Pause updates the same campaign row and therefore waits for claims that acquired the shared lock first.
+Use PostgreSQL as source of truth. Reserve inventory with one conditional atomic UPDATE and insert the claim record in
+the same transaction. Enforce uniqueness with database constraints on `(campaign_id, campaign_coupon_id, member_id)` and
+`(member_id, idempotency_key)`. Enforce that `coupon_claims.campaign_id` matches the campaign that owns
+`campaign_coupon_id` with a composite foreign key. A retry using the same member/idempotency key for the same
+campaign/coupon returns the original successful claim even if the campaign has since been paused or ended; replay is
+checked before new-claim eligibility. Reuse for a different request returns `IDEMPOTENCY_KEY_CONFLICT`. Failed attempts
+are not response-cached. For a new claim, lock the campaign row with `SELECT ... FOR SHARE` before checking eligibility,
+then re-check the idempotency key to cover concurrent requests. Pause updates the same campaign row and therefore waits
+for claims that acquired the shared lock first.
 
 ## Alternatives considered
 
@@ -22,4 +31,5 @@ Use PostgreSQL as source of truth. Reserve inventory with one conditional atomic
 - PostgreSQL row-level locking/conditional update handles contention.
 - Integration and concurrency tests must run against PostgreSQL.
 - Claim transaction must be carefully tested for rollback after inventory reservation.
-- A uniqueness conflict must roll back the inventory increment before the application loads the existing claim and maps the response.
+- A uniqueness conflict must roll back the inventory increment before the application loads the existing claim and maps
+  the response.

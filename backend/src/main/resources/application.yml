@@ -38,3 +38,14 @@ management:
       enabled: true
     readinessstate:
       enabled: true
+
+app:
+  security:
+    jwt-secret-base64: ${JWT_SECRET_BASE64}
+    issuer: ${JWT_ISSUER:ecommerce-marketing-platform}
+    audience: ${JWT_AUDIENCE:ecommerce-marketing-platform-web}
+    access-token-ttl: ${ACCESS_TOKEN_TTL:PT15M}
+    refresh-token-ttl: ${REFRESH_TOKEN_TTL:P7D}
+    frontend-origin: ${FRONTEND_ORIGIN:http://localhost:5173}
+    cookie-secure: true
+    demo-seed-password: ${DEMO_SEED_PASSWORD:}

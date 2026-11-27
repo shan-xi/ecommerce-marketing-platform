@@ -1,0 +1,7 @@
+app:
+  security:
+    jwt-secret-base64: AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8=
+    issuer: ecommerce-marketing-platform-test
+    audience: ecommerce-marketing-platform-test-web
+    frontend-origin: http://localhost:5173
+    cookie-secure: false

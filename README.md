@@ -1,23 +1,35 @@
 # E-commerce Campaign & Coupon Engagement Platform
 
 **Project baseline:** v1.5.0 (owner-approved)  
-**Implementation status:** Phase 0, Phase 1, and Phase 2 complete; Phase 1 and Phase 2 owner-accepted. Phase 3 is planning-only and awaits explicit authorization.
+**Implementation status:** Phase 0, Phase 1, and Phase 2 complete and owner-accepted. Phase 3 implementation is included
+in this package; owner verification is pending.
 
-This repository implements the approved MVP described in [`docs/PRD.md`](docs/PRD.md). The project is a modular monolith with one Spring Boot backend, one React + TypeScript SPA, and PostgreSQL as the source of truth.
+This repository implements the approved MVP described in [`docs/PRD.md`](docs/PRD.md). The project is a modular monolith
+with one Spring Boot backend, one React + TypeScript SPA, and PostgreSQL as the source of truth.
 
 ## Current implementation status
 
-**Phase 1 — Repository Foundation: COMPLETE and owner-accepted (2026-11-26).** The backend and frontend scaffolds, local PostgreSQL service, Actuator health endpoints, and frontend-to-backend health shell were verified by the owner. See [`docs/development/PHASE_1_IMPLEMENTATION_REPORT.md`](docs/development/PHASE_1_IMPLEMENTATION_REPORT.md).
+**Phase 1 — Repository Foundation: COMPLETE and owner-accepted (2026-11-26).** The backend and frontend scaffolds, local
+PostgreSQL service, Actuator health endpoints, and frontend-to-backend health shell were verified by the owner. See [
+`docs/development/PHASE_1_IMPLEMENTATION_REPORT.md`](docs/development/PHASE_1_IMPLEMENTATION_REPORT.md).
 
-**Phase 2 — Database Foundation: COMPLETE and owner-accepted (2026-11-26).** The owner verified PostgreSQL 18.7, Flyway V1/V2, all 12 business tables, seed data, constraints/indexes, 15 backend tests, and frontend regression checks (4 tests, typecheck, and build). See [`docs/development/PHASE_2_IMPLEMENTATION_REPORT.md`](docs/development/PHASE_2_IMPLEMENTATION_REPORT.md).
+**Phase 2 — Database Foundation: COMPLETE and owner-accepted (2026-11-26).** The owner verified PostgreSQL 18.7, Flyway
+V1/V2, all 12 business tables, seed data, constraints/indexes, 15 backend tests, and frontend regression checks (4
+tests, typecheck, and build). See [
+`docs/development/PHASE_2_IMPLEMENTATION_REPORT.md`](docs/development/PHASE_2_IMPLEMENTATION_REPORT.md).
 
-**Phase 3 — Identity and Security: PLANNING ONLY.** A proposed plan is available at [`docs/development/PHASE_3_PLAN.md`](docs/development/PHASE_3_PLAN.md). No Phase 3 implementation is authorized or included in this repository update.
+**Phase 3 — Identity and Security: IMPLEMENTED — FINAL REVIEW FIXES INCLUDED; OWNER RE-VERIFICATION PENDING.** Login,
+JWT cookie authentication, refresh rotation, logout, CSRF, CORS, role boundaries, frontend session-state error handling,
+and expanded security lifecycle regression tests are included. No Phase 3 acceptance is implied. See [
+`docs/development/PHASE_3_IMPLEMENTATION_REPORT.md`](docs/development/PHASE_3_IMPLEMENTATION_REPORT.md).
 
-Authentication, domain repositories/services, business workflows, CRUD APIs, audience evaluation, coupon claiming, and delivery workers remain unimplemented and are assigned to later phases.
+Member profile, domain repositories/services, business workflows, CRUD APIs, audience evaluation, coupon claiming, and
+delivery workers remain unimplemented and are assigned to later phases.
 
 ## Technology versions
 
-See [`docs/development/PHASE_1_IMPLEMENTATION_REPORT.md`](docs/development/PHASE_1_IMPLEMENTATION_REPORT.md) for the exact versions and selection rationale.
+See [`docs/development/PHASE_1_IMPLEMENTATION_REPORT.md`](docs/development/PHASE_1_IMPLEMENTATION_REPORT.md) for the
+exact versions and selection rationale.
 
 ## Prerequisites
 
@@ -37,14 +49,17 @@ The Maven bootstrap script downloads a pinned Maven distribution and verifies it
    cp .env.example .env
    ```
 
-2. Start PostgreSQL:
+2. Optionally edit `.env` and set a private `DEMO_SEED_PASSWORD='your-local-only-password'` for the four fictional
+   seeded accounts. Leave it blank to retain the existing V2 seed hashes. Never commit `.env`.
+
+3. Start PostgreSQL:
 
    ```bash
    docker compose up -d postgres
    docker compose ps
    ```
 
-3. Load the local environment values and start the backend in terminal 1:
+4. Load the local environment values and start the backend in terminal 1:
 
    ```bash
    set -a; . ./.env; set +a
@@ -59,17 +74,18 @@ The Maven bootstrap script downloads a pinned Maven distribution and verifies it
    curl --fail http://localhost:8080/livez
    ```
 
-4. Install frontend dependencies and start the SPA in terminal 2:
+5. Install frontend dependencies and start the SPA in terminal 2:
 
    ```bash
    cd frontend
-   npm install
+   npm ci
    npm run dev
    ```
 
-5. Open <http://localhost:5173>. The current frontend shell reports backend connectivity; authentication and business screens are planned for later phases.
+6. Open <http://localhost:5173>. The Phase 3 login screen should appear after the backend health check completes.
 
-The backend connects to PostgreSQL and applies Flyway migrations on startup. Use the `.env.example` values for local development only; override datasource settings through environment variables in other environments.
+The backend connects to PostgreSQL and applies Flyway migrations on startup. Use the `.env.example` values for local
+development only; override datasource settings through environment variables in other environments.
 
 ## Verification commands
 
@@ -97,13 +113,20 @@ docker compose ps
 - Product scope and acceptance: [`docs/PRD.md`](docs/PRD.md)
 - Architecture: [`docs/architecture/ARCHITECTURE.md`](docs/architecture/ARCHITECTURE.md)
 - Module boundaries: [`docs/architecture/MODULE_DESIGN.md`](docs/architecture/MODULE_DESIGN.md)
-- API contract: [`docs/api/API_SPECIFICATION.md`](docs/api/API_SPECIFICATION.md) and [`docs/api/openapi.yaml`](docs/api/openapi.yaml)
-- Database design: [`docs/database/DATABASE_DESIGN.md`](docs/database/DATABASE_DESIGN.md) and [`docs/database/ERD.md`](docs/database/ERD.md)
+- API contract: [`docs/api/API_SPECIFICATION.md`](docs/api/API_SPECIFICATION.md) and [
+  `docs/api/openapi.yaml`](docs/api/openapi.yaml)
+- Database design: [`docs/database/DATABASE_DESIGN.md`](docs/database/DATABASE_DESIGN.md) and [
+  `docs/database/ERD.md`](docs/database/ERD.md)
 - Phase plan: [`docs/development/IMPLEMENTATION_PLAN.md`](docs/development/IMPLEMENTATION_PLAN.md)
-- Phase 3 plan (review only): [`docs/development/PHASE_3_PLAN.md`](docs/development/PHASE_3_PLAN.md)
-- AI development protocol: [`docs/development/AI_DEVELOPMENT_GUIDELINES.md`](docs/development/AI_DEVELOPMENT_GUIDELINES.md)
-- Phase 1 report: [`docs/development/PHASE_1_IMPLEMENTATION_REPORT.md`](docs/development/PHASE_1_IMPLEMENTATION_REPORT.md)
-- Phase 2 report: [`docs/development/PHASE_2_IMPLEMENTATION_REPORT.md`](docs/development/PHASE_2_IMPLEMENTATION_REPORT.md)
+- Phase 3 implementation report: [
+  `docs/development/PHASE_3_IMPLEMENTATION_REPORT.md`](docs/development/PHASE_3_IMPLEMENTATION_REPORT.md)
+- Phase 3 plan and implementation report: [`docs/development/PHASE_3_PLAN.md`](docs/development/PHASE_3_PLAN.md)
+- AI development protocol: [
+  `docs/development/AI_DEVELOPMENT_GUIDELINES.md`](docs/development/AI_DEVELOPMENT_GUIDELINES.md)
+- Phase 1 report: [
+  `docs/development/PHASE_1_IMPLEMENTATION_REPORT.md`](docs/development/PHASE_1_IMPLEMENTATION_REPORT.md)
+- Phase 2 report: [
+  `docs/development/PHASE_2_IMPLEMENTATION_REPORT.md`](docs/development/PHASE_2_IMPLEMENTATION_REPORT.md)
 
 ## Development rules
 
