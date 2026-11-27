@@ -1,7 +1,7 @@
 # Design Decisions and Ready-for-Development Checklist
 
-**Status:** Owner-approved — v1.5.0 Development Baseline approved; Phases 1–4 formally accepted (Phase 4 accepted
-2026-11-27); Phase 5 plan owner-approved and implementation authorized 2026-11-27; owner acceptance pending. **Scope:**
+**Status:** Owner-approved — v1.5.0 Development Baseline approved; Phases 1–5 formally accepted (Phase 5 accepted
+2026-11-27); Phase 6 plan drafted for owner review; Phase 6 implementation not authorized. **Scope:**
 These decisions confirm the
 existing MVP direction and do not authorize scope expansion.
 
@@ -58,10 +58,10 @@ hosting/secrets, and any measured scale redesign. Token TTL defaults are fixed f
 days) and remain environment-configurable. These do not block MVP implementation.
 
 The owner has explicitly approved the complete v1.5.0 Design Pack. Phase 0 is complete. Phase 1 — Repository Foundation
-and Phase 2 — Database Foundation were formally accepted on 2026-11-26. Phase 3 — Identity and Security was formally
-accepted on 2026-11-27 after owner verification. The owner approved `docs/development/PHASE_4_PLAN.md` on 2026-11-27.
-The owner explicitly authorized Phase 4 implementation on 2026-11-27; owner-run technical verification was completed
-under the approved plan, and the owner formally accepted Phase 4 on 2026-11-27.
+and Phase 2 — Database Foundation were formally accepted on 2026-11-26. Phases 3 and 4 were formally accepted on
+2026-11-27 after owner verification. The owner formally accepted Phase 5 on 2026-11-27 after reporting successful
+backend, frontend, API (29 PASS, 0 FAIL), Campaign Audience composition, Campaign UI, and boundary verification.
+The Phase 6 plan is drafted for owner review only; implementation authorization is still required.
 
 ### Ready-for-development checklist
 
@@ -93,8 +93,13 @@ under the approved plan, and the owner formally accepted Phase 4 on 2026-11-27.
 - [x] Owner approves the Phase 5 plan as written (2026-11-27); bounded list interpretation uses documented
   pagination/status only, no `q` clarification.
 - [x] Owner explicitly authorizes Phase 5 implementation (2026-11-27).
-- [ ] Owner verifies and formally accepts Phase 5 implementation.
+- [x] Owner verifies and formally accepts Phase 5 implementation (2026-11-27).
+- [x] Phase 6 Coupon Configuration and Claim Backend plan drafted from the approved PRD/API/database baseline.
+- [ ] Owner reviews and approves `docs/development/PHASE_6_PLAN.md`.
+- [ ] Owner explicitly authorizes Phase 6 implementation.
+- [ ] Approve or reject the proposed minimal Admin coupon-configuration UI scope clarification recorded in `PHASE_6_PLAN.md`.
 
-All design approval gates for the v1.5.0 baseline remain complete. Phases 1–4 are formally accepted. The owner approved
-and authorized Phase 5 implementation on 2026-11-27. Phase 5 implementation is delivered for owner verification; Phase 6
-remains gated on formal Phase 5 acceptance.
+All design approval gates for the v1.5.0 baseline remain complete. Phases 1–5 are formally accepted. Phase 6 planning
+is complete for owner review, but Phase 6 implementation remains gated on explicit owner approval and authorization.
+The current Phase 6 proposal recommends a minimal Admin coupon-configuration UI in Phase 6; this scope clarification
+requires owner approval before development.

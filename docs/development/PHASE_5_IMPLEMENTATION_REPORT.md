@@ -1,9 +1,9 @@
 # Phase 5 Implementation Report — Campaign Draft Management
 
 **Plan:** `PHASE_5_PLAN.md` (owner-approved 2026-11-27)  
-**Implementation:** completed for owner verification  
-**Owner acceptance:** pending  
-**Baseline:** owner-approved v1.5.0; Phases 1–4 accepted
+**Implementation:** COMPLETE  
+**Owner acceptance:** FORMALLY ACCEPTED — 2026-11-27  
+**Baseline:** owner-approved v1.5.0; Phases 1–5 accepted
 
 ## Delivered
 
@@ -28,26 +28,42 @@
 - Publish/Pause, coupon/message configuration, snapshot persistence, delivery, public landing page, and analytics remain
   out of scope.
 
-## Verification performed in this environment
+## Owner verification results
 
-- `frontend npm run test`: **12 passed, 0 failed** (Node test suite).
-- Owner's local Maven run executed 43 tests: 42 passed and 1 errored in `CampaignRepositoryIntegrationTest`. The error
-  was the test fixture attempting to set an ACTIVE campaign's `ends_at` before `starts_at`, violating the existing
-  `ck_campaigns_time_window` database constraint.
-- This verification ZIP corrects that fixture by setting a valid earlier `starts_at` alongside the past `ends_at`; the
-  repository implementation is unchanged for this test correction. The corrected test still verifies the persisted
-  campaign becomes effectively ENDED and that updates are rejected once status is non-DRAFT.
-- The corrected test has not yet been rerun by the owner, so full Maven verification remains pending. Frontend
-  typecheck/build and the Phase 5 API suite also remain to be confirmed by the owner.
+The owner completed the full verification on 2026-11-27 and reported all checks successful:
 
-## Owner verification checklist
+### Backend
+- `./mvnw -f backend/pom.xml spring-boot:run`: application started without errors.
+- `./mvnw -f backend/pom.xml verify`: completed without errors.
 
-1. Run backend verification: `./mvnw -f backend/pom.xml verify`.
-2. In `frontend/`, run `npm ci`, `npm run test`, `npm run typecheck`, and `npm run build`.
-3. Start the project using the existing local Compose instructions in `README.md`.
-4. Run `zsh scripts/api-tests/suites/phase5-campaign-verification.zsh` from the repository root.
-5. Sign in as ADMIN, open `/admin/campaigns`, create a draft with a saved segment, save it, reopen it, update it, and
-   preview the saved audience. Confirm the Phase 4 Audience Segments route still works.
-6. Confirm there are no Publish/Pause controls or later-phase workflows.
+### Frontend
+- `npm ci`: completed without errors.
+- `npm run test`: passed.
+- `npm run typecheck`: passed.
+- `npm run build`: passed.
+- `npm run dev`: started without errors.
 
-Phase 6 must not begin until the owner reviews the verification results and formally accepts Phase 5.
+### Phase 5 API verification
+- `zsh scripts/api-tests/suites/phase5-campaign-verification.zsh`: **PASS 29, FAIL 0**.
+
+### Owner-performed functional acceptance
+- **A. Campaign Audience composition:** PASS — segment-only, rules-only, and Segment AND Campaign Rules scenarios behaved as expected.
+- **B. Campaign management flow:** PASS — create/save, list, reopen, update, and preview workflow operated normally.
+- **C. Boundary tests:** PASS — the agreed authorization, validation, lifecycle, and CSRF boundary checks passed.
+- Admin signed in and used `/admin/campaigns`; Campaign settings saved successfully.
+- The previously reported Draft save validation issue (`Rule document must contain only version, match and conditions.`) is resolved.
+
+The owner explicitly approved Phase 5 changes and accepted Phase 5 on **2026-11-27**.
+
+## Acceptance record
+
+- [x] Backend startup and Maven verification passed.
+- [x] Frontend install, tests, typecheck, production build, and dev server startup passed.
+- [x] Phase 5 API verification passed (29 PASS, 0 FAIL).
+- [x] Campaign Audience composition scenarios passed.
+- [x] Campaign management UI flow passed.
+- [x] Agreed boundary tests passed.
+- [x] Owner formally accepted Phase 5 on 2026-11-27.
+
+**Final status: COMPLETE AND OWNER-ACCEPTED.** Phase 6 planning is recorded separately in `PHASE_6_PLAN.md`. Phase 6 implementation is not authorized by this acceptance record; it requires explicit owner approval of the Phase 6 plan.
+

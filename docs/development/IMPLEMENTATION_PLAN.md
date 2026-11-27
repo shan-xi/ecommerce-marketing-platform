@@ -1,7 +1,7 @@
 # Implementation Plan
 
-**Status:** Approved — v1.5.0 baseline accepted; Phases 0–4 complete and formally owner-accepted (Phase 4 accepted
-2026-11-27); Phase 5 plan approved and implementation authorized on 2026-11-27; owner acceptance pending. **Scope:**
+**Status:** Approved — v1.5.0 baseline accepted; Phases 0–5 complete and formally owner-accepted (Phase 5 accepted
+2026-11-27); Phase 6 plan drafted for owner review; Phase 6 implementation not yet authorized. **Scope:**
 Deliver the
 approved MVP in incremental, verifiable phases.
 
@@ -26,9 +26,11 @@ approved MVP in incremental, verifiable phases.
   `PHASE_3_IMPLEMENTATION_REPORT.md`.
 - **Phase 4 — Member and audience:** COMPLETE and formally owner-accepted on 2026-11-27. See
   `PHASE_4_PLAN.md` and `PHASE_4_IMPLEMENTATION_REPORT.md`.
-- **Phase 5 — Campaign draft management:** PLAN APPROVED and implementation authorized by owner on 2026-11-27; see
-  `PHASE_5_IMPLEMENTATION_REPORT.md`. Implementation completed for owner verification; acceptance remains pending.
-- **Phases 6–10:** PLANNED; each remains gated by completion and owner acceptance of the preceding phase and explicit
+- **Phase 5 — Campaign draft management:** COMPLETE and formally owner-accepted on 2026-11-27; see
+  `PHASE_5_PLAN.md` and `PHASE_5_IMPLEMENTATION_REPORT.md`.
+- **Phase 6 — Coupon configuration and claim backend:** PLAN DRAFTED for owner review; see `PHASE_6_PLAN.md`.
+  Implementation is not authorized until the owner approves the plan and explicitly authorizes development.
+- **Phases 7–10:** PLANNED; each remains gated by completion and owner acceptance of the preceding phase and explicit
   owner authorization.
 - Phase 4 acceptance enabled Phase 5 planning; the owner explicitly approved the Phase 5 plan and authorized
   implementation on 2026-11-27.
@@ -40,8 +42,8 @@ approved MVP in incremental, verifiable phases.
 | 2. Database foundation                              | Initial schema and seed strategy                                                                           | Flyway migrations for all v1.5 tables/constraints, fictional admin/member seed data, repository integration                                                | **Complete and owner-accepted (2026-11-26):** Flyway V1/V2 applied; all 12 tables, seed data, constraints/indexes verified; 15 backend tests and 4 frontend tests passed; typecheck/build passed                                      |
 | 3. Identity and security                            | Login, JWT cookies, refresh rotation, logout, roles, CSRF                                                  | Auth endpoints, token-family persistence, CSRF config, frontend auth flow                                                                                  | **Complete and owner-accepted (2026-11-27):** backend 30 tests pass; API suite 26/26; frontend 8/8, typecheck/build pass; browser auth/session/role checks pass.                                                                      |
 | 4. Member and audience                              | Member profile, audience rule validation/evaluation, reusable segments, reusable-segment preview           | Audience use cases and APIs, admin audience UI, canonical field/operator validator; evaluator supports Segment Rules + Campaign Rules composition          | Full matrix tests pass; AND/NULL behavior correct; reusable-segment preview count/sample correct; composition semantics tested. Campaign-scoped preview integration is deferred to Phase 5. Snapshot persistence remains Phase 7.     |
-| 5. Campaign draft management                        | Draft create/edit/list/detail, campaign read model, lifecycle validation, campaign-scoped audience preview | Campaign CRUD APIs and admin screens; fixed landing-page content fields; existing campaign audience-preview API integrated with Phase 4 Audience evaluator | Draft validation/date-window rules pass; campaign-scoped preview loads persisted campaign rules through Campaign read model and calls Audience application interface; existing API contract unchanged; no publish endpoint/worker yet |
-| 6. Coupon configuration and claim backend           | Coupon CRUD/configuration, inventory reservation, claim transaction, claim list                            | Coupon APIs, atomic claim service, idempotency, server-side claim audit                                                                                    | Duplicate and oversubscription tests pass; inventory equals successful claims; claim API contract stable                                                                                                                              |
+| 5. Campaign draft management                        | Draft create/edit/list/detail, campaign read model, lifecycle validation, campaign-scoped audience preview | Campaign CRUD APIs and admin screens; fixed landing-page content fields; existing campaign audience-preview API integrated with Phase 4 Audience evaluator | **Complete and owner-accepted (2026-11-27):** Maven verify/startup, frontend install/tests/typecheck/build/dev, API suite 29/29, Audience composition, Campaign UI flow, and boundary tests all passed; no publish endpoint/worker |
+| 6. Coupon configuration and claim backend           | Coupon CRUD/configuration, inventory reservation, claim transaction, claim list                            | Coupon APIs, atomic claim service, idempotency, server-side claim audit                                                                                    | Plan drafted in `PHASE_6_PLAN.md`; owner approval and implementation authorization required. Duplicate and oversubscription tests must pass; inventory equals successful claims; claim API contract stable |
 | 7. Message, publication orchestration, and delivery | Single message configuration, publish, immutable snapshot, delivery job/worker/retry                       | Message APIs, publish orchestration, snapshot + job transaction, batch worker, delivery status/manual retry                                                | Publish atomically commits snapshot and job; empty snapshot completes immediately; delivery retries/recovery and no-duplicate inbox tests pass                                                                                        |
 | 8. Landing page and engagement                      | Public landing page, member claim UI, impression/click/page-view events                                    | Landing route, eligibility/claim states, sign-in return flow, event ingestion                                                                              | Paused/ended public page behavior, anonymous behavior, eligibility display, event dedup all pass                                                                                                                                      |
 | 9. Analytics                                        | Campaign funnel and coupon reports                                                                         | Analytics APIs and Admin screens                                                                                                                           | Metrics match source records; target-based rates and zero-denominator handling verified                                                                                                                                               |
@@ -131,8 +133,10 @@ owner-run technical verification and was formally accepted by the owner on 2026-
 ### Phase 5 — Campaign draft management
 
 **Plan status:** OWNER-APPROVED on 2026-11-27; see `PHASE_5_PLAN.md`.  
-**Implementation status:** IMPLEMENTED; see `PHASE_5_IMPLEMENTATION_REPORT.md`. Owner verification and acceptance are
-pending.
+**Implementation status:** COMPLETE and formally owner-accepted on 2026-11-27; see
+`PHASE_5_IMPLEMENTATION_REPORT.md`. The owner reported backend startup/Maven verification, frontend install/tests/typecheck/build/dev,
+Phase 5 API suite (29 PASS, 0 FAIL), Campaign Audience composition, Campaign management UI flow, and boundary tests all
+passing.
 
 - Implement draft create/update/list/detail and campaign date validation.
 - Implement fixed landing-page headline/body fields.
@@ -143,6 +147,9 @@ pending.
 - Publish and Pause endpoints are integrated in Phase 7 after coupon/message prerequisites are available.
 
 ### Phase 6 — Coupon configuration and claim backend
+
+**Plan status:** DRAFT FOR OWNER REVIEW; see `PHASE_6_PLAN.md`.  
+**Implementation status:** NOT STARTED; implementation is not authorized.
 
 - Implement coupon configuration and member claim-list APIs.
 - Implement atomic conditional inventory update and claim insert in one transaction.
@@ -202,10 +209,11 @@ microservices, Redis, Kafka, or third-party production integrations are included
 ## 6. Phase acceptance and authorization gates
 
 Phase 1 and Phase 2 are formally accepted by the owner on 2026-11-26; their results are recorded in
-`PHASE_1_IMPLEMENTATION_REPORT.md` and `PHASE_2_IMPLEMENTATION_REPORT.md`. Phase 3 is formally accepted on 2026-11-27;
-its results are recorded in `PHASE_3_IMPLEMENTATION_REPORT.md`. The Phase 4 plan was approved and implementation
-explicitly authorized by the owner on 2026-11-27; Phase 4 was
-formally accepted on 2026-11-27. The Phase 5 plan in `PHASE_5_PLAN.md` was approved and implementation authorized on
-2026-11-27; owner acceptance remains pending in `PHASE_5_IMPLEMENTATION_REPORT.md`.
-The campaign-scoped audience-preview endpoint is assigned to Phase 5 integration; its existing API path and
-request/response contract remain unchanged unless an explicitly approved clarification is made.
+`PHASE_1_IMPLEMENTATION_REPORT.md` and `PHASE_2_IMPLEMENTATION_REPORT.md`. Phases 3 and 4 are formally accepted on
+2026-11-27. Phase 5 was formally accepted on 2026-11-27 after the owner reported successful backend startup and Maven
+verification, frontend checks, Phase 5 API suite (29 PASS, 0 FAIL), Campaign Audience composition, Campaign management
+UI flow, and boundary tests; see `PHASE_5_IMPLEMENTATION_REPORT.md`.
+
+`PHASE_6_PLAN.md` is drafted for owner review only. Phase 6 implementation remains unauthorized until the owner
+explicitly approves the plan and authorizes development. The Phase 6 proposal recommends including a minimal Admin coupon-configuration UI in Phase 6 because it is a PRD
+Admin Portal capability; this is a scope clarification requiring owner approval before implementation.

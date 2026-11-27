@@ -1,7 +1,7 @@
 # Phase 5 Plan — Campaign Draft Management
 
 **Document status:** OWNER-APPROVED — approved as written by the owner on 2026-11-27.  
-**Implementation status:** IMPLEMENTED for owner verification; acceptance is pending.  
+**Implementation status:** COMPLETE — formally accepted by the owner on 2026-11-27.  
 **Baseline:** Owner-approved v1.5.0 Development Baseline.  
 **Preceding phases:** Phases 1–4 formally accepted; Phase 4 accepted by the owner on 2026-11-27.  
 **Purpose:** Define the bounded Phase 5 work package from the approved PRD, API/OpenAPI contract, database design,
@@ -222,17 +222,17 @@ must be macOS zsh compatible and must not require secrets to be committed.
 
 ## 9. Exit criteria
 
-- [ ] All Phase 5 scope items are implemented; no out-of-scope lifecycle or later-phase feature is present.
-- [ ] Campaign CRUD and campaign-scoped preview match the approved API/OpenAPI contract.
-- [ ] Audience integration uses only the Audience application-level interface.
-- [ ] Campaign validation, date handling, effective read status, and draft-only update behavior pass tests.
-- [ ] Admin campaign UI works alongside the Phase 4 Audience workspace.
-- [ ] Backend unit/PostgreSQL integration tests pass.
-- [ ] Frontend tests, typecheck, and production build pass.
-- [ ] Phase 5 zsh API suite passes.
-- [ ] API/OpenAPI, database docs (if schema changes), README, implementation plan, and implementation report are
+- [x] All Phase 5 scope items are implemented; no out-of-scope lifecycle or later-phase feature is present.
+- [x] Campaign CRUD and campaign-scoped preview match the approved API/OpenAPI contract.
+- [x] Audience integration uses only the Audience application-level interface.
+- [x] Campaign validation, date handling, effective read status, and draft-only update behavior pass tests.
+- [x] Admin campaign UI works alongside the Phase 4 Audience workspace.
+- [x] Backend unit/PostgreSQL integration tests pass.
+- [x] Frontend tests, typecheck, and production build pass.
+- [x] Phase 5 zsh API suite passes.
+- [x] API/OpenAPI, database docs (if schema changes), README, implementation plan, and implementation report are
   synchronized.
-- [ ] Owner reviews and accepts Phase 5 before Phase 6 can begin.
+- [x] Owner reviews and accepts Phase 5 before Phase 6 can begin.
 
 ## 10. Dependencies and implementation sequence
 
@@ -253,4 +253,4 @@ must be macOS zsh compatible and must not require secrets to be committed.
 
 The owner approved this plan as written and authorized implementation on 2026-11-27. Implementation must remain within
 this bounded scope. Any change to product scope, API semantics, schema, or phase sequencing requires explicit review.
-Phase 6 remains gated on owner acceptance of Phase 5.
+Phase 5 was formally accepted by the owner on 2026-11-27. Phase 6 planning is documented in `PHASE_6_PLAN.md`; implementation remains gated on explicit owner approval of that plan.
