@@ -33,10 +33,12 @@
 The owner completed the full verification on 2026-11-27 and reported all checks successful:
 
 ### Backend
+
 - `./mvnw -f backend/pom.xml spring-boot:run`: application started without errors.
 - `./mvnw -f backend/pom.xml verify`: completed without errors.
 
 ### Frontend
+
 - `npm ci`: completed without errors.
 - `npm run test`: passed.
 - `npm run typecheck`: passed.
@@ -44,14 +46,18 @@ The owner completed the full verification on 2026-11-27 and reported all checks 
 - `npm run dev`: started without errors.
 
 ### Phase 5 API verification
+
 - `zsh scripts/api-tests/suites/phase5-campaign-verification.zsh`: **PASS 29, FAIL 0**.
 
 ### Owner-performed functional acceptance
-- **A. Campaign Audience composition:** PASS — segment-only, rules-only, and Segment AND Campaign Rules scenarios behaved as expected.
+
+- **A. Campaign Audience composition:** PASS — segment-only, rules-only, and Segment AND Campaign Rules scenarios
+  behaved as expected.
 - **B. Campaign management flow:** PASS — create/save, list, reopen, update, and preview workflow operated normally.
 - **C. Boundary tests:** PASS — the agreed authorization, validation, lifecycle, and CSRF boundary checks passed.
 - Admin signed in and used `/admin/campaigns`; Campaign settings saved successfully.
-- The previously reported Draft save validation issue (`Rule document must contain only version, match and conditions.`) is resolved.
+- The previously reported Draft save validation issue (`Rule document must contain only version, match and conditions.`)
+  is resolved.
 
 The owner explicitly approved Phase 5 changes and accepted Phase 5 on **2026-11-27**.
 
@@ -65,5 +71,6 @@ The owner explicitly approved Phase 5 changes and accepted Phase 5 on **2026-11-
 - [x] Agreed boundary tests passed.
 - [x] Owner formally accepted Phase 5 on 2026-11-27.
 
-**Final status: COMPLETE AND OWNER-ACCEPTED.** Phase 6 planning is recorded separately in `PHASE_6_PLAN.md`. Phase 6 implementation is not authorized by this acceptance record; it requires explicit owner approval of the Phase 6 plan.
+**Final status: COMPLETE AND OWNER-ACCEPTED.** Phase 6 planning is recorded separately in `PHASE_6_PLAN.md`. Phase 6
+implementation is not authorized by this acceptance record; it requires explicit owner approval of the Phase 6 plan.
 

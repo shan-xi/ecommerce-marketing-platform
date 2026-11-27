@@ -2,7 +2,12 @@ export type AuthUser = { userId: string; role: 'ADMIN' | 'MEMBER' };
 export type LoginInput = { email: string; password: string };
 
 export class AuthApiError extends Error {
-    constructor(message: string, readonly status: number) {
+    constructor(
+        message: string,
+        readonly status: number,
+        readonly code?: string,
+        readonly traceId?: string,
+    ) {
         super(message);
         this.name = 'AuthApiError';
     }
@@ -65,8 +70,18 @@ export async function apiRequest<T>(path: string, init: RequestInit = {}, retry 
         if (await refreshSession()) return apiRequest<T>(path, init, false);
     }
     if (!response.ok) {
-        const body = await response.json().catch(() => null) as { detail?: string; title?: string } | null;
-        throw new AuthApiError(body?.detail ?? body?.title ?? `Request failed (${response.status})`, response.status);
+        const body = await response.json().catch(() => null) as {
+            detail?: string;
+            title?: string;
+            code?: string;
+            traceId?: string
+        } | null;
+        throw new AuthApiError(
+            body?.detail ?? body?.title ?? `Request failed (${response.status})`,
+            response.status,
+            body?.code,
+            body?.traceId,
+        );
     }
     if (response.status === 204) return undefined as T;
     return response.json() as Promise<T>;

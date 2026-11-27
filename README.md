@@ -1,9 +1,8 @@
 # E-commerce Campaign & Coupon Engagement Platform
 
 **Project baseline:** v1.5.0 (owner-approved)  
-**Implementation status:** Phases 0–4 complete and formally owner-accepted. Phase 5 Campaign Draft Management plan was
-approved and implementation authorized on 2026-11-27; implementation is delivered for owner verification and acceptance
-is pending.
+**Implementation status:** Phases 0–5 are complete and owner-accepted. Phase 6 Coupon Configuration and Claim Backend is
+implemented for owner verification; formal acceptance and full build/concurrency verification are pending.
 
 This repository implements the approved MVP described in [`docs/PRD.md`](docs/PRD.md). The project is a modular monolith
 with one Spring Boot backend, one React + TypeScript SPA, and PostgreSQL as the source of truth.
@@ -32,6 +31,25 @@ reusable-segment preview, AND composition support, and the Admin audience UI. Ow
 campaign configuration. See
 [`docs/development/PHASE_4_PLAN.md`](docs/development/PHASE_4_PLAN.md) and
 [`docs/development/PHASE_4_IMPLEMENTATION_REPORT.md`](docs/development/PHASE_4_IMPLEMENTATION_REPORT.md).
+
+## Phase 6 — Coupon Configuration and Claim Backend
+
+The Admin Campaign workspace at `/admin/campaigns` now includes coupon list/create/edit for a selected DRAFT campaign.
+The backend provides campaign-scoped coupon configuration, authenticated member claim and claim-list APIs, PostgreSQL
+inventory reservation, successful-request idempotency, audience-snapshot eligibility, and server-generated claim-attempt
+audit records. No schema migration was required. Member claim UI, publication, audience snapshot creation, message
+delivery, public landing page, and analytics remain in their later phases.
+
+Run the Phase 6 Admin coupon API verification against an existing disposable DRAFT campaign:
+
+```zsh
+export PHASE6_DRAFT_CAMPAIGN_ID="<draft-campaign-uuid>"
+zsh scripts/api-tests/suites/phase6-coupon-claim-verification.zsh
+```
+
+See [`docs/development/PHASE_6_PLAN.md`](docs/development/PHASE_6_PLAN.md) and
+[`docs/development/PHASE_6_IMPLEMENTATION_REPORT.md`](docs/development/PHASE_6_IMPLEMENTATION_REPORT.md). The report
+records which verification commands could not run in this environment; Phase 6 remains pending owner acceptance.
 
 ## Technology versions
 
@@ -114,6 +132,8 @@ cd ..
 # Phase 4 and Phase 5 HTTP/API verification (backend must be running)
 zsh scripts/api-tests/suites/phase4-audience-verification.zsh
 zsh scripts/api-tests/suites/phase5-campaign-verification.zsh
+# Phase 6 (set PHASE6_DRAFT_CAMPAIGN_ID to a disposable DRAFT campaign first)
+zsh scripts/api-tests/suites/phase6-coupon-claim-verification.zsh
 
 # PostgreSQL service configuration and health
 docker compose config
@@ -131,6 +151,9 @@ docker compose ps
 - Database design: [`docs/database/DATABASE_DESIGN.md`](docs/database/DATABASE_DESIGN.md) and [
   `docs/database/ERD.md`](docs/database/ERD.md)
 - Phase plan: [`docs/development/IMPLEMENTATION_PLAN.md`](docs/development/IMPLEMENTATION_PLAN.md)
+- Phase 6 implementation report: [
+  `docs/development/PHASE_6_IMPLEMENTATION_REPORT.md`](docs/development/PHASE_6_IMPLEMENTATION_REPORT.md)
+- Phase 6 plan: [`docs/development/PHASE_6_PLAN.md`](docs/development/PHASE_6_PLAN.md)
 - Phase 5 implementation report: [
   `docs/development/PHASE_5_IMPLEMENTATION_REPORT.md`](docs/development/PHASE_5_IMPLEMENTATION_REPORT.md)
 - Phase 4 implementation report: [

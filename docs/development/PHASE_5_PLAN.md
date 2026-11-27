@@ -253,4 +253,5 @@ must be macOS zsh compatible and must not require secrets to be committed.
 
 The owner approved this plan as written and authorized implementation on 2026-11-27. Implementation must remain within
 this bounded scope. Any change to product scope, API semantics, schema, or phase sequencing requires explicit review.
-Phase 5 was formally accepted by the owner on 2026-11-27. Phase 6 planning is documented in `PHASE_6_PLAN.md`; implementation remains gated on explicit owner approval of that plan.
+Phase 5 was formally accepted by the owner on 2026-11-27. Phase 6 planning is documented in `PHASE_6_PLAN.md`;
+implementation remains gated on explicit owner approval of that plan.

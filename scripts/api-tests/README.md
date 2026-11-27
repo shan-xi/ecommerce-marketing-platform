@@ -124,3 +124,32 @@ zsh scripts/api-tests/suites/phase5-campaign-verification.zsh
 The suite checks anonymous/MEMBER authorization, CSRF, ADMIN draft create/list/detail/update, persisted campaign
 audience preview, and invalid campaign time-window rejection. It creates uniquely named verification Segment and
 Campaign records because no delete endpoint exists in this phase.
+
+## Phase 6 Coupon Configuration and Claim API verification
+
+Run the Phase 6 Admin coupon configuration checks against an existing disposable DRAFT campaign:
+
+```zsh
+export PHASE6_DRAFT_CAMPAIGN_ID="<draft-campaign-uuid>"
+zsh scripts/api-tests/suites/phase6-coupon-claim-verification.zsh
+```
+
+The suite verifies Admin/Member/anonymous boundaries, Admin coupon list/create/update, CSRF-protected writes, and that
+`claimedQuantity` is returned as server-managed data. It also verifies the Member claim, same-key replay, duplicate
+claim rejection, and member coupon list when an ACTIVE campaign/coupon fixture is supplied. The active campaign must
+already have `published_at` set, the coupon must be currently valid and have inventory, and the logged-in test
+member must exist in its `campaign_audience_members` snapshot and must not already have claimed that coupon.
+
+Optional claim-fixture variables:
+
+```zsh
+export PHASE6_ACTIVE_CAMPAIGN_ID="<active-campaign-uuid>"
+export PHASE6_ACTIVE_COUPON_ID="<claimable-coupon-uuid>"
+# Optional: second claimable coupon in the same campaign for cross-target idempotency testing.
+export PHASE6_ACTIVE_COUPON_ALT_ID="<another-coupon-uuid>"
+```
+
+The DRAFT test creates one coupon and leaves it on the supplied disposable campaign. The claim test creates one
+successful claim for the configured test member and leaves that claim in the database. Concurrency, final-inventory
+race, audit-row inspection, and failure rollback still require the PostgreSQL integration fixtures described in
+`docs/development/PHASE_6_PLAN.md`; this HTTP suite does not replace those tests.

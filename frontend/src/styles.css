@@ -488,3 +488,48 @@ h1 {
         flex-direction: column
     }
 }
+
+/* Phase 6 coupon configuration table */
+.table-wrap {
+    width: 100%;
+    overflow-x: auto;
+    margin-top: 12px;
+}
+
+.table-wrap table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    text-align: left;
+}
+
+.table-wrap th, .table-wrap td {
+    padding: 12px 10px;
+    border-bottom: 1px solid #e2e8f0;
+    vertical-align: top;
+    white-space: nowrap;
+}
+
+.table-wrap th {
+    color: #64748b;
+    font-weight: 650;
+}
+
+.table-wrap td small {
+    display: block;
+    max-width: 240px;
+    margin-top: 4px;
+    color: #64748b;
+    white-space: normal;
+}
+
+.segment-editor select {
+    width: 100%;
+    min-width: 0;
+    padding: 10px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    background: white;
+    font: inherit;
+    color: #172033;
+}

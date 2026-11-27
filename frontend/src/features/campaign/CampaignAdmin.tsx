@@ -9,6 +9,7 @@ import {
 } from '../../shared/lib/campaignApi';
 import type {AudiencePreview, AudienceRules, AudienceSegment} from '../../shared/types/audience';
 import type {Campaign, CampaignStatus, CampaignWrite} from '../../shared/types/campaign';
+import {CampaignCoupons} from './CampaignCoupons';
 
 const emptyRules = (): AudienceRules => ({
     version: 1,
@@ -147,8 +148,8 @@ export function CampaignAdmin() {
 
     return <section className="audience-shell campaign-shell">
         <div className="audience-heading">
-            <div><p className="eyebrow">PHASE 5 · CAMPAIGN DRAFTS</p><h2>Campaign Management</h2><p
-                className="status-detail">建立、編輯草稿並預覽目前儲存的受眾。此階段不提供發布或暫停。</p></div>
+            <div><p className="eyebrow">PHASE 6 · CAMPAIGN & COUPONS</p><h2>Campaign Management</h2><p
+                className="status-detail">管理 Campaign Draft、預覽受眾，並在已選取的草稿中設定 Coupons。</p></div>
             <button type="button" onClick={reset}>新增 Campaign</button>
         </div>
         {error && <p className="error-message" role="alert">{error}</p>}{notice &&
@@ -222,5 +223,6 @@ export function CampaignAdmin() {
                     </li>)}</ul>
                 </div>}</form>
         </div>
+        {selected && <CampaignCoupons campaignId={selected.id} editable={selected.status === 'DRAFT'}/>}
     </section>;
 }

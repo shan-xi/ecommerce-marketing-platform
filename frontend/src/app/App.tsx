@@ -44,11 +44,11 @@ export function App() {
 
     return <main className="page-shell">
         <section className="hero" aria-labelledby="page-title">
-            <p className="eyebrow">PHASE 5 · CAMPAIGN DRAFTS</p>
+            <p className="eyebrow">PHASE 6 · COUPON CONFIGURATION & CLAIM BACKEND</p>
             <h1 id="page-title">行銷活動與優惠券平台</h1>
             <p className="subtitle">E-commerce Campaign &amp; Coupon Engagement Platform</p>
-            <p className="intro">Phase 5 提供 Campaign Draft 管理與 campaign-scoped audience preview，並保留 Phase 4
-                Audience Segments 工作區。</p>
+            <p className="intro">Phase 6 在 Campaign 工作區加入 Coupon
+                建立、列表與編輯；後端提供安全的優惠券領取、冪等處理與領取紀錄。</p>
         </section>
         <section className="status-card" aria-live="polite">
             <div>

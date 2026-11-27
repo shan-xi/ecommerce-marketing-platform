@@ -21,8 +21,8 @@
 | [Phase 4 Plan](development/PHASE_4_PLAN.md)                                   | Accepted Member and Audience scope, implementation record, and owner acceptance           |
 | [Phase 4 Implementation Report](development/PHASE_4_IMPLEMENTATION_REPORT.md) | Phase 4 source implementation, verification results, and owner acceptance record          |
 | [Phase 5 Plan](development/PHASE_5_PLAN.md)                                   | Owner-approved Campaign Draft Management scope and approval gate                          |
-| [Phase 5 Implementation Report](development/PHASE_5_IMPLEMENTATION_REPORT.md) | Delivered Phase 5 scope, owner verification results, and formal acceptance record          |
-| [Phase 6 Plan](development/PHASE_6_PLAN.md)                                   | Draft Coupon Configuration and Claim Backend scope and owner approval gate                  |
+| [Phase 5 Implementation Report](development/PHASE_5_IMPLEMENTATION_REPORT.md) | Delivered Phase 5 scope, owner verification results, and formal acceptance record         |
+| [Phase 6 Plan](development/PHASE_6_PLAN.md)                                   | Draft Coupon Configuration and Claim Backend scope and owner approval gate                |
 | [AI Development Guidelines](development/AI_DEVELOPMENT_GUIDELINES.md)         | How future AI work must use and preserve the docs                                         |
 | [Design Decisions](OPEN_DESIGN_QUESTIONS.md)                                  | Confirmed decisions and Ready-for-Development checklist                                   |
 | [ADR directory](decisions/ADR/)                                               | Decision records and rationale                                                            |

@@ -1,7 +1,8 @@
 # Phase 6 Plan — Coupon Configuration and Claim Backend
 
-**Document status:** DRAFT FOR OWNER REVIEW — not yet approved.  
-**Implementation status:** NOT STARTED — implementation is not authorized by this plan.  
+**Document status:** Owner-approved for implementation on 2026-11-27.  
+**Implementation status:** IN PROGRESS — owner explicitly authorized Phase 6 implementation and the bounded Admin coupon
+UI.  
 **Baseline:** Owner-approved v1.5.0 Development Baseline.  
 **Preceding phases:** Phases 1–5 formally accepted; Phase 5 accepted by the owner on 2026-11-27.  
 **Purpose:** Define the bounded Phase 6 work package from the approved PRD, API/OpenAPI contract, database design,
@@ -28,7 +29,8 @@ already-ACTIVE campaign and its audience snapshot.
 
 This plan is subordinate to the owner-approved v1.5.0 baseline and the accepted Phase 1–5 implementation:
 
-1. `docs/PRD.md` — product scope, coupon configuration, member coupon claim journey, inventory and duplicate-claim rules.
+1. `docs/PRD.md` — product scope, coupon configuration, member coupon claim journey, inventory and duplicate-claim
+   rules.
 2. `docs/api/API_SPECIFICATION.md` — Sections 7 and 9–10: coupon configuration, member claims, landing-page claim
    contract, idempotency, and server-generated claim-attempt audit behavior.
 3. `docs/api/openapi.yaml` — existing coupon configuration, member coupon list, and claim endpoint contracts.
@@ -51,6 +53,7 @@ API contract, schema, or MVP scope.
 ### 3.1 In scope
 
 **Admin coupon configuration APIs**
+
 - Add a coupon to a campaign.
 - List coupons for a campaign.
 - Update a coupon only while its parent campaign is `DRAFT`.
@@ -59,11 +62,13 @@ API contract, schema, or MVP scope.
 - Enforce campaign ownership and ADMIN authorization; all state-changing requests retain existing CSRF protection.
 
 **Member claim APIs**
+
 - Claim a coupon for the authenticated member.
 - List the authenticated member's successful coupon claims.
 - Derive member identity from the authenticated principal; never accept a client-selected member ID.
 
 **Claim correctness and audit**
+
 - Atomic inventory reservation and successful claim insertion in one transaction.
 - One successful claim per member per campaign coupon.
 - Idempotent replay of a successful request using `(member_id, idempotency_key)`.
@@ -77,34 +82,35 @@ API contract, schema, or MVP scope.
 - Public campaign landing-page UI, member claim UI, and engagement event ingestion endpoints (Phase 8).
 - Analytics and coupon reporting (Phase 9).
 - Coupon redemption, checkout, order creation, payment, refund, and logistics.
-- A global reusable coupon master, promotion-rule engine, coupon code generation, or external coupon-provider integration.
+- A global reusable coupon master, promotion-rule engine, coupon code generation, or external coupon-provider
+  integration.
 - Redis, Kafka, microservices, scheduled jobs, or new infrastructure.
 - A new database migration unless code inspection proves the existing approved schema is insufficient.
 
-### 3.3 Frontend scope clarification requiring owner decision
+### 3.3 Owner-approved frontend scope clarification
 
 The PRD says administrators configure multiple coupons, while the current Phase 6 row in
 `IMPLEMENTATION_PLAN.md` explicitly lists backend APIs/services as its main deliverables and does not name an Admin UI.
 The PRD also places the member claim experience in the Member Portal, whose UI is sequenced to Phase 8.
 
-**Recommendation for owner review:** include a minimal Admin coupon configuration UI in Phase 6, alongside the
+**Owner-approved clarification (2026-11-27):** include a minimal Admin coupon configuration UI in Phase 6, alongside the
 coupon APIs, because coupon setup is an explicit Admin Portal capability in the PRD and belongs naturally beside the
 existing Campaign workspace. Keep the UI bounded to list/create/edit coupons for a DRAFT campaign; do not add coupon
-redemption or advanced promotion tooling. The Member claim and claimed-coupon UI remains in Phase 8 with the landing-page
-experience. This is a proposed clarification to the current implementation-plan row and requires explicit owner approval
-before implementation; until approved, the current baseline remains backend-only.
+redemption or advanced promotion tooling. The Member claim and claimed-coupon UI remains in Phase 8 with the
+landing-page
+experience. This approved clarification is reflected in the current implementation-plan row.
 
 ## 4. Existing API contract
 
 Use the existing API paths and payloads; do not invent alternate endpoints.
 
-| Method | Path | Auth | Phase 6 behavior |
-|---|---|---|---|
-| POST | `/api/v1/admin/campaigns/{campaignId}/coupons` | ADMIN + CSRF | Create a coupon for a DRAFT campaign |
-| GET | `/api/v1/admin/campaigns/{campaignId}/coupons` | ADMIN | List campaign coupons, ordered by `createdAt ASC` |
-| PUT | `/api/v1/admin/campaigns/{campaignId}/coupons/{couponId}` | ADMIN + CSRF | Update a coupon only while its campaign is DRAFT |
-| GET | `/api/v1/member/coupons` | MEMBER | List the current member's successful claims |
-| POST | `/api/v1/campaigns/{campaignId}/coupons/{couponId}/claims` | MEMBER + CSRF | Claim a coupon for the current member |
+| Method | Path                                                       | Auth          | Phase 6 behavior                                  |
+|--------|------------------------------------------------------------|---------------|---------------------------------------------------|
+| POST   | `/api/v1/admin/campaigns/{campaignId}/coupons`             | ADMIN + CSRF  | Create a coupon for a DRAFT campaign              |
+| GET    | `/api/v1/admin/campaigns/{campaignId}/coupons`             | ADMIN         | List campaign coupons, ordered by `createdAt ASC` |
+| PUT    | `/api/v1/admin/campaigns/{campaignId}/coupons/{couponId}`  | ADMIN + CSRF  | Update a coupon only while its campaign is DRAFT  |
+| GET    | `/api/v1/member/coupons`                                   | MEMBER        | List the current member's successful claims       |
+| POST   | `/api/v1/campaigns/{campaignId}/coupons/{couponId}/claims` | MEMBER + CSRF | Claim a coupon for the current member             |
 
 The public campaign and coupon summary GET endpoints are part of the Phase 8 landing-page experience and are not added
 as new Phase 6 endpoints unless the existing OpenAPI explicitly assigns them earlier.
@@ -194,7 +200,8 @@ Implement the claim operation as a transaction with PostgreSQL as the correctnes
 
 The database unique constraints remain authoritative for concurrent duplicate claims and idempotency keys. If a unique
 constraint rejects a concurrent insert, roll back the entire claim transaction (including the inventory increment),
-then load the winning successful claim in a fresh transaction and map it to `CLAIM_ALREADY_EXISTS`, an idempotent replay,
+then load the winning successful claim in a fresh transaction and map it to `CLAIM_ALREADY_EXISTS`, an idempotent
+replay,
 or `IDEMPOTENCY_KEY_CONFLICT` as appropriate. Do not rely on an application-side pre-check alone.
 
 The campaign shared lock is intentionally compatible with the Phase 7 Pause protocol: Pause's campaign-row update
@@ -235,18 +242,18 @@ Follow the existing API specification and database constraint:
 
 Use the existing stable error codes; do not add new codes without an approved contract change.
 
-| Condition | Expected response |
-|---|---|
-| Invalid coupon payload / invalid discount type or value / invalid time window | Existing documented validation response |
-| Campaign or coupon does not exist / coupon does not belong to campaign | Existing documented not-found behavior |
-| Campaign is not ACTIVE or outside its claimable window | `409 CAMPAIGN_INACTIVE` |
-| Coupon is outside its validity window | `409 COUPON_OUTSIDE_VALIDITY` |
-| No remaining inventory | `409 COUPON_SOLD_OUT` |
-| Member already claimed coupon with another key | `409 CLAIM_ALREADY_EXISTS` |
-| Same idempotency key targets a different campaign/coupon | `409 IDEMPOTENCY_KEY_CONFLICT` |
-| Anonymous or ADMIN attempts member claim | Existing authentication/authorization response |
-| MEMBER attempts Admin coupon APIs | `403` |
-| Missing/invalid CSRF on state-changing cookie-authenticated requests | Existing CSRF response |
+| Condition                                                                     | Expected response                              |
+|-------------------------------------------------------------------------------|------------------------------------------------|
+| Invalid coupon payload / invalid discount type or value / invalid time window | Existing documented validation response        |
+| Campaign or coupon does not exist / coupon does not belong to campaign        | Existing documented not-found behavior         |
+| Campaign is not ACTIVE or outside its claimable window                        | `409 CAMPAIGN_INACTIVE`                        |
+| Coupon is outside its validity window                                         | `409 COUPON_OUTSIDE_VALIDITY`                  |
+| No remaining inventory                                                        | `409 COUPON_SOLD_OUT`                          |
+| Member already claimed coupon with another key                                | `409 CLAIM_ALREADY_EXISTS`                     |
+| Same idempotency key targets a different campaign/coupon                      | `409 IDEMPOTENCY_KEY_CONFLICT`                 |
+| Anonymous or ADMIN attempts member claim                                      | Existing authentication/authorization response |
+| MEMBER attempts Admin coupon APIs                                             | `403`                                          |
+| Missing/invalid CSRF on state-changing cookie-authenticated requests          | Existing CSRF response                         |
 
 Preserve the existing error envelope and safe error-detail conventions.
 
@@ -326,15 +333,16 @@ compatible. Cover:
 - [ ] Server-generated `CLAIM_ATTEMPT` audit behavior is correct for SUCCEEDED/FAILED/REPLAYED.
 - [ ] Campaign row locking is compatible with the Phase 7 Pause protocol.
 - [ ] All PostgreSQL integration, API, and regression tests pass.
-- [ ] API/OpenAPI, error codes, database docs (only if schema changes), README, implementation plan, and report are synchronized.
+- [ ] API/OpenAPI, error codes, database docs (only if schema changes), README, implementation plan, and report are
+  synchronized.
 - [ ] Owner reviews and formally accepts Phase 6 before Phase 7 begins.
 
 ## 10. Dependencies and implementation sequence
 
 1. Re-read the authoritative documents and inspect the accepted Campaign, Identity, Member, and Audience application
    interfaces.
-2. Resolve the frontend scope clarification in Section 3.3 before implementation; update `IMPLEMENTATION_PLAN.md`
-   if the Admin coupon UI is approved for Phase 6.
+2. Apply the owner-approved frontend scope clarification in Section 3.3 and keep `IMPLEMENTATION_PLAN.md`
+   synchronized.
 3. Inspect the existing V1 schema and confirm no migration is required.
 4. Implement coupon domain model, validation, repository ports, and JDBC adapters.
 5. Implement Admin coupon create/list/update use cases and controller.
@@ -349,6 +357,6 @@ compatible. Cover:
 
 ## 11. Approval gate
 
-This document is a proposal for owner review only. Phase 5 was formally accepted on 2026-11-27, which permits Phase 6
-planning. **Phase 6 implementation is not authorized until the owner explicitly approves this plan and authorizes
-implementation.** Any change to product scope, API semantics, schema, or phase sequencing requires explicit review.
+Phase 5 was formally accepted on 2026-11-27. The owner explicitly approved this Phase 6 plan, authorized implementation,
+and approved the bounded Admin coupon UI clarification in Section 3.3 on 2026-11-27. Any additional change to product
+scope, API semantics, schema, or phase sequencing requires explicit review.

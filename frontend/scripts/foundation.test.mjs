@@ -50,8 +50,8 @@ test('failed logout is surfaced without claiming local logout succeeded', () => 
 test('auth provider exposes loading, authenticated, and anonymous states', () => {
     assert.match(authProvider, /'loading' \| 'authenticated' \| 'anonymous' \| 'error'/);
 });
-test('Phase 5 app exposes Admin Audience and Campaign routes without later-phase workflows', () => {
-    assert.match(appTs, /PHASE 5/);
+test('Phase 6 app exposes Admin Audience and Campaign routes with coupon configuration only', () => {
+    assert.match(appTs, /PHASE 6/);
     assert.match(appTs, /LoginForm/);
     assert.match(appTs, /user\?\.role === 'ADMIN'/);
     assert.match(appTs, /destination = '\/admin'/);
@@ -85,6 +85,8 @@ test('campaign Admin supports draft editing and stored-audience preview only', (
     assert.match(campaignAdmin, /previewCampaignAudience\(selected\.id\)/);
     assert.match(campaignAdmin, /segmentId/);
     assert.match(campaignAdmin, /campaign-specific rules/);
-    assert.match(campaignAdmin, /selected\.status!==\'DRAFT\'/);
-    assert.doesNotMatch(campaignAdmin, /publishCampaign|pauseCampaign|coupon claim/i);
+    assert.match(campaignAdmin, /selected\.status\s*!==\s*'DRAFT'/);
+    assert.match(campaignAdmin, /CampaignCoupons/);
+    assert.match(campaignAdmin, /selected && <CampaignCoupons/);
+    assert.doesNotMatch(campaignAdmin, /publishCampaign|pauseCampaign|claimCoupon/i);
 });

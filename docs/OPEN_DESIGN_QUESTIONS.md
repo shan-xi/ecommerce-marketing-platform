@@ -97,7 +97,8 @@ The Phase 6 plan is drafted for owner review only; implementation authorization 
 - [x] Phase 6 Coupon Configuration and Claim Backend plan drafted from the approved PRD/API/database baseline.
 - [ ] Owner reviews and approves `docs/development/PHASE_6_PLAN.md`.
 - [ ] Owner explicitly authorizes Phase 6 implementation.
-- [ ] Approve or reject the proposed minimal Admin coupon-configuration UI scope clarification recorded in `PHASE_6_PLAN.md`.
+- [ ] Approve or reject the proposed minimal Admin coupon-configuration UI scope clarification recorded in
+  `PHASE_6_PLAN.md`.
 
 All design approval gates for the v1.5.0 baseline remain complete. Phases 1–5 are formally accepted. Phase 6 planning
 is complete for owner review, but Phase 6 implementation remains gated on explicit owner approval and authorization.
