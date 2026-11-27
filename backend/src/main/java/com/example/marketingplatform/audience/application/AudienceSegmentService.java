@@ -68,8 +68,30 @@ public class AudienceSegmentService implements AudienceUseCase {
 
     @Override
     @Transactional(readOnly = true)
+    public void validateComposition(UUID segmentId, JsonNode campaignRules) {
+        if (segmentId == null && campaignRules == null)
+            throw new InvalidAudienceRuleException("At least one audience definition is required.");
+        if (segmentId != null) {
+            try {
+                validator.validate(get(segmentId).rules());
+            } catch (AudienceResourceNotFoundException ex) {
+                throw new InvalidAudienceRuleException("Referenced audience segment does not exist.");
+            }
+        }
+        if (campaignRules != null) validator.validate(campaignRules);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public AudiencePreviewResult previewComposition(UUID segmentId, JsonNode campaignRules) {
-        AudienceRuleSet saved = segmentId == null ? null : validator.validate(get(segmentId).rules());
+        AudienceRuleSet saved = null;
+        if (segmentId != null) {
+            try {
+                saved = validator.validate(get(segmentId).rules());
+            } catch (AudienceResourceNotFoundException ex) {
+                throw new InvalidAudienceRuleException("Referenced audience segment does not exist.");
+            }
+        }
         AudienceRuleSet specific = campaignRules == null ? null : validator.validate(campaignRules);
         if (saved == null && specific == null)
             throw new InvalidAudienceRuleException("At least one audience definition is required.");
@@ -81,7 +103,7 @@ public class AudienceSegmentService implements AudienceUseCase {
             return new Segment(row.id(), row.name(), row.description(), mapper.readTree(row.rulesJson()),
                     row.createdByUserId(), row.createdAt(), row.updatedAt());
         } catch (Exception ex) {
-            throw new IllegalStateException("Stored audience rules are unreadable.", ex);
+            throw new InvalidAudienceRuleException("Stored audience rules are unreadable.");
         }
     }
 

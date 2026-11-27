@@ -3,6 +3,7 @@ import {fetchBackendHealth, type HealthStatus} from '../shared/lib/healthApi';
 import {LoginForm} from '../features/auth/LoginForm';
 import {useAuth} from '../features/auth/AuthProvider';
 import {AudienceAdmin} from '../features/audience/AudienceAdmin';
+import {CampaignAdmin} from '../features/campaign/CampaignAdmin';
 
 type ConnectionState = 'checking' | 'connected' | 'unavailable';
 
@@ -43,11 +44,11 @@ export function App() {
 
     return <main className="page-shell">
         <section className="hero" aria-labelledby="page-title">
-            <p className="eyebrow">PHASE 4 · MEMBER AND AUDIENCE</p>
+            <p className="eyebrow">PHASE 5 · CAMPAIGN DRAFTS</p>
             <h1 id="page-title">行銷活動與優惠券平台</h1>
             <p className="subtitle">E-commerce Campaign &amp; Coupon Engagement Platform</p>
-            <p className="intro">Phase 4 提供會員個人資料查詢、受眾規則驗證、可重複使用的 Audience Segment
-                管理與受眾預覽。</p>
+            <p className="intro">Phase 5 提供 Campaign Draft 管理與 campaign-scoped audience preview，並保留 Phase 4
+                Audience Segments 工作區。</p>
         </section>
         <section className="status-card" aria-live="polite">
             <div>
@@ -61,8 +62,10 @@ export function App() {
         </section>
         <LoginForm/>
         {user?.role === 'ADMIN' &&
-            <nav className="route-nav" aria-label="主要功能"><a href="/admin">Admin Audience</a></nav>}
-        {route === '/admin' && user?.role === 'ADMIN' && <AudienceAdmin/>}
+            <nav className="route-nav" aria-label="主要功能"><a href="/admin">Audience Segments</a><a
+                href="/admin/campaigns">Campaigns</a></nav>}
+        {(route === '/admin' || route === '/admin/audience') && user?.role === 'ADMIN' && <AudienceAdmin/>}
+        {route === '/admin/campaigns' && user?.role === 'ADMIN' && <CampaignAdmin/>}
         {user && route === '/admin' && user.role !== 'ADMIN' && <p className="error-message">此頁面僅供管理員使用。</p>}
         <footer className="footer">
             <span>Development baseline: v1.5.0</span>

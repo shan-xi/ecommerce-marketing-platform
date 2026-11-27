@@ -142,6 +142,12 @@ placeholders only.
 }
 ```
 
+Campaign detail responses include the persisted editable fields (`description`, fixed `landingPage.headline`/`body`,
+`audience.segmentId`/`rules`), effective `status`, and available lifecycle/creation/update timestamps. List responses
+return a compact summary with identifiers, name, description, effective status, schedule, and timestamps, plus the
+standard `page` metadata. List ordering is `createdAt DESC`; Phase 5 supports `page`, `size`, and `status` only (no
+unapproved free-text query parameter).
+
 The request must include an `audience` object with at least one of `segmentId` or `rules`. If both `segmentId` and
 `rules` are provided, the effective audience is their intersection (AND): a member must match the saved segment and
 every campaign-specific condition. If only one is provided, that definition is used; at least one is required. Each rule

@@ -413,3 +413,78 @@ h1 {
     color: #64748b;
     font-size: 12px
 }
+
+.campaign-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 20px;
+}
+
+.campaign-toolbar label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #475569;
+    font-size: 13px;
+    font-weight: 650;
+}
+
+.campaign-toolbar select, .segment-editor select {
+    min-width: 0;
+    padding: 9px 10px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    background: white;
+    color: #172033;
+    font: inherit;
+}
+
+.campaign-layout {
+    display: grid;
+    grid-template-columns:minmax(180px, 260px) 1fr;
+    gap: 24px;
+    margin-top: 20px;
+}
+
+.campaign-dates {
+    display: grid;
+    grid-template-columns:1fr 1fr;
+    gap: 12px;
+}
+
+.campaign-dates label {
+    min-width: 0;
+}
+
+.campaign-dates input {
+    min-width: 0;
+    width: 100%;
+}
+
+.inline-check {
+    display: flex !important;
+    align-items: center;
+    gap: 8px !important;
+}
+
+.inline-check input {
+    width: auto !important;
+    min-height: 0 !important;
+}
+
+@media (max-width: 760px) {
+    .campaign-layout {
+        grid-template-columns:1fr
+    }
+
+    .campaign-dates {
+        grid-template-columns:1fr
+    }
+
+    .campaign-toolbar {
+        align-items: flex-start;
+        flex-direction: column
+    }
+}

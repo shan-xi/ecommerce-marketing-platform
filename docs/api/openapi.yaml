@@ -135,6 +135,8 @@ paths:
           content:
             application/json:
               schema: { $ref: '#/components/schemas/CampaignEnvelope' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '404': { $ref: '#/components/responses/NotFound' }
         '409': { $ref: '#/components/responses/Conflict' }
   /admin/campaigns/{campaignId}/publish:
     parameters:
@@ -277,6 +279,9 @@ paths:
             application/json:
               schema: { $ref: '#/components/schemas/AudiencePreviewEnvelope' }
         '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
   /admin/campaigns/{campaignId}/coupons:
     parameters:
       - $ref: '#/components/parameters/CampaignId'
@@ -679,21 +684,55 @@ components:
               discountValue: { maximum: 100 }
     CampaignEnvelope:
       type: object
+      required: [ data ]
       properties:
-        data:
+        data: { $ref: '#/components/schemas/CampaignDetail' }
+    CampaignDetail:
+      type: object
+      required: [ id, name, status, startsAt, endsAt, landingPage, audience, createdAt, updatedAt ]
+      properties:
+        id: { type: string, format: uuid }
+        name: { type: string, maxLength: 160 }
+        description: { type: [ string, 'null' ] }
+        status: { type: string, enum: [ DRAFT, ACTIVE, PAUSED, ENDED ], description: ENDED is derived when publishedAt is set and endsAt has passed, whether persisted state was ACTIVE or PAUSED; it is not persisted. A draft with a past endsAt remains DRAFT. }
+        startsAt: { type: string, format: date-time }
+        endsAt: { type: string, format: date-time }
+        landingPage:
           type: object
+          required: [ headline, body ]
           properties:
-            id: { type: string, format: uuid }
-            name: { type: string }
-            status: { type: string, enum: [ DRAFT, ACTIVE, PAUSED, ENDED ], description: ENDED is derived when publishedAt is set and endsAt has passed, whether persisted state was ACTIVE or PAUSED; it is not persisted. A draft with a past endsAt remains DRAFT. }
-            startsAt: { type: string, format: date-time }
-            endsAt: { type: string, format: date-time }
+            headline: { type: string, maxLength: 200 }
+            body: { type: string, maxLength: 10000 }
+        audience:
+          type: object
+          required: [ segmentId, rules ]
+          properties:
+            segmentId: { type: [ string, 'null' ], format: uuid }
+            rules: { oneOf: [ { $ref: '#/components/schemas/AudienceRules' }, { type: 'null' } ] }
+        publishedAt: { type: [ string, 'null' ], format: date-time }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+    CampaignSummary:
+      type: object
+      required: [ id, name, status, startsAt, endsAt, createdAt, updatedAt ]
+      properties:
+        id: { type: string, format: uuid }
+        name: { type: string, maxLength: 160 }
+        description: { type: [ string, 'null' ] }
+        status: { type: string, enum: [ DRAFT, ACTIVE, PAUSED, ENDED ] }
+        startsAt: { type: string, format: date-time }
+        endsAt: { type: string, format: date-time }
+        publishedAt: { type: [ string, 'null' ], format: date-time }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
     CampaignPageEnvelope:
       type: object
+      required: [ data, page ]
       properties:
-        data: { type: array, items: { type: object } }
+        data: { type: array, items: { $ref: '#/components/schemas/CampaignSummary' } }
         page:
           type: object
+          required: [ number, size, totalElements, totalPages ]
           properties:
             number: { type: integer }
             size: { type: integer }

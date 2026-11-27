@@ -1,8 +1,8 @@
 # Design Decisions and Ready-for-Development Checklist
 
 **Status:** Owner-approved — v1.5.0 Development Baseline approved; Phases 1–4 formally accepted (Phase 4 accepted
-2026-11-27); Phase 5 plan drafted and pending owner review/approval.
-**Scope:** These decisions confirm the
+2026-11-27); Phase 5 plan owner-approved and implementation authorized 2026-11-27; owner acceptance pending. **Scope:**
+These decisions confirm the
 existing MVP direction and do not authorize scope expansion.
 
 ## 1. Confirmed decisions
@@ -90,9 +90,11 @@ under the approved plan, and the owner formally accepted Phase 4 on 2026-11-27.
 - [x] Owner explicitly instructed the assistant to begin Phase 4 implementation (2026-11-27).
 - [x] Owner formally accepted Phase 4 after verification (2026-11-27).
 - [x] Phase 5 Campaign Draft Management plan drafted from the approved baseline.
-- [ ] Owner approves the Phase 5 plan and any listed API-contract clarifications.
-- [ ] Owner explicitly authorizes Phase 5 implementation.
+- [x] Owner approves the Phase 5 plan as written (2026-11-27); bounded list interpretation uses documented
+  pagination/status only, no `q` clarification.
+- [x] Owner explicitly authorizes Phase 5 implementation (2026-11-27).
+- [ ] Owner verifies and formally accepts Phase 5 implementation.
 
-All design approval gates for the v1.5.0 baseline remain complete. Phases 1–4 are formally accepted. The Phase 5 plan
-is drafted for owner review; implementation is not authorized until the owner approves the plan and separately
-instructs development to begin.
+All design approval gates for the v1.5.0 baseline remain complete. Phases 1–4 are formally accepted. The owner approved
+and authorized Phase 5 implementation on 2026-11-27. Phase 5 implementation is delivered for owner verification; Phase 6
+remains gated on formal Phase 5 acceptance.

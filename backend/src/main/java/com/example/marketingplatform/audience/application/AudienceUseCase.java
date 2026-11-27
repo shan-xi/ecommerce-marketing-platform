@@ -11,4 +11,6 @@ public interface AudienceUseCase {
     AudiencePreviewResult preview(JsonNode rules);
 
     AudiencePreviewResult previewComposition(UUID savedSegmentId, JsonNode campaignSpecificRules);
+
+    void validateComposition(UUID savedSegmentId, JsonNode campaignSpecificRules);
 }

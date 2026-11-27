@@ -112,3 +112,15 @@ create/list/get/update,
 audience preview response shape, and rejection of unsupported rule fields/operators. See `audience/README.md` for exact
 coverage and the note that each successful run leaves one uniquely named verification Segment (the current API has no
 delete/archive endpoint).
+
+## Phase 5 Campaign API suite
+
+Run the campaign draft and persisted audience-preview verification:
+
+```zsh
+zsh scripts/api-tests/suites/phase5-campaign-verification.zsh
+```
+
+The suite checks anonymous/MEMBER authorization, CSRF, ADMIN draft create/list/detail/update, persisted campaign
+audience preview, and invalid campaign time-window rejection. It creates uniquely named verification Segment and
+Campaign records because no delete endpoint exists in this phase.

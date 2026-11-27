@@ -1,8 +1,9 @@
 # E-commerce Campaign & Coupon Engagement Platform
 
 **Project baseline:** v1.5.0 (owner-approved)  
-**Implementation status:** Phases 0–4 complete and formally owner-accepted. Phase 5 Campaign Draft Management is planned
-and awaiting owner approval; implementation has not started.
+**Implementation status:** Phases 0–4 complete and formally owner-accepted. Phase 5 Campaign Draft Management plan was
+approved and implementation authorized on 2026-11-27; implementation is delivered for owner verification and acceptance
+is pending.
 
 This repository implements the approved MVP described in [`docs/PRD.md`](docs/PRD.md). The project is a modular monolith
 with one Spring Boot backend, one React + TypeScript SPA, and PostgreSQL as the source of truth.
@@ -27,7 +28,8 @@ tests passed owner verification. See [
 **Phase 4 — Member and Audience: COMPLETE and owner-accepted (2026-11-27).** Implements authenticated member
 profile lookup, the canonical audience rule validator/evaluator, reusable segment create/list/detail/update APIs,
 reusable-segment preview, AND composition support, and the Admin audience UI. Owner-run backend, frontend, runtime, and
-27-assertion API verification passed. Campaign-scoped audience preview remains a Phase 5 integration. See
+27-assertion API verification passed. Phase 5 now integrates the campaign-scoped audience preview using the saved
+campaign configuration. See
 [`docs/development/PHASE_4_PLAN.md`](docs/development/PHASE_4_PLAN.md) and
 [`docs/development/PHASE_4_IMPLEMENTATION_REPORT.md`](docs/development/PHASE_4_IMPLEMENTATION_REPORT.md).
 
@@ -88,7 +90,7 @@ The Maven bootstrap script downloads a pinned Maven distribution and verifies it
    ```
 
 6. Open <http://localhost:5173>. The login screen appears after the backend health check. After signing in as ADMIN, the
-   Audience Segments workspace is available; member profile access is provided by the authenticated
+   Audience Segments and Campaigns workspaces are available; member profile access is provided by the authenticated
    `GET /api/v1/member/profile` API; Phase 4 does not add a Member Portal screen.
 
 The backend connects to PostgreSQL and applies Flyway migrations on startup. Use the `.env.example` values for local
@@ -109,8 +111,9 @@ npm run typecheck
 npm run build
 cd ..
 
-# Phase 4 HTTP/API verification (backend must be running)
+# Phase 4 and Phase 5 HTTP/API verification (backend must be running)
 zsh scripts/api-tests/suites/phase4-audience-verification.zsh
+zsh scripts/api-tests/suites/phase5-campaign-verification.zsh
 
 # PostgreSQL service configuration and health
 docker compose config
@@ -128,13 +131,15 @@ docker compose ps
 - Database design: [`docs/database/DATABASE_DESIGN.md`](docs/database/DATABASE_DESIGN.md) and [
   `docs/database/ERD.md`](docs/database/ERD.md)
 - Phase plan: [`docs/development/IMPLEMENTATION_PLAN.md`](docs/development/IMPLEMENTATION_PLAN.md)
+- Phase 5 implementation report: [
+  `docs/development/PHASE_5_IMPLEMENTATION_REPORT.md`](docs/development/PHASE_5_IMPLEMENTATION_REPORT.md)
 - Phase 4 implementation report: [
   `docs/development/PHASE_4_IMPLEMENTATION_REPORT.md`](docs/development/PHASE_4_IMPLEMENTATION_REPORT.md)
 - Phase 3 implementation report: [
   `docs/development/PHASE_3_IMPLEMENTATION_REPORT.md`](docs/development/PHASE_3_IMPLEMENTATION_REPORT.md)
 - Phase 4 plan (owner-approved and implementation authorized): [
   `docs/development/PHASE_4_PLAN.md`](docs/development/PHASE_4_PLAN.md)
-- Phase 5 plan (draft for owner review; implementation not authorized): [
+- Phase 5 plan (owner-approved; implementation report and acceptance pending): [
   `docs/development/PHASE_5_PLAN.md`](docs/development/PHASE_5_PLAN.md)
 - Phase 3 plan and implementation report: [`docs/development/PHASE_3_PLAN.md`](docs/development/PHASE_3_PLAN.md)
 - AI development protocol: [
@@ -151,3 +156,20 @@ docker compose ps
 - A plan or review document does not authorize implementation.
 - Do not introduce Redis, Kafka, microservices, external providers, or other unapproved infrastructure.
 - Local Compose credentials are for development only; never reuse them in shared or production environments.
+
+## Phase 5 — Campaign Draft Management
+
+The Admin Campaign workspace is available at `/admin/campaigns` after signing in as an ADMIN. It supports draft
+create/list/detail/update and preview of the campaign's persisted audience. The existing Audience Segments workspace
+remains at `/admin`. Publish/Pause and coupon/message/delivery workflows are intentionally not included in Phase 5.
+
+Run the Phase 5 local API verification from the repository root (requires the backend, PostgreSQL, local demo seed,
+and the same password configured for the demo accounts):
+
+```zsh
+zsh scripts/api-tests/suites/phase5-campaign-verification.zsh
+```
+
+The suite creates a uniquely named audience segment and campaign verification draft because this phase has no delete
+endpoint. API response files are stored with restrictive permissions under `/tmp/marketing-platform-api-test/`.
+See `docs/development/PHASE_5_IMPLEMENTATION_REPORT.md` for implementation scope and owner verification checklist.
