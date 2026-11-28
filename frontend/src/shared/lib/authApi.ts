@@ -23,6 +23,8 @@ function readCookie(name: string): string | null {
 }
 
 async function ensureCsrf(): Promise<string> {
+    const existing = readCookie('XSRF-TOKEN');
+    if (existing) return existing;
     const response = await fetch(`${API_BASE}/api/v1/auth/csrf`, {credentials: 'include'});
     if (!response.ok) throw new AuthApiError('Unable to initialize CSRF protection', response.status);
     const payload = (await response.json()) as { data?: { csrfToken?: string } };

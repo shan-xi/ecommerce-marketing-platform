@@ -1,6 +1,7 @@
 # Design Decisions and Ready-for-Development Checklist
 
-**Status:** Owner-approved v1.5.0 Development Baseline; Phases 1–7 formally accepted; Phase 8 plan prepared and awaiting owner approval and explicit implementation authorization. **Scope:**
+**Status:** Owner-approved v1.5.0 Development Baseline; Phases 1–7 formally accepted; Phase 8 implementation delivered
+and awaiting verification/owner acceptance. **Scope:**
 These decisions confirm the existing MVP direction and do not authorize scope expansion.
 
 ## 1. Confirmed decisions
@@ -60,7 +61,8 @@ and Phase 2 — Database Foundation were formally accepted on 2026-11-26. Phases
 2026-11-27 after owner verification. The owner formally accepted Phase 5 on 2026-11-27 after reporting successful
 backend, frontend, API (29 PASS, 0 FAIL), Campaign Audience composition, Campaign UI, and boundary verification.
 The owner formally accepted Phase 6 on 2026-11-27 after reporting successful verification. The owner explicitly
-authorized Phase 7 implementation on 2026-11-27 and formally accepted it on 2026-11-27 after reporting successful verification; see the Phase 7 implementation report.
+authorized Phase 7 implementation on 2026-11-27 and formally accepted it on 2026-11-27 after reporting successful
+verification; see the Phase 7 implementation report.
 
 ### Ready-for-development checklist
 
@@ -101,9 +103,11 @@ authorized Phase 7 implementation on 2026-11-27 and formally accepted it on 2026
 - [x] Phase 7 Message, Publication Orchestration, and Delivery plan drafted from the approved PRD/API/database baseline.
 - [x] Owner explicitly authorized Phase 7 implementation on 2026-11-27.
 - [x] Bounded Admin message/publish/pause/delivery UI clarification in `PHASE_7_PLAN.md` Section 3.3 implemented.
-- [x] Owner reported Phase 7 Spring Boot startup, Maven clean verify, `npm run dev`, script automation tests, and API suite 23/23 PASS; Phase 7 formally accepted on 2026-11-27.
-- [x] Phase 8 plan prepared from the approved baseline; implementation remains gated on owner approval and explicit authorization.
+- [x] Owner reported Phase 7 Spring Boot startup, Maven clean verify, `npm run dev`, script automation tests, and API
+  suite 23/23 PASS; Phase 7 formally accepted on 2026-11-27.
+- [x] Phase 8 implementation explicitly authorized by the owner on 2026-11-27 and delivered; verification and formal
+  owner acceptance remain pending.
 
-All design approval gates for the v1.5.0 baseline remain complete. Phases 1–6 are formally accepted. A dedicated
+All design approval gates for the v1.5.0 baseline remain complete. Phases 1–7 are formally accepted. A dedicated
 high-contention Coupon inventory race test is not included in the accepted Phase 6 package and is tracked for Phase 10
-hardening. Phase 7 is formally accepted. Phase 8 is planned but not yet authorized for implementation.
+hardening. Phase 8 implementation is delivered and awaits owner verification/acceptance before Phase 9.

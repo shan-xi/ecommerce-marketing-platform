@@ -4,6 +4,7 @@ import com.example.marketingplatform.audience.application.AudienceSegmentService
 import com.example.marketingplatform.audience.domain.InvalidAudienceRuleException;
 import com.example.marketingplatform.campaign.application.CampaignService;
 import com.example.marketingplatform.coupon.application.CouponService;
+import com.example.marketingplatform.engagement.application.CampaignExperienceService;
 import com.example.marketingplatform.identity.application.AuthenticationException;
 import com.example.marketingplatform.identity.application.RefreshRejectedException;
 import com.example.marketingplatform.member.application.MemberProfileService;
@@ -40,7 +41,8 @@ public class ApiExceptionHandler {
         return problem(HttpStatus.BAD_REQUEST, "Invalid audience rule", "INVALID_AUDIENCE_RULE", ex.getMessage());
     }
 
-    @ExceptionHandler({AudienceSegmentService.AudienceResourceNotFoundException.class, MemberProfileService.MemberProfileNotFoundException.class, CampaignService.CampaignNotFoundException.class, CouponService.NotFound.class})
+    @ExceptionHandler({AudienceSegmentService.AudienceResourceNotFoundException.class, MemberProfileService.MemberProfileNotFoundException.class,
+            CampaignService.CampaignNotFoundException.class, CouponService.NotFound.class, CampaignExperienceService.ResourceNotFound.class})
     public ProblemDetail resourceNotFound(RuntimeException ex) {
         return problem(HttpStatus.NOT_FOUND, "Resource not found", "RESOURCE_NOT_FOUND", "The requested resource does not exist or is not visible.");
     }

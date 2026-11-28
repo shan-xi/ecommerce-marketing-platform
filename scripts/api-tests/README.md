@@ -171,3 +171,11 @@ delivery to complete, and pauses the campaign. It cannot be rerun against the sa
 not reversible. Use a fresh disposable DRAFT campaign for each run. It checks message validation and Admin role
 boundaries, publication, asynchronous delivery completion, Member inbox authorization, Pause, and rejection of retry
 for a non-FAILED job. It does not inject delivery failures or replace PostgreSQL worker-recovery/concurrency tests.
+
+### Phase 8 member experience
+
+Run `suites/phase8-member-experience-verification.zsh` against a local published campaign with completed delivery to the
+configured demo member. Set `PHASE8_PUBLISHED_CAMPAIGN_ID` to that campaign UUID. The suite is non-destructive and
+checks anonymous/member reads, response privacy, role/CSRF boundaries, authenticated page-view events, inbox
+impression/click events, message ownership validation, and event idempotency. It does not claim coupons or change
+campaign lifecycle state.

@@ -50,15 +50,18 @@ test('failed logout is surfaced without claiming local logout succeeded', () => 
 test('auth provider exposes loading, authenticated, and anonymous states', () => {
     assert.match(authProvider, /'loading' \| 'authenticated' \| 'anonymous' \| 'error'/);
 });
-test('Phase 7 app exposes Admin Audience and Campaign routes with message lifecycle workspace', () => {
-    assert.match(appTs, /PHASE 7/);
+test('Phase 7 Admin workspace remains available alongside Phase 8 public and Member routes', () => {
+    assert.match(appTs, /PHASE 7 \+ PHASE 8/);
     assert.match(appTs, /LoginForm/);
     assert.match(appTs, /user\?\.role === 'ADMIN'/);
-    assert.match(appTs, /destination = '\/admin'/);
+    assert.match(appTs, /user\.role === 'ADMIN' \? '\/admin'/);
     assert.match(appTs, /route === '\/admin'/);
     assert.match(appTs, /route === '\/admin\/campaigns'/);
     assert.match(appTs, /CampaignAdmin/);
-    assert.doesNotMatch(appTs, /MemberProfile|\/member/);
+    assert.match(appTs, /CampaignLandingPage/);
+    assert.match(appTs, /MemberInbox/);
+    assert.match(appTs, /\/member\/messages/);
+    assert.match(appTs, /safeCampaignReturn/);
     assert.match(appTs, /Publish/);
     assert.match(appTs, /Delivery Status/);
 });
@@ -94,7 +97,7 @@ test('campaign Admin supports draft editing, coupon configuration, and Phase 7 l
 
 const campaignLifecycle = await readFile(new URL('../src/features/campaign/CampaignLifecycle.tsx', import.meta.url), 'utf8');
 test('Phase 7 UI exposes message configuration, publish/pause, delivery status, and failed-only retry', () => {
-    for (const text of ['儲存 Message', 'Publish Campaign', 'Pause Campaign', 'Message Delivery', 'Retry Failed Delivery']) assert.ok(campaignLifecycle.includes(text));
+    for (const text of [/儲存\s+Message/, /Publish Campaign/, /Pause Campaign/, /Message Delivery/, /Retry Failed\s+Delivery/]) assert.match(campaignLifecycle, text);
     assert.match(campaignLifecycle, /delivery\.retryable/);
     assert.match(campaignLifecycle, /campaignStatus === 'DRAFT'/);
 });
@@ -102,4 +105,23 @@ test('Phase 7 API client uses only documented lifecycle endpoints', () => {
     for (const path of ['/message', '/publish', '/pause', '/delivery-status', '/delivery/retry']) assert.ok(campaignApi.includes(path));
     assert.match(campaignApi, /getDeliveryStatus/);
     assert.match(campaignApi, /retryDelivery/);
+});
+
+const landingPage = await readFile(new URL('../src/features/engagement/CampaignLandingPage.tsx', import.meta.url), 'utf8');
+const memberInbox = await readFile(new URL('../src/features/engagement/MemberInbox.tsx', import.meta.url), 'utf8');
+const engagementApi = await readFile(new URL('../src/shared/lib/engagementApi.ts', import.meta.url), 'utf8');
+test('Phase 8 public landing page uses server claim state and the existing idempotent claim API', () => {
+    assert.match(landingPage, /getPublicCampaign/);
+    assert.match(landingPage, /getPublicCoupons/);
+    assert.match(landingPage, /claimKeys/);
+    assert.match(landingPage, /sessionStorage/);
+    assert.match(landingPage, /claimCampaignCoupon/);
+    assert.match(landingPage, /returnTo/);
+    assert.match(engagementApi, /\/api\/v1\/campaigns\/\$\{campaignId\}\/coupons\/\$\{couponId\}\/claims/);
+});
+test('Phase 8 Member inbox records visible impressions and deliberate clicks', () => {
+    assert.match(memberInbox, /IntersectionObserver/);
+    assert.match(memberInbox, /intersectionRatio >= 0\.5/);
+    assert.match(memberInbox, /'IMPRESSION'/);
+    assert.match(memberInbox, /'CLICK'/);
 });

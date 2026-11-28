@@ -1,7 +1,7 @@
 # Testing Strategy
 
-**Status:** Approved — part of the owner-approved v1.5.0 Development Baseline. Phases 1–4 verification results are
-recorded in their implementation reports; this strategy remains the governing test policy for later phases.
+**Status:** Approved — part of the owner-approved v1.5.0 Development Baseline. Phases 1–7 verification results are
+recorded in their implementation reports; Phase 8 test coverage is defined below and awaits owner verification.
 
 ## 1. Test pyramid
 
@@ -161,15 +161,41 @@ campaign creation/publication, member delivery, coupon claim, duplicate claim, c
 - API/DB/documentation changes are synchronized.
 - Build and test commands are documented and reproducible.
 
-
 ### Phase 8 landing page and engagement coverage (planned)
 
 - Anonymous reads can access published campaign/coupon content only; DRAFT campaigns are not public.
 - PAUSED/ENDED published pages remain readable while new claims are unavailable.
-- Authenticated member state is principal-scoped; audience-snapshot ineligibility is explicit and cannot be inferred from stock.
-- Claim UI reuses Phase 6 claim/idempotency semantics; duplicate submission and network retry do not consume inventory twice.
-- Anonymous claim redirects through login and returns only to a validated same-origin campaign route; no automatic claim after login.
-- Impression/click requires a matching delivered `member_messages` row; landing-page view requires MEMBER authentication; anonymous page views are not attributed.
-- Duplicate `eventId` does not inflate event counts; unsupported event types and client-submitted claim/delivery events are rejected.
+- Authenticated member state is principal-scoped; audience-snapshot ineligibility is explicit and cannot be inferred
+  from stock.
+- Claim UI reuses Phase 6 claim/idempotency semantics; duplicate submission and network retry do not consume inventory
+  twice.
+- Anonymous claim redirects through login and returns only to a validated same-origin campaign route; no automatic claim
+  after login.
+- Impression/click requires a matching delivered `member_messages` row; landing-page view requires MEMBER
+  authentication; anonymous page views are not attributed.
+- Duplicate `eventId` does not inflate event counts; unsupported event types and client-submitted claim/delivery events
+  are rejected.
 - Event ingestion failure does not block public page rendering or claim interaction.
-- Phase 8 automated coverage must include API authorization/CSRF, PostgreSQL event deduplication/context constraints, frontend route/state tests, and browser-level login-return/claim scenarios.
+- Phase 8 automated coverage must include API authorization/CSRF, PostgreSQL event deduplication/context constraints,
+  frontend route/state tests, and browser-level login-return/claim scenarios.
+
+### Phase 8 landing page, coupon claim, and engagement coverage
+
+- Anonymous public reads return only published campaigns and public coupon fields; anonymous and ADMIN payloads omit
+  `memberState` and never expose member IDs, audience rows, claim records, or delivery internals.
+- Published PAUSED and effectively ENDED campaigns remain readable; new coupon claims are unavailable. DRAFT/unpublished
+  campaigns return the documented not-found response.
+- MEMBER eligibility is derived only from `campaign_audience_members`; a non-target member sees `NOT_ELIGIBLE` even when
+  coupon inventory remains.
+- Coupon status covers `AVAILABLE`, `UNAVAILABLE`, `ALREADY_CLAIMED`, and `NOT_ELIGIBLE`; inventory is never reserved by
+  a read.
+- Claim UI reuses the Phase 6 claim endpoint and keeps the same idempotency key for a logical command retry; login
+  return accepts only a validated internal `/campaigns/{uuid}` route and never auto-claims.
+- Authenticated landing-page views are recorded; anonymous views are not. Message impressions fire only after at least
+  50% visibility in the member inbox; clicks are deliberate navigation actions.
+- Event writes derive member identity from the principal, require MEMBER + CSRF, validate event type/context and
+  delivered inbox-row ownership, and rely on `(member_id,event_id)` database uniqueness. Duplicate IDs do not add rows.
+- Client `CLAIM_ATTEMPT`/`DELIVERED`, wrong-member/wrong-campaign message IDs, unsupported event types, and message IDs
+  on `LANDING_PAGE_VIEW` are rejected.
+- Phase 8 PostgreSQL integration coverage is in `CampaignExperienceIntegrationTest`; the repeatable API verification is
+  `scripts/api-tests/suites/phase8-member-experience-verification.zsh`.

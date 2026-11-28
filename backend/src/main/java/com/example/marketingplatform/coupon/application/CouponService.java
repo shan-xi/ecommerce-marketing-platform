@@ -120,7 +120,7 @@ public class CouponService {
         int reserved = jdbc.update("UPDATE campaign_coupons SET claimed_quantity=claimed_quantity+1,updated_at=:now WHERE id=:coupon AND campaign_id=:campaign AND claimed_quantity<total_quantity AND starts_at<=:now AND ends_at>:now", Map.of("now", Timestamp.from(now), "coupon", couponId, "campaign", campaignId));
         if (reserved != 1) throw new ClaimFailure("COUPON_SOLD_OUT", "No claimable inventory remains.");
         UUID claimId = UUID.randomUUID();
-        jdbc.update("INSERT INTO coupon_claims(id,campaign_id,campaign_coupon_id,member_id,idempotency_key,claimed_at) VALUES(:id,:campaign,:coupon,:member,:key,:now)", Map.of("id", claimId, "campaign", campaignId, "coupon", couponId, "member", memberId, "key", key, "now", now));
+        jdbc.update("INSERT INTO coupon_claims(id,campaign_id,campaign_coupon_id,member_id,idempotency_key,claimed_at) VALUES(:id,:campaign,:coupon,:member,:key,:now)", Map.of("id", claimId, "campaign", campaignId, "coupon", couponId, "member", memberId, "key", key, "now", Timestamp.from(now)));
         writeAuditInTx(campaignId, couponId, memberId, "SUCCEEDED", null);
         return new Claim(claimId, campaignId, couponId, "CLAIMED", now);
     }

@@ -296,6 +296,13 @@ is returned.
 | GET    | `/campaigns/{campaignId}/coupons`                   | Optional | Public coupon summary and authenticated member claim/eligibility state; paused/ended coupons are unavailable for new claims           |
 | POST   | `/campaigns/{campaignId}/coupons/{couponId}/claims` | MEMBER   | Claim a coupon; unauthenticated visitors must sign in and return to the campaign page                                                 |
 
+Public campaign response returns only `id`, `name`, `description`, derived publication `status`, `startsAt`, `endsAt`,
+`landingPage.headline`, `landingPage.body`, and `claimable`. An authenticated MEMBER additionally receives
+`memberState.eligible`; anonymous and ADMIN responses omit `memberState`. Coupon reads return public coupon fields,
+remaining inventory, a per-coupon `memberStatus` (`AVAILABLE`, `UNAVAILABLE`, `ALREADY_CLAIMED`, or `NOT_ELIGIBLE`), an
+optional safe `unavailableReason`, and page metadata. Anonymous and ADMIN responses omit the top-level `memberState`.
+Public reads never expose member IDs, audience snapshot rows, claim records, or delivery internals.
+
 Claim request:
 
 ```json
@@ -322,10 +329,14 @@ Request example:
 {
   "eventId": "4a27a4d9-7a4d-40d9-a9b0-50f9c9a5a3d1",
   "eventType": "IMPRESSION",
-  "messageId": "optional-uuid",
+  "messageId": "5a1b2c3d-4e5f-4678-9012-abcdef123456",
   "occurredAt": "2026-11-25T10:30:00Z"
 }
 ```
+
+For `IMPRESSION` and `CLICK`, `messageId` is the member inbox row ID returned by `GET /member/messages` (not the
+campaign-wide message ID). The server verifies ownership and maps it to the persisted campaign message ID before
+inserting the event. `LANDING_PAGE_VIEW` must omit `messageId`.
 
 The backend derives `memberId` from authentication. This endpoint requires an authenticated `MEMBER`; allowed client
 event types are `IMPRESSION`, `CLICK`, and `LANDING_PAGE_VIEW`. `IMPRESSION` and `CLICK` require `messageId` and are

@@ -437,7 +437,11 @@ paths:
         - accessCookie: [ ]
         - { }
       responses:
-        '200': { description: Campaign landing-page data. }
+        '200':
+          description: Public fixed-template campaign content. The memberState property is omitted for anonymous and ADMIN callers.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CampaignLandingEnvelope' }
         '404': { $ref: '#/components/responses/NotFound' }
   /campaigns/{campaignId}/coupons:
     parameters:
@@ -452,7 +456,11 @@ paths:
         - $ref: '#/components/parameters/Page'
         - $ref: '#/components/parameters/Size'
       responses:
-        '200': { description: Coupon list; member-specific state is omitted for anonymous callers. }
+        '200':
+          description: Coupon list and page metadata; memberState is omitted for anonymous and ADMIN callers.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PublicCouponPageEnvelope' }
         '404': { $ref: '#/components/responses/NotFound' }
   /campaigns/{campaignId}/coupons/{couponId}/claims:
     parameters:
@@ -498,7 +506,19 @@ paths:
           application/json:
             schema: { $ref: '#/components/schemas/EngagementEventWrite' }
       responses:
-        '202': { description: Event accepted; duplicate event IDs are idempotent. }
+        '202':
+          description: Event accepted; duplicate event IDs are idempotent.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [ data ]
+                properties:
+                  data:
+                    type: object
+                    required: [ accepted ]
+                    properties:
+                      accepted: { type: boolean, const: true }
         '400': { $ref: '#/components/responses/BadRequest' }
   /admin/campaigns/{campaignId}/analytics:
     parameters:
@@ -840,13 +860,77 @@ components:
             couponId: { type: string, format: uuid }
             status: { type: string, const: CLAIMED }
             claimedAt: { type: string, format: date-time }
+    CampaignLandingEnvelope:
+      type: object
+      required: [ data ]
+      properties:
+        data:
+          type: object
+          required: [ id, name, status, startsAt, endsAt, landingPage, claimable ]
+          properties:
+            id: { type: string, format: uuid }
+            name: { type: string }
+            description: { type: [ string, 'null' ] }
+            status: { type: string, enum: [ ACTIVE, PAUSED, ENDED ] }
+            startsAt: { type: string, format: date-time }
+            endsAt: { type: string, format: date-time }
+            landingPage:
+              type: object
+              required: [ headline, body ]
+              properties:
+                headline: { type: string }
+                body: { type: string }
+            claimable: { type: boolean }
+            memberState:
+              type: object
+              description: Present only for an authenticated MEMBER; omitted for anonymous and ADMIN callers.
+              required: [ eligible ]
+              properties:
+                eligible: { type: boolean }
+    PublicCouponPageEnvelope:
+      type: object
+      required: [ data, page ]
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+            required: [ id, name, discountType, discountValue, totalQuantity, claimedQuantity, remainingQuantity, startsAt, endsAt, memberStatus ]
+            properties:
+              id: { type: string, format: uuid }
+              name: { type: string }
+              description: { type: [ string, 'null' ] }
+              discountType: { type: string, enum: [ FIXED_AMOUNT, PERCENTAGE ] }
+              discountValue: { type: number }
+              minimumOrderAmount: { type: [ number, 'null' ] }
+              totalQuantity: { type: integer }
+              claimedQuantity: { type: integer }
+              remainingQuantity: { type: integer }
+              startsAt: { type: string, format: date-time }
+              endsAt: { type: string, format: date-time }
+              memberStatus: { type: string, enum: [ AVAILABLE, UNAVAILABLE, ALREADY_CLAIMED, NOT_ELIGIBLE ] }
+              unavailableReason: { type: [ string, 'null' ], enum: [ CAMPAIGN_INACTIVE, COUPON_NOT_STARTED, COUPON_EXPIRED, COUPON_SOLD_OUT, MEMBER_NOT_ELIGIBLE, null ] }
+        memberState:
+          type: object
+          description: Present only for an authenticated MEMBER; omitted for anonymous and ADMIN callers.
+          required: [ eligible ]
+          properties:
+            eligible: { type: boolean }
+        page:
+          type: object
+          required: [ number, size, totalElements, totalPages ]
+          properties:
+            number: { type: integer, minimum: 0 }
+            size: { type: integer, minimum: 1, maximum: 100 }
+            totalElements: { type: integer, minimum: 0 }
+            totalPages: { type: integer, minimum: 0 }
     EngagementEventWrite:
       type: object
       required: [ eventId, eventType, occurredAt ]
       properties:
         eventId: { type: string, format: uuid }
         eventType: { type: string, enum: [ IMPRESSION, CLICK, LANDING_PAGE_VIEW ] }
-        messageId: { type: [ string, 'null' ], format: uuid }
+        messageId: { type: [ string, 'null' ], format: uuid, description: Member inbox row ID from GET /member/messages, not the campaign-wide message ID. }
         occurredAt: { type: string, format: date-time }
       allOf:
         - if:

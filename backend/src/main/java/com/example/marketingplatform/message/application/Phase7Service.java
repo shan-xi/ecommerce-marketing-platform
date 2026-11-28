@@ -142,6 +142,15 @@ public class Phase7Service {
     }
 
     @Transactional(readOnly = true)
+    public Optional<UUID> findCampaignMessageIdForMemberInboxRow(UUID campaignId, UUID inboxMessageId, UUID memberId) {
+        return jdbc.query("""
+                        SELECT campaign_message_id FROM member_messages
+                        WHERE id=:inboxMessage AND campaign_id=:campaign AND member_id=:member
+                        """, Map.of("inboxMessage", inboxMessageId, "campaign", campaignId, "member", memberId),
+                (r, n) -> r.getObject(1, UUID.class)).stream().findFirst();
+    }
+
+    @Transactional(readOnly = true)
     public InboxMessage memberMessage(UUID userId, UUID messageId) {
         UUID memberId = memberId(userId);
         return jdbc.query("""

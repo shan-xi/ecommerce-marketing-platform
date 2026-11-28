@@ -137,21 +137,27 @@
 
 The owner reported the following successful checks against the final Phase 7 approved package on 2026-11-27:
 
-| Verification | Result |
-|---|---|
-| Spring Boot startup | PASS |
-| `./mvnw -f backend/pom.xml clean verify` | PASS |
-| `npm run dev` | PASS |
-| Script automation test | PASS |
+| Verification                                                                    | Result                 |
+|---------------------------------------------------------------------------------|------------------------|
+| Spring Boot startup                                                             | PASS                   |
+| `./mvnw -f backend/pom.xml clean verify`                                        | PASS                   |
+| `npm run dev`                                                                   | PASS                   |
+| Script automation test                                                          | PASS                   |
 | `scripts/api-tests/suites/phase7-message-publication-delivery-verification.zsh` | PASS — 23 PASS, 0 FAIL |
 
-The owner explicitly stated Phase 7 testing was complete and approved the Phase 7 changes. Phase 7 is formally owner-accepted. These are owner-reported results; they are not represented as independently rerun in the documentation packaging environment.
+The owner explicitly stated Phase 7 testing was complete and approved the Phase 7 changes. Phase 7 is formally
+owner-accepted. These are owner-reported results; they are not represented as independently rerun in the documentation
+packaging environment.
 
 ## 5. Operational acceptance constraints
 
 - Exactly one backend application instance/replica may run with the in-process delivery worker.
-- Startup recovery is fail-fast. If recovery fails, resolve PostgreSQL connectivity/permission issues and restart the single instance using `PHASE_7_OPERATIONS.md`.
-- Multi-instance worker ownership, leases, `SKIP LOCKED`, and external queue infrastructure remain outside the accepted Phase 7 scope.
-- The accepted package includes the final code-review corrections: `SKIP LOCKED` removal, single-instance deployment documentation, and recovery failure handling/runbook.
+- Startup recovery is fail-fast. If recovery fails, resolve PostgreSQL connectivity/permission issues and restart the
+  single instance using `PHASE_7_OPERATIONS.md`.
+- Multi-instance worker ownership, leases, `SKIP LOCKED`, and external queue infrastructure remain outside the accepted
+  Phase 7 scope.
+- The accepted package includes the final code-review corrections: `SKIP LOCKED` removal, single-instance deployment
+  documentation, and recovery failure handling/runbook.
 
-Phase 7 is complete. Phase 8 planning is recorded in `PHASE_8_PLAN.md`; Phase 8 implementation remains gated on owner approval and explicit authorization.
+Phase 7 is complete. Phase 8 planning is recorded in `PHASE_8_PLAN.md`; Phase 8 implementation remains gated on owner
+approval and explicit authorization.

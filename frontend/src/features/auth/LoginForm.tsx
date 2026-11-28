@@ -3,7 +3,7 @@ import {useAuth} from './AuthProvider';
 
 export function LoginForm() {
     const {state, user, error, signIn, signOut} = useAuth();
-    const [email, setEmail] = useState('admin@example.test');
+    const [email, setEmail] = useState(window.location.pathname === '/login' ? '' : 'admin@example.test');
     const [password, setPassword] = useState('');
     const [submitting, setSubmitting] = useState(false);
     const [formError, setFormError] = useState<string | null>(null);
