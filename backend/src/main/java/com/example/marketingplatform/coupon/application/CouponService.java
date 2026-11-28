@@ -183,7 +183,7 @@ public class CouponService {
     private void validate(CouponWrite i) {
         if (i == null || i.name() == null || i.name().isBlank() || i.name().length() > 160)
             throw new IllegalArgumentException("name is required and must be at most 160 characters.");
-        if (!List.of("FIXED_AMOUNT", "PERCENTAGE").contains(i.discountType()))
+        if (i.discountType() == null || !List.of("FIXED_AMOUNT", "PERCENTAGE").contains(i.discountType()))
             throw new IllegalArgumentException("discountType must be FIXED_AMOUNT or PERCENTAGE.");
         if (i.discountValue() == null || i.discountValue().compareTo(BigDecimal.ZERO) <= 0 || ("PERCENTAGE".equals(i.discountType()) && i.discountValue().compareTo(new BigDecimal("100")) > 0))
             throw new IllegalArgumentException("discountValue is invalid for the selected discountType.");

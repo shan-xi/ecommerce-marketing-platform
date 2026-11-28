@@ -35,6 +35,17 @@ class CouponServiceValidationTest {
     }
 
     @Test
+    void rejectsNullDiscountTypeAsValidationError() {
+        var input = new CouponService.CouponWrite("Coupon", null, null, BigDecimal.TEN,
+                null, 1, "2026-12-01T00:00:00Z", "2026-12-02T00:00:00Z");
+        var exception = assertThrows(IllegalArgumentException.class,
+                () -> service.create(UUID.randomUUID(), input));
+        org.junit.jupiter.api.Assertions.assertEquals(
+                "discountType must be FIXED_AMOUNT or PERCENTAGE.", exception.getMessage());
+        verifyNoInteractions(jdbc, tx);
+    }
+
+    @Test
     void rejectsNonPositiveDiscountValue() {
         var input = input("FIXED_AMOUNT", "0", 1, "2026-12-01T00:00:00Z", "2026-12-02T00:00:00Z");
         assertThrows(IllegalArgumentException.class, () -> service.create(UUID.randomUUID(), input));
