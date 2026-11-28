@@ -1,8 +1,8 @@
 # E-commerce Campaign & Coupon Engagement Platform
 
 **Project baseline:** v1.5.0 (owner-approved)  
-**Implementation status:** Phases 0–9 are complete and owner-accepted. Phase 10 implementation artifacts are delivered;
-owner-run verification and formal acceptance are pending.
+**Implementation status:** Phases 0–10 are complete and owner-accepted. Phase 10 environment-dependent verification
+follow-ups remain explicitly open; unrun checks are not represented as passed.
 
 This repository implements the approved MVP described in [`docs/PRD.md`](docs/PRD.md). The project is a modular monolith
 with one Spring Boot backend, one React + TypeScript SPA, and PostgreSQL as the source of truth.
@@ -106,7 +106,7 @@ export PHASE9_CAMPAIGN_ID="<campaign-uuid>"
 zsh scripts/api-tests/suites/phase9-analytics-verification.zsh
 ```
 
-## Phase 10 — Hardening and Delivery Readiness (Implementation Delivered)
+## Phase 10 — Hardening and Delivery Readiness (Owner-Accepted)
 
 Phase 10 was authorized by the owner on 2026-11-28. The implementation adds repeated PostgreSQL concurrency coverage
 for limited coupon inventory, same-key idempotent replay, and same-member uniqueness. It also adds a repeatable
@@ -116,9 +116,11 @@ The implementation preserves the approved modular-monolith architecture, Postgre
 single-backend-instance deployment constraint. No Redis, Kafka, microservices, schema migration, API contract change,
 or new product feature was introduced.
 
-Owner verification and formal acceptance remain pending because the implementation environment did not provide Docker
-or outbound dependency downloads. Run the commands in
-[`docs/development/PHASE_10_ACCEPTANCE.md`](docs/development/PHASE_10_ACCEPTANCE.md) and review
+The owner formally accepted the delivered Phase 10 modifications on 2026-11-28 after final Code Review. This
+acceptance retains explicit verification follow-ups: Docker/Maven/Testcontainers and frontend dependency-based checks
+could not all be executed in the implementation environment, and API regression, browser E2E, and clean-environment
+operational checks remain unverified. Acceptance does not represent those checks as passed. Run the commands in
+[`docs/development/PHASE_10_ACCEPTANCE.md`](docs/development/PHASE_10_ACCEPTANCE.md) and record actual results; see
 [`docs/development/PHASE_10_IMPLEMENTATION_REPORT.md`](docs/development/PHASE_10_IMPLEMENTATION_REPORT.md).
 
 ## Technology versions

@@ -1,7 +1,7 @@
 # Implementation Plan
 
-**Status:** Approved — v1.5.0 baseline accepted; Phases 0–9 complete and formally owner-accepted; Phase 10
-implementation delivered and awaiting owner verification/acceptance. **Scope:**
+**Status:** Approved — v1.5.0 baseline accepted; Phases 0–10 complete and formally owner-accepted. Phase 10 retains
+explicit environment-dependent verification follow-ups; see its implementation report and acceptance guide. **Scope:**
 Deliver the
 approved MVP in incremental, verifiable phases.
 
@@ -42,9 +42,10 @@ approved MVP in incremental, verifiable phases.
   coupon claim. See `PHASE_8_IMPLEMENTATION_REPORT.md` and `PHASE_8_ACCEPTANCE.md`.
 - **Phase 9 — Analytics:** COMPLETE — formally owner-accepted on 2026-11-28 after the owner confirmed successful
   Phase 9 testing and approved the changes. See `PHASE_9_IMPLEMENTATION_REPORT.md` and `PHASE_9_ACCEPTANCE.md`.
-- **Phase 10 — Hardening and delivery:** owner-authorized on 2026-11-28. Implementation artifacts are delivered;
-  owner-run verification and formal acceptance remain pending. See `PHASE_10_PLAN.md`,
-  `PHASE_10_IMPLEMENTATION_REPORT.md`, and `PHASE_10_ACCEPTANCE.md`.
+- **Phase 10 — Hardening and delivery:** COMPLETE — formally owner-accepted on 2026-11-28 after final Code Review.
+  Acceptance covers the delivered modifications with environment-dependent verification follow-ups explicitly retained;
+  no unrun test is represented as passed. See `PHASE_10_PLAN.md`, `PHASE_10_IMPLEMENTATION_REPORT.md`, and
+  `PHASE_10_ACCEPTANCE.md`.
 - Phase 4 acceptance enabled Phase 5 planning; the owner explicitly approved the Phase 5 plan and authorized
   implementation on 2026-11-27. Phase 5 acceptance enabled Phase 6 planning; the owner explicitly authorized Phase 6
   implementation and approved its bounded Admin coupon UI clarification on 2026-11-27. The owner accepted Phase 6 on
@@ -63,7 +64,7 @@ approved MVP in incremental, verifiable phases.
 | 7. Message, publication orchestration, and delivery | Single message configuration, publish, immutable snapshot, delivery job/worker/retry, member inbox APIs, bounded Admin lifecycle UI | Message APIs, publish/pause orchestration, snapshot + job transaction, batch worker, delivery status/manual retry, inbox APIs, Admin controls              | **Complete and owner-accepted (2026-11-27):** owner reported Spring Boot startup, Maven clean verify, `npm run dev`, script automation tests, and Phase 7 API suite 23/23 PASS. Final code-review corrections are included. Deployment is limited to one backend instance; see `PHASE_7_OPERATIONS.md`. |
 | 8. Landing page and engagement                      | Public landing page, member claim UI, impression/click/page-view events                                                             | Landing route, eligibility/claim states, sign-in return flow, event ingestion                                                                              | **COMPLETE — owner-accepted (2026-11-28):** owner reported Maven clean verify, backend startup, frontend dev startup, Phase 8 API suite `all`, and successful Member coupon claim. See Phase 8 report/acceptance.                                                                                       |
 | 9. Analytics                                        | Campaign-level metrics and coupon-level reporting per PRD Sections 6.8 and 7                                                        | Analytics query/API, Admin campaign analytics page, coupon report, API verification suite                                                                  | **COMPLETE — owner-accepted (2026-11-28):** owner confirmed Phase 9 testing completed successfully and approved the changes.                                                                                                                                                                            |
-| 10. Hardening and delivery                          | Coupon inventory contention, cross-phase regression/E2E, security boundaries, operational readiness, reproducible demo              | Dedicated concurrency tests, end-to-end verification, regression/security checks, runbook and documentation updates                                        | Implementation delivered; owner verification pending (2026-11-28). See Phase 10 implementation report and acceptance guide.                                                                                                                                                                             |
+| 10. Hardening and delivery                          | Coupon inventory contention, cross-phase regression/E2E, security boundaries, operational readiness, reproducible demo              | Dedicated concurrency tests, end-to-end verification, regression/security checks, runbook and documentation updates                                        | **Complete — owner-accepted (2026-11-28), with environment-dependent verification follow-ups open.** Unrun checks remain unverified; see Phase 10 report and acceptance guide.                                                                                                                          |
 
 ## 3. Phase details and dependencies
 
@@ -281,8 +282,10 @@ No attribution, date-range reporting, exports, new event types, or schema migrat
 The owner approved `PHASE_9_PLAN.md` and explicitly authorized implementation on 2026-11-28. The owner confirmed
 successful Phase 9 testing and approved the changes on 2026-11-28. No schema migration was introduced.
 
-The owner explicitly authorized Phase 10 implementation on 2026-11-28 by requesting implementation based on the
-`phase10-ready-to-develop` package. The concurrency integration tests and verification/operations documentation are
-delivered. Maven/Testcontainers and frontend dependency verification could not be executed in the implementation
-environment because Docker is unavailable and outbound dependency downloads are blocked; see
-`PHASE_10_IMPLEMENTATION_REPORT.md`. Phase 10 remains pending owner-run verification and formal acceptance.
+The owner explicitly authorized Phase 10 implementation on 2026-11-28 based on the `phase10-ready-to-develop`
+package. The concurrency integration tests and verification/operations documentation were delivered, and the owner
+formally accepted the Phase 10 modifications on 2026-11-28 after final Code Review. Maven/Testcontainers and frontend
+dependency verification could not be executed in the implementation environment because Docker was unavailable and
+outbound dependency downloads were blocked. API regression, browser E2E, and clean-environment operational checks
+also remain unverified in the acceptance record. This acceptance does not claim those checks passed; see
+`PHASE_10_IMPLEMENTATION_REPORT.md` and `PHASE_10_ACCEPTANCE.md` for the remaining verification follow-ups.

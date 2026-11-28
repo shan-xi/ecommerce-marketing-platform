@@ -1,8 +1,8 @@
 # Phase 9 Plan — Campaign Analytics and Coupon Reporting
 
 **Document status:** OWNER-APPROVED — IMPLEMENTATION AUTHORIZED. **Planning date:** 2026-11-28. **Preceding phase:**
-Phase 8 formally accepted by the owner on 2026-11-28. **Implementation status:** IMPLEMENTED — OWNER VERIFICATION
-PENDING. Owner approval was explicitly
+Phase 8 formally accepted by the owner on 2026-11-28. **Implementation status:** COMPLETE — FORMALLY OWNER-ACCEPTED
+(2026-11-28). Owner approval was explicitly
 provided on 2026-11-28 with the instruction: “I approve Phase 9 plan. Start implementation strictly following related
 docs.”
 
@@ -270,8 +270,9 @@ analytics endpoint. Any material deviation requires renewed approval.
 
 - Phase 8 is formally owner-accepted on 2026-11-28; Phase 9 plan and implementation were explicitly authorized by the
   owner on 2026-11-28.
-- Owner approved this plan and explicitly authorized implementation on 2026-11-28. Implementation has been delivered
-  within this scope; owner verification remains pending.
+- Owner approved this plan and explicitly authorized implementation on 2026-11-28. Implementation was delivered
+  within this scope; the owner confirmed successful testing and formally accepted Phase 9 on 2026-11-28. See
+  `PHASE_9_IMPLEMENTATION_REPORT.md` and `PHASE_9_ACCEPTANCE.md`.
 - Main correctness risk is aggregate fan-out from joining multiple one-to-many tables; independent aggregate
   queries/CTEs
   and fixture tests are mandatory.

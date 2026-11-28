@@ -1,10 +1,11 @@
 # AI Development Guidelines
 
 **Status:** Approved operating contract for AI-assisted implementation under v1.5.0.  
-**Current instruction:** Phases 0–9 are formally owner-accepted. Phase 10 implementation was explicitly authorized
-by the owner on 2026-11-28 based on `phase10-ready-to-develop`. Its delivered artifacts and remaining owner-run
-verification are recorded in `PHASE_10_IMPLEMENTATION_REPORT.md` and `PHASE_10_ACCEPTANCE.md`. Do not mark Phase 10
-accepted until the owner runs/reviews the required evidence and explicitly accepts it.
+**Current instruction:** Phases 0–10 are formally owner-accepted. Phase 10 was explicitly authorized and its delivered
+modifications were formally accepted by the owner on 2026-11-28 after final Code Review. Environment-dependent
+verification follow-ups remain open and are recorded in `PHASE_10_IMPLEMENTATION_REPORT.md` and
+`PHASE_10_ACCEPTANCE.md`. Do not claim any unrun or blocked test passed; record actual owner-environment evidence when
+available.
 
 ## 1. Required reading order
 

@@ -1,7 +1,7 @@
 # Phase 10 Implementation Report — Hardening and Delivery Readiness
 
-**Status:** IMPLEMENTATION DELIVERED — OWNER VERIFICATION PENDING  
-**Baseline:** v1.5.0; Phases 0–9 owner-accepted  
+**Status:** COMPLETE — FORMALLY OWNER-ACCEPTED (2026-11-28); ENVIRONMENT-DEPENDENT VERIFICATION FOLLOW-UP OPEN  
+**Baseline:** v1.5.0; Phases 0–10 owner-accepted  
 **Implementation authorization:** Owner instruction based on `phase10-ready-to-develop` package, 2026-11-28
 
 ## 1. Delivered changes
@@ -74,16 +74,34 @@ No test pass counts are claimed for checks that could not execute here. The owne
 - The Phase 7 exactly-one-backend-instance deployment constraint remains unchanged.
 - Production readiness, multi-instance support, and capacity/SLO claims are not asserted.
 
-## 4. Remaining acceptance gates
+## 4. Verification follow-up (not represented as passed)
 
-- [ ] Run backend `clean verify` in a Docker-enabled environment.
+The owner formally accepted the delivered Phase 10 modifications on 2026-11-28 after the final code review. The
+acceptance is recorded with the implementation-environment limitations disclosed below. It does **not** assert that
+checks which could not be run have passed.
+
+The following verification items remain open for a Docker-enabled, network-enabled owner environment:
+
+- [ ] Run backend `clean verify`.
 - [ ] Confirm all nine repeated concurrency-test executions pass.
 - [ ] Run frontend tests, typecheck, and production build.
 - [ ] Run existing Phase 4–9 API suites against disposable fixtures.
 - [ ] Complete ADMIN → MEMBER → coupon claim → analytics browser walkthrough.
 - [ ] Complete security regression checks and confirm no cross-member/campaign access.
 - [ ] Follow clean local setup and health-check instructions.
-- [ ] Owner reviews evidence and formally accepts Phase 10.
 
-**Conclusion:** Phase 10 implementation artifacts are delivered. Phase 10 is not marked complete or owner-accepted until
-the blocked environment-dependent verification is performed and the owner accepts the evidence.
+These are recorded as post-acceptance verification follow-ups, not as failed tests or passing tests. Record actual
+commands, counts, and logs when the owner executes them.
+
+## 5. Formal owner acceptance
+
+- **Owner decision:** Accepted the delivered Phase 10 modifications after final Code Review.
+- **Owner acceptance date:** 2026-11-28.
+- **Acceptance scope:** Delivered Phase 10 code and documentation within the approved hardening/delivery-readiness
+  scope.
+- **Known qualification:** Environment-dependent Maven/Testcontainers, frontend dependency-based checks, API regression,
+  browser E2E, and operational checks were not all executable in the implementation environment. Their status remains
+  as recorded in Section 2 and in `PHASE_10_ACCEPTANCE.md`; none is silently marked PASS.
+
+**Conclusion:** Phase 10 is formally owner-accepted with the verification limitations transparently retained as
+follow-up. No production-readiness, multi-instance, or capacity/SLO claim is made.

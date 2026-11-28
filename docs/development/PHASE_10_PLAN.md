@@ -1,8 +1,8 @@
 # Phase 10 Plan — Hardening and Delivery Readiness
 
-**Status:** IMPLEMENTATION DELIVERED — OWNER VERIFICATION PENDING  
+**Status:** COMPLETE — FORMALLY OWNER-ACCEPTED (2026-11-28), WITH ENVIRONMENT-DEPENDENT VERIFICATION FOLLOW-UP OPEN  
 **Prepared:** 2026-11-28  
-**Baseline:** Owner-approved v1.5.0; Phases 0–9 formally accepted  
+**Baseline:** Owner-approved v1.5.0; Phases 0–10 formally owner-accepted  
 **Scope authority:** Approved PRD, architecture, API/OpenAPI, database design, security design, testing strategy,
 accepted ADRs, and the accepted Phase 1–9 implementation.
 
@@ -142,7 +142,10 @@ Verify the already-approved security design; do not redefine it.
 - Record actual command outputs/results supplied by the owner; never invent test counts or claim tests ran in an
   environment where they were not executed.
 - Produce a concise final Phase 10 implementation report and acceptance guide.
-- Mark Phase 10 complete only after all exit criteria pass and the owner explicitly accepts it.
+- Normal completion requires all applicable exit criteria to pass and explicit owner acceptance. If the owner explicitly
+  accepts the delivered scope while environment-dependent checks remain unverified, record the phase as
+  `OWNER-ACCEPTED WITH VERIFICATION FOLLOW-UP OPEN`; do not mark the outstanding checks as passed or imply they were
+  waived as technical evidence.
 
 ## 4. Proposed deliverables
 
@@ -158,7 +161,10 @@ Verify the already-approved security design; do not redefine it.
 
 ## 5. Proposed exit criteria
 
-Phase 10 can be recommended for acceptance only when all applicable criteria are satisfied:
+Phase 10's normal acceptance recommendation requires all applicable criteria to be satisfied. On 2026-11-28, the
+owner explicitly accepted the delivered modifications after final Code Review with the environment-dependent checks
+below retained as follow-up. The acceptance status therefore records owner approval of the delivered scope, not a claim
+that these unexecuted checks passed. Leave each check unchecked until supported by actual evidence.
 
 - [ ] Coupon concurrency test repeatedly passes with no inventory oversell.
 - [ ] Successful claim rows, coupon `claimed_quantity`, and remaining quantity are consistent.
@@ -169,9 +175,9 @@ Phase 10 can be recommended for acceptance only when all applicable criteria are
 - [ ] End-to-end ADMIN → MEMBER → coupon claim → analytics journey passes.
 - [ ] Security regression checks pass for roles, CSRF, cookies/session, and ownership boundaries.
 - [ ] Clean local setup instructions are followed successfully and documentation is corrected where needed.
-- [ ] Single-backend-instance deployment limitation and all known exclusions are documented.
-- [ ] No unapproved infrastructure or product-scope expansion is introduced.
-- [ ] Owner reviews the actual evidence and formally accepts Phase 10.
+- [x] Single-backend-instance deployment limitation and all known exclusions are documented.
+- [x] No unapproved infrastructure or product-scope expansion was introduced (static review).
+- [x] Owner formally accepts the delivered Phase 10 modifications with verification limitations recorded (2026-11-28).
 
 If a test exposes a defect requiring a schema, API, or business-rule change, stop and present the evidence and options
 for owner approval before expanding scope.
@@ -185,8 +191,9 @@ for owner approval before expanding scope.
 5. Prepare security regression and operational/documentation verification.
 6. Fix only defects within the approved scope; seek separate approval for scope changes.
 7. Publish implementation report and acceptance guide for owner verification.
-8. Owner runs environment-dependent checks and reviews the evidence.
-9. Owner formally accepts Phase 10.
+8. Owner runs environment-dependent checks and records the actual evidence when available.
+9. Owner formally accepts the delivered Phase 10 modifications on 2026-11-28, with outstanding verification
+   follow-ups explicitly retained.
 
 ## 7. Decisions intentionally left unchanged
 
@@ -204,5 +211,8 @@ for owner approval before expanding scope.
 - **Plan prepared:** 2026-11-28.
 - **Owner plan approval:** Approved by explicit implementation instruction on 2026-11-28.
 - **Owner implementation authorization:** Granted on 2026-11-28.
-- **Implementation status:** Code and documentation delivered; owner-environment verification and formal acceptance
-  remain pending.
+- **Implementation status:** Delivered scope formally accepted by the owner on 2026-11-28.
+- **Acceptance qualification:** The owner accepted the Phase 10 modifications after the final code review. This records
+  acceptance of the delivered scope; it does not convert environment-blocked or unrun tests into passing results.
+  The outstanding verification items remain explicitly tracked in `PHASE_10_IMPLEMENTATION_REPORT.md` and
+  `PHASE_10_ACCEPTANCE.md`.

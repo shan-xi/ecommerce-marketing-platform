@@ -1,7 +1,7 @@
 # Phase 10 Acceptance Guide — Hardening and Delivery Readiness
 
-**Status:** READY FOR OWNER VERIFICATION — NOT YET ACCEPTED  
-**Baseline:** v1.5.0; Phases 0–9 accepted  
+**Status:** OWNER-ACCEPTED (2026-11-28) — VERIFICATION FOLLOW-UP OPEN  
+**Baseline:** v1.5.0; Phases 0–10 owner-accepted  
 **Purpose:** Repeatable owner-run verification of the delivered Phase 10 changes.
 
 ## 1. Prerequisites
@@ -229,6 +229,17 @@ capacity from these local tests.
 
 ## 8. Acceptance record
 
+**Formal owner decision:** The owner accepted the delivered Phase 10 modifications on 2026-11-28 after the final Code
+Review. This is an acceptance of the delivered scope with the verification limitations below explicitly retained; it
+must not be interpreted as a claim that every environment-dependent test was executed or passed.
+
+### Delivered-scope acceptance
+
+- [x] No unapproved scope or infrastructure was introduced (confirmed by static review of the delivered package).
+- [x] Owner formally accepts the delivered Phase 10 modifications (2026-11-28).
+
+### Verification follow-up — still unverified
+
 - [ ] Dedicated Coupon concurrency suite passes (all repeated scenarios).
 - [ ] Backend `clean verify` passes.
 - [ ] Frontend tests, typecheck, and build pass.
@@ -236,8 +247,8 @@ capacity from these local tests.
 - [ ] ADMIN → MEMBER → claim → analytics browser journey passes.
 - [ ] Security boundaries pass.
 - [ ] Clean setup and operational checks pass.
-- [ ] No unapproved scope or infrastructure was introduced.
-- [ ] Owner reviewed actual test evidence and formally accepts Phase 10.
 
-**Owner acceptance date:** Pending.  
-**Actual test counts/logs:** Record from the owner's environment; do not infer or pre-fill counts.
+**Owner acceptance date:** 2026-11-28.  
+**Acceptance qualification:** Environment-dependent verification remains open. Do not infer or pre-fill test
+counts/logs;
+record actual results from the owner's environment when these checks are run.

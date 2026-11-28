@@ -1,7 +1,7 @@
 # Design Decisions and Ready-for-Development Checklist
 
-**Status:** Owner-approved v1.5.0 Development Baseline; Phases 1–9 formally accepted; Phase 10 plan drafted and
-awaiting owner approval. **Scope:**
+**Status:** Owner-approved v1.5.0 Development Baseline; Phases 1–10 formally owner-accepted. Phase 10 environment-
+dependent verification follow-ups remain documented. **Scope:**
 These decisions confirm the existing MVP direction and do not authorize scope expansion.
 
 ## 1. Confirmed decisions
@@ -112,10 +112,13 @@ verification; see the Phase 7 implementation report.
 - [x] Owner confirmed Phase 9 testing completed successfully and approved the Phase 9 changes on 2026-11-28.
 - [x] Phase 10 Hardening and Delivery plan approved by explicit implementation instruction on 2026-11-28.
 - [x] Phase 10 implementation explicitly authorized by the owner on 2026-11-28.
+- [x] Phase 10 delivered modifications formally accepted by the owner on 2026-11-28 after final Code Review; outstanding
+  environment-dependent verification is retained as follow-up and is not marked as passed.
 
-All design approval gates for the v1.5.0 baseline remain complete. Phases 1–9 are formally accepted. Phase 10 was
-authorized on 2026-11-28; the dedicated Coupon concurrency tests and verification documentation are delivered. Owner-run
-verification and formal Phase 10 acceptance remain pending.
+All design approval gates for the v1.5.0 baseline remain complete. Phases 1–10 are formally owner-accepted. Phase 10
+was authorized on 2026-11-28 and formally accepted by the owner on 2026-11-28 after final Code Review. The delivered
+Coupon concurrency tests and verification documentation are included. Environment-dependent test execution remains a
+follow-up and is not represented as passed.
 
 ## 5. Phase acceptance and next planning gate (2026-11-28)
 
@@ -127,14 +130,16 @@ verification and formal Phase 10 acceptance remain pending.
   The combined ADMIN analytics endpoint and Admin route `/admin/campaigns/:campaignId/analytics` are implemented. No
   schema change was introduced. The owner confirmed successful Phase 9 testing and formally accepted the changes on
   2026-11-28; see `PHASE_9_IMPLEMENTATION_REPORT.md` and `PHASE_9_ACCEPTANCE.md`.
-- **Phase 10:** proposed hardening and delivery-readiness scope is documented in `development/PHASE_10_PLAN.md`.
-  Owner approval and explicit implementation authorization are pending.
+- **Phase 10:** hardening and delivery-readiness scope is documented in `development/PHASE_10_PLAN.md`, and the
+  delivered modifications were formally owner-accepted on 2026-11-28. Environment-dependent verification follow-ups
+  remain open as documented in the Phase 10 report and acceptance guide.
 
-## Phase 10 authorization and delivery status (2026-11-28)
+## Phase 10 authorization and acceptance status (2026-11-28)
 
 - The owner explicitly instructed implementation based on the `phase10-ready-to-develop` package, approving the
   Phase 10 plan and authorizing implementation.
-- The dedicated PostgreSQL Coupon concurrency integration test and Phase 10 acceptance/implementation documents are
+- The dedicated PostgreSQL Coupon concurrency integration test and Phase 10 acceptance/implementation documents were
   delivered.
-- Environment-dependent verification and formal owner acceptance remain pending; see
-  `development/PHASE_10_IMPLEMENTATION_REPORT.md` and `development/PHASE_10_ACCEPTANCE.md`.
+- The owner formally accepted the delivered Phase 10 modifications on 2026-11-28 after final Code Review.
+- Environment-dependent verification remains open; acceptance does not assert that unrun or blocked tests passed.
+  See `development/PHASE_10_IMPLEMENTATION_REPORT.md` and `development/PHASE_10_ACCEPTANCE.md`.

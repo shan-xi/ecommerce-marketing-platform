@@ -1024,17 +1024,24 @@ messaging providers, scheduled delivery, Redis, Kafka, or infrastructure that is
 ## 17. Document Status and Change Control
 
 This PRD remains **Ready for Development** and is the owner-approved v1.5.0 baseline dated 2026-11-26. The owner
-approved the complete Design Pack. Phases 1 and 2 — Repository and Database Foundation were formally accepted on
-2026-11-26. Phases 3–6 — Identity and Security, Member and Audience, Campaign Draft Management, and Coupon Configuration
-and Claim Backend — were formally accepted by the owner on 2026-11-27; see their phase implementation reports. Phase 6
-acceptance records the owner-reported backend startup, Maven clean verify, frontend tests/typecheck/build/dev, Phase 6
-API verification, and Admin Coupon create/edit checks. A dedicated high-contention Coupon inventory race test is tracked
-for Phase 10 hardening. Phase 7 — Message, Publication Orchestration, and Delivery — was formally accepted on
-2026-11-27. Phase 8 — Member Campaign Experience — was formally accepted on 2026-11-28. Phase 9 — Campaign Analytics
-and Coupon Reporting — was explicitly approved and authorized for implementation on 2026-11-28; its implementation
-report records delivered scope and the remaining owner verification gate. These status updates do not change the
-approved product scope or requirements.
+approved the complete Design Pack. Phase 0 design baseline was approved, and Phases 1 and 2 — Repository and Database
+Foundation — were formally accepted on 2026-11-26. Phases 3–6 — Identity and Security, Member and Audience, Campaign
+Draft Management, and Coupon Configuration and Claim Backend — were formally accepted by the owner on 2026-11-27; see
+their phase implementation reports. Phase 6 acceptance records the owner-reported backend startup, Maven clean verify,
+frontend tests/typecheck/build/dev, Phase 6 API verification, and Admin Coupon create/edit checks. The dedicated
+high-contention Coupon inventory race test deferred from Phase 6 was delivered in Phase 10. Phase 7 — Message,
+Publication Orchestration, and Delivery — was formally accepted on 2026-11-27. Phases 8 — Member Campaign Experience,
+9 — Campaign Analytics and Coupon Reporting, and 10 — Hardening and Delivery Readiness — were formally accepted on
+2026-11-28. Phase 10 acceptance retains environment-dependent verification follow-ups without representing unrun
+checks as passed. These status updates do not change the approved product scope or requirements.
 
 The v1.5.0 PRD, API/OpenAPI, Database/ERD, Architecture/Module Design, Security Design, Testing Strategy, accepted ADRs,
 and Implementation Plan together form the authoritative MVP Development Baseline. No separate TDD is required to start
 the MVP unless a later requirement introduces a genuinely unresolved design area.
+
+**Implementation lifecycle update (2026-11-28):** Phases 0–10 have been formally owner-accepted. Phase 10 is accepted
+with environment-dependent verification follow-ups explicitly recorded in
+`docs/development/PHASE_10_IMPLEMENTATION_REPORT.md` and `docs/development/PHASE_10_ACCEPTANCE.md`; acceptance does not
+mean that unrun tests passed. This lifecycle update does not change the PRD's v1.5.0 product requirements, scope, or
+business rules. Future product features and optimizations must be proposed and approved through a separate change
+process rather than silently appended to this MVP baseline.
