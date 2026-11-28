@@ -1,25 +1,26 @@
 # PRD-UI-Refactor
 
-**Status:** Proposed; requirements and scope not yet defined.  
-**Version:** Draft  
-**Approval date:** Not approved
+**Status:** Draft — scope and implementation direction proposed; pending owner approval.  
+**Version:** 0.2.0  
+**Created:** 2026-11-28
 
-This folder is reserved for the UI refactor initiative's complete historical lifecycle. The current `PRD.md` is
-intentionally a scope placeholder, not an approved specification.
+本 initiative 將現有單一 SPA 重構為分離的 Admin Portal 與 Member Storefront。所有需求以目前提供的
+`ecommerce-marketing-platform-v0.1.0-ui.zip` 為基線；不代表已修改或實作前端。
 
-## Lifecycle documents
+## 文件導覽
 
-- [PRD](PRD.md)
-- `REQUIREMENTS_ANALYSIS.md` — create when analysis begins
-- `OPEN_DESIGN_QUESTIONS.md` — record unresolved design decisions
-- `TECHNICAL_DESIGN.md` — add after design is developed
-- `IMPLEMENTATION_PLAN.md` — add and approve before implementation
-- `ACCEPTANCE_CRITERIA.md` — define before implementation
-- `decisions/` — initiative-specific decisions
-- `development/` — phase plans and implementation reports
-- `test-reports/` — test evidence
-- `acceptance/` — final acceptance record
+- [PRD.md](PRD.md) — 產品目標、角色、路由、UI/UX、API 對應、驗收條件
+- [REQUIREMENTS_ANALYSIS.md](REQUIREMENTS_ANALYSIS.md) — 現況盤點、需求拆解與 API 能力邊界
+- [TECHNICAL_DESIGN.md](TECHNICAL_DESIGN.md) — 前端架構、Layout、Routing、Auth、元件與狀態設計
+- [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md) — 分階段實作順序與測試策略
+- [ACCEPTANCE_CRITERIA.md](ACCEPTANCE_CRITERIA.md) — 可執行的驗收案例
+- [OPEN_DESIGN_QUESTIONS.md](OPEN_DESIGN_QUESTIONS.md) — 待 owner 決策項目
+- [decisions/README.md](decisions/README.md) — 本 initiative 的設計決策紀錄
 
-## Rule
+## 核心原則
 
-Do not update current shared architecture documents until an approved refactor is implemented and accepted.
+1. Admin 與 Member 使用不同入口與 Layout。
+2. 保留現有 backend API 與 security contract；UI route guard 不取代 server authorization。
+3. 不以假資料呈現不存在的 dashboard KPI 或公開活動列表。
+4. 保留活動領券、idempotency key、CSRF、refresh cookie 與 engagement tracking 行為。
+5. 此 PRD 尚待核准；實作前先確認 Open Design Questions。
