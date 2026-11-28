@@ -1,8 +1,9 @@
 # Implementation Plan — UI Refactor
 
-**狀態：** Proposed；依賴 PRD / Open Design Questions 核准。
+**狀態：** Approved；Phase 1–4 implementation candidate 已交付，Phase 5 QA / manual evidence pending。
 
 ## Phase 0 — 決策與基線
+
 1. 核准 Admin/Member 分流、路由、視覺方向與 UI library 策略。
 2. 記錄目前核心流程的截圖/測試基線。
 3. 執行並記錄 `npm run typecheck`、`npm run build`、`npm test`。
@@ -11,6 +12,7 @@
 **Exit:** 決策項目已關閉；原始基線測試結果已保存。
 
 ## Phase 1 — Foundation / Routing / Auth
+
 1. 建立集中 route table/navigation helper。
 2. 實作 Admin / Member / Public route guards。
 3. 新增 `/admin/login`、`/member/login`，保留 `/login` 相容導向。
@@ -20,6 +22,7 @@
 **Exit:** 兩種角色登入入口獨立且不破壞 Cookie/CSRF/refresh。
 
 ## Phase 2 — Admin Portal Shell
+
 1. 實作 Sidebar、Topbar、User Menu、responsive Drawer。
 2. 建立 Overview、PageHeader、Breadcrumb、共用狀態元件。
 3. 將 Audience、Campaign、Analytics 現有元件掛入新 Shell。
@@ -28,6 +31,7 @@
 **Exit:** Admin 全部頁面在一致 shell 中可操作。
 
 ## Phase 3 — Admin Workflow Polish
+
 1. Audience list/editor/preview 狀態一致化。
 2. Campaign list/filter/create/edit。
 3. Campaign workspace 整理 Coupon、Message、Lifecycle、Delivery。
@@ -37,6 +41,7 @@
 **Exit:** API coverage matrix 所列 Admin endpoint 均可由 UI 觸發。
 
 ## Phase 4 — Member Storefront
+
 1. Member Header/Footer/Home。
 2. Member login/logout。
 3. Member overview/profile。
@@ -47,6 +52,7 @@
 **Exit:** 會員核心旅程可完成；不引入購物車/結帳等超出範圍功能。
 
 ## Phase 5 — QA / Accessibility / Responsive
+
 1. 跑 typecheck/build/unit tests。
 2. 加入 route/auth/API client/component tests。
 3. 驗證 desktop/tablet/mobile。
@@ -58,4 +64,5 @@
 
 ## 建議實作順序
 
-先做 Phase 1，再做 Admin Shell 與 Member Shell。避免先重寫每個 feature component；先讓現有功能安全地置入新 Layout，再逐頁改善表格與表單體驗。
+先做 Phase 1，再做 Admin Shell 與 Member Shell。避免先重寫每個 feature component；先讓現有功能安全地置入新
+Layout，再逐頁改善表格與表單體驗。

@@ -40,7 +40,8 @@ frontend/src/
       member.css
 ```
 
-可先以現有 feature component 路徑逐步搬移，避免一次性大改造成 regression。不要在第一個 commit 同時搬檔、改 API、改 domain logic。
+可先以現有 feature component 路徑逐步搬移，避免一次性大改造成 regression。不要在第一個 commit 同時搬檔、改 API、改 domain
+logic。
 
 ## 2. Routing
 
@@ -53,13 +54,15 @@ frontend/src/
 - route guard：依 AuthProvider 的 `loading / authenticated / anonymous / error` 狀態決定 render。
 - `returnTo`：只允許 `/campaigns/:uuid` 或明確白名單內的 member routes；拒絕 protocol-relative、外部 URL、反斜線與未知路徑。
 
-是否引入 React Router 是 Open Design Question。若引入，需評估 package-lock、bundle 與測試；若不引入，需避免散落在多個 component 的 `window.location` 與 pathname 判斷。
+是否引入 React Router 是 Open Design Question。若引入，需評估 package-lock、bundle 與測試；若不引入，需避免散落在多個
+component 的 `window.location` 與 pathname 判斷。
 
 ## 3. Auth / Role Guard
 
 - 共用 AuthProvider 與 `authApi`；不建立第二套 token/session 管理。
 - `AdminLoginPage` 與 `MemberLoginPage` 可共用 `LoginForm` 的表單邏輯，但入口、標題、說明、role expectation 不同。
-- `signIn` 後立即驗證 role；若 role mismatch，清楚顯示錯誤並避免進入錯誤 Portal。可選擇呼叫 logout 清除錯誤角色 session，但需明確處理 logout failure。
+- `signIn` 後立即驗證 role；若 role mismatch，清楚顯示錯誤並避免進入錯誤 Portal。可選擇呼叫 logout 清除錯誤角色
+  session，但需明確處理 logout failure。
 - 已登入使用者訪問另一角色 Portal 時，顯示 access denied / switch account instruction；不可靜默將不同角色當成正確角色。
 - Auth state `error`（後端不可用）不得被當作 anonymous；提供 retry。
 - Logout 只有 server API 成功才更新成 anonymous（沿用現有 AuthProvider 語意）。
@@ -67,6 +70,7 @@ frontend/src/
 ## 4. Layout Composition
 
 ### AdminLayout
+
 - Sidebar：品牌標題、Overview、Audience Segments、Campaigns。
 - Topbar：breadcrumb/page title context、user menu（角色 + userId + logout）。
 - Main：`PageHeader` + page content。
@@ -74,6 +78,7 @@ frontend/src/
 - Responsive：桌機固定/可收合；窄螢幕 Drawer。
 
 ### MemberLayout
+
 - Header：品牌、活動入口、我的訊息、我的優惠券、登入/會員 menu。
 - Footer：一般會員入口與低調 Admin Login link。
 - 不共用 Admin Sidebar。
@@ -99,7 +104,8 @@ frontend/src/
 }
 ```
 
-Admin 用中性工作台視覺；Member 可使用同一套基礎 token，但品牌展示與 layout spacing 可不同。色值應在 owner approval 後收斂，狀態色需兼顧對比度。
+Admin 用中性工作台視覺；Member 可使用同一套基礎 token，但品牌展示與 layout spacing 可不同。色值應在 owner approval
+後收斂，狀態色需兼顧對比度。
 
 ## 6. API Client 使用規範
 
@@ -113,6 +119,7 @@ Admin 用中性工作台視覺；Member 可使用同一套基礎 token，但品�
 ## 7. 頁面資料狀態
 
 每個 API-driven page 至少定義：
+
 - `loading`：骨架或明確 loading。
 - `success with data`：真實 API data。
 - `success empty`：empty state + 合理下一步。

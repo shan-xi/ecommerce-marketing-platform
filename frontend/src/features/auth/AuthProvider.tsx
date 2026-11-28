@@ -12,7 +12,7 @@ type AuthContextValue = {
     state: AuthState;
     user: AuthUser | null;
     error: string | null;
-    signIn: (email: string, password: string) => Promise<void>;
+    signIn: (email: string, password: string) => Promise<AuthUser>;
     signOut: () => Promise<void>;
     reload: () => Promise<void>;
 };
@@ -54,6 +54,7 @@ export function AuthProvider({children}: { children: ReactNode }) {
             setUser(current);
             setState('authenticated');
             setError(null);
+            return current;
         } catch (cause) {
             const message = cause instanceof Error ? cause.message : 'Login failed';
             setError(message);

@@ -1,9 +1,10 @@
 import {type FormEvent, useState} from 'react';
 import {useAuth} from './AuthProvider';
+import {navigate, safeReturnTo} from '../../app/router';
 
-export function LoginForm() {
+export function LoginForm({expectedRole = 'MEMBER'}: { expectedRole?: 'ADMIN' | 'MEMBER' }) {
     const {state, user, error, signIn, signOut} = useAuth();
-    const [email, setEmail] = useState(window.location.pathname === '/login' ? '' : 'admin@example.test');
+    const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [submitting, setSubmitting] = useState(false);
     const [formError, setFormError] = useState<string | null>(null);
@@ -15,7 +16,13 @@ export function LoginForm() {
         setSubmitting(true);
         setFormError(null);
         try {
-            await signIn(email, password);
+            const signedIn = await signIn(email, password);
+            if (signedIn.role !== expectedRole) {
+                setFormError(`此登入入口僅接受 ${expectedRole} 角色，實際帳號為 ${signedIn.role}。請先登出，再使用正確帳號登入。`);
+                return;
+            }
+            const returnTo = safeReturnTo(new URLSearchParams(window.location.search).get('returnTo'), expectedRole);
+            navigate(returnTo ?? (expectedRole === 'ADMIN' ? '/admin' : '/member'), true);
         } catch (cause) {
             setFormError(cause instanceof Error ? cause.message : '登入失敗');
         } finally {
@@ -36,6 +43,13 @@ export function LoginForm() {
     }
 
     if (state === 'loading') return <section className="auth-card"><p>正在確認登入狀態…</p></section>;
+    if (user && user.role !== expectedRole) return <section className="auth-card"><p className="card-label">角色不符</p>
+        <h2>{user.role}</h2><p role="alert"
+                               className="error-message">此登入入口僅接受 {expectedRole}，目前帳號為 {user.role}。</p><p
+            className="status-detail">{user.userId}</p>
+        <button type="button" onClick={() => void submitLogout()}
+                disabled={logoutSubmitting}>{logoutSubmitting ? '登出中…' : '登出並切換帳號'}</button>
+        {(logoutError ?? error) && <p className="error-message">{logoutError ?? error}</p>}</section>;
     if (user) return <section className="auth-card">
         <p className="card-label">已登入</p>
         <h2>{user.role}</h2><p className="status-detail">{user.userId}</p>
@@ -46,8 +60,8 @@ export function LoginForm() {
     </section>;
 
     return <section className="auth-card">
-        <p className="card-label">Phase 3 · Identity</p>
-        <h2>管理員 / 會員登入</h2>
+        <p className="card-label">SECURE ACCESS</p>
+        <h2>{expectedRole === 'ADMIN' ? '管理員登入' : '會員登入'}</h2>
         <form onSubmit={submit}>
             <label htmlFor="email">Email</label>
             <input id="email" type="email" autoComplete="username" value={email}

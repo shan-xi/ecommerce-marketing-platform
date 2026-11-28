@@ -1,6 +1,6 @@
 # PRD-UI-Refactor
 
-**Status:** Draft — scope and implementation direction proposed; pending owner approval.  
+**Status:** Approved for implementation; Phase 1–4 implementation candidate delivered, Phase 5 verification pending.  
 **Version:** 0.2.0  
 **Created:** 2026-11-28
 
@@ -16,6 +16,8 @@
 - [ACCEPTANCE_CRITERIA.md](ACCEPTANCE_CRITERIA.md) — 可執行的驗收案例
 - [OPEN_DESIGN_QUESTIONS.md](OPEN_DESIGN_QUESTIONS.md) — 待 owner 決策項目
 - [decisions/README.md](decisions/README.md) — 本 initiative 的設計決策紀錄
+- [ADR-UI-001](decisions/ADR-UI-001-css-components-and-lightweight-router.md) — 已核准 UI library / routing 決策
+- [Implementation Report](implementation/IMPLEMENTATION_REPORT.md) — 實作與驗證狀態
 
 ## 核心原則
 

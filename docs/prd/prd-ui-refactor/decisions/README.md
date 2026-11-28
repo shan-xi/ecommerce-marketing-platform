@@ -1,6 +1,6 @@
 # UI Refactor Decisions
 
-**Status:** No decisions approved yet.
+**Status:** ADR-UI-001 approved on 2026-11-28.
 
-建議決策請先記錄於 `OPEN_DESIGN_QUESTIONS.md`。經 owner 明確核准後，新增 `ADR-UI-XXX-<topic>.md`，
-記錄背景、候選方案、決定、後果及核准日期。不要把建議預設視為已核准決策。
+已核准決策記錄於 [ADR-UI-001](ADR-UI-001-css-components-and-lightweight-router.md)。其餘未決項目仍依
+`OPEN_DESIGN_QUESTIONS.md` 管理。

@@ -4,7 +4,8 @@
 **Implementation status:** Phases 0–10 are complete and owner-accepted. Phase 10 environment-dependent verification
 follow-ups remain explicitly open; unrun checks are not represented as passed.
 
-This repository implements the approved MVP described in [`docs/prd/prd-mvp/PRD.md`](docs/prd/prd-mvp/PRD.md). The project is a
+This repository implements the approved MVP described in [`docs/prd/prd-mvp/PRD.md`](docs/prd/prd-mvp/PRD.md). The
+project is a
 modular monolith
 with one Spring Boot backend, one React + TypeScript SPA, and PostgreSQL as the source of truth.
 
@@ -121,7 +122,8 @@ The owner formally accepted the delivered Phase 10 modifications on 2026-11-28 a
 acceptance retains explicit verification follow-ups: Docker/Maven/Testcontainers and frontend dependency-based checks
 could not all be executed in the implementation environment, and API regression, browser E2E, and clean-environment
 operational checks remain unverified. Acceptance does not represent those checks as passed. Run the commands in
-[`docs/prd/prd-mvp/development`](docs/prd/prd-mvp/development/phase-10/PHASE_10_ACCEPTANCE.md) and record actual results; see
+[`docs/prd/prd-mvp/development`](docs/prd/prd-mvp/development/phase-10/PHASE_10_ACCEPTANCE.md) and record actual
+results; see
 [`docs/prd/prd-mvp/development`](docs/prd/prd-mvp/development/phase-10/PHASE_10_IMPLEMENTATION_REPORT.md).
 
 ## Technology versions
@@ -192,7 +194,8 @@ exactly one backend application instance/replica. Startup recovery resets all `P
 running multiple instances can reset jobs owned by another live worker. Multi-instance deployment is unsupported until a
 separately approved worker-ownership design is implemented. If startup recovery fails, the application aborts startup;
 check PostgreSQL availability/permissions and restart the single instance after resolving the cause. See [
-`docs/prd/prd-mvp/development`](docs/prd/prd-mvp/development/phase-07/PHASE_7_OPERATIONS.md) for the recovery runbook. Use the
+`docs/prd/prd-mvp/development`](docs/prd/prd-mvp/development/phase-07/PHASE_7_OPERATIONS.md) for the recovery runbook.
+Use the
 `.env.example` values for local
 development only; override datasource settings through environment variables in other environments.
 
@@ -244,11 +247,14 @@ docker compose ps
 - Phase 8 implementation plan: [`docs/prd/prd-mvp/development`](docs/prd/prd-mvp/development/phase-08/PHASE_8_PLAN.md)
 - Phase 8 implementation report: [
   `docs/prd/prd-mvp/development`](docs/prd/prd-mvp/development/phase-08/PHASE_8_IMPLEMENTATION_REPORT.md)
-- Phase 8 acceptance guide: [`docs/prd/prd-mvp/development`](docs/prd/prd-mvp/development/phase-08/PHASE_8_ACCEPTANCE.md)
-- Phase 9 plan/report/acceptance: [`docs/prd/prd-mvp/development`](docs/prd/prd-mvp/development/phase-09/PHASE_9_PLAN.md), [
+- Phase 8 acceptance guide: [
+  `docs/prd/prd-mvp/development`](docs/prd/prd-mvp/development/phase-08/PHASE_8_ACCEPTANCE.md)
+- Phase 9 plan/report/acceptance: [
+  `docs/prd/prd-mvp/development`](docs/prd/prd-mvp/development/phase-09/PHASE_9_PLAN.md), [
   `docs/prd/prd-mvp/development`](docs/prd/prd-mvp/development/phase-09/PHASE_9_IMPLEMENTATION_REPORT.md), [
   `docs/prd/prd-mvp/development`](docs/prd/prd-mvp/development/phase-09/PHASE_9_ACCEPTANCE.md)
-- Phase 10 plan/report/acceptance: [`docs/prd/prd-mvp/development`](docs/prd/prd-mvp/development/phase-10/PHASE_10_PLAN.md), [
+- Phase 10 plan/report/acceptance: [
+  `docs/prd/prd-mvp/development`](docs/prd/prd-mvp/development/phase-10/PHASE_10_PLAN.md), [
   `docs/prd/prd-mvp/development`](docs/prd/prd-mvp/development/phase-10/PHASE_10_IMPLEMENTATION_REPORT.md), [
   `docs/prd/prd-mvp/development`](docs/prd/prd-mvp/development/phase-10/PHASE_10_ACCEPTANCE.md)
 - Phase 7 worker deployment and recovery runbook: [

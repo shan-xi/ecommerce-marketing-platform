@@ -18,8 +18,8 @@ This documentation set separates **initiative history** from **current system sp
 | Product overview          | [Product Overview](product/PRODUCT_OVERVIEW.md)    |
 | Product roadmap           | [Product Roadmap](product/PRODUCT_ROADMAP.md)      |
 | Change process            | [Change Process](product/CHANGE_PROCESS.md)        |
-| MVP initiative history    | [PRD-MVP](prd/prd-mvp/README.md)                       |
-| UI refactor initiative    | [PRD-UI-Refactor](prd/prd-ui-refactor/README.md)       |
+| MVP initiative history    | [PRD-MVP](prd/prd-mvp/README.md)                   |
+| UI refactor initiative    | [PRD-UI-Refactor](prd/prd-ui-refactor/README.md)   |
 | Current architecture      | [Architecture](architecture/ARCHITECTURE.md)       |
 | Current module design     | [Module Design](architecture/MODULE_DESIGN.md)     |
 | Current security design   | [Security Design](architecture/SECURITY_DESIGN.md) |
@@ -34,7 +34,8 @@ This documentation set separates **initiative history** from **current system sp
 ## MVP current status
 
 The MVP PRD is v1.5.0. Phases 0–10 are recorded as owner-accepted. Phase 10 environment-dependent verification
-follow-ups remain explicitly open/unverified; see [MVP development records](prd/prd-mvp/development/README.md) and the Phase
+follow-ups remain explicitly open/unverified; see [MVP development records](prd/prd-mvp/development/README.md) and the
+Phase
 10 reports.
 
 ## New initiative structure

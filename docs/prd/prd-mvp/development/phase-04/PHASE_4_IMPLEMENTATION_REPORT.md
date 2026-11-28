@@ -67,7 +67,9 @@ is paginated and ordered by `created_at DESC`. No DELETE or archive workflow was
 - `../../../backend/src/main/java/com/example/marketingplatform/audience/application/AudienceUseCase.java`
 - `../../../backend/src/main/java/com/example/marketingplatform/audience/infrastructure/JdbcAudienceMemberQuery.java`
 -
+
 `../../../backend/src/main/java/com/example/marketingplatform/audience/infrastructure/JdbcAudienceSegmentRepository.java`
+
 - `../../../backend/src/main/java/com/example/marketingplatform/audience/application/AudienceSegmentService.java`
 - `../../../backend/src/main/java/com/example/marketingplatform/audience/presentation/AudienceSegmentController.java`
 - `../../../backend/src/test/java/com/example/marketingplatform/member/MemberProfileIntegrationTest.java`
