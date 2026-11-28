@@ -1,9 +1,9 @@
 # Phase 8 Plan — Member Landing Page, Coupon Claim Experience, and Engagement
 
-**Document status:** OWNER-APPROVED AND IMPLEMENTED — verification and owner acceptance pending. **Planning baseline:**
+**Document status:** COMPLETE — FORMALLY OWNER-ACCEPTED (2026-11-28). **Planning baseline:**
 Owner-approved v1.5.0 Design Pack and formally accepted Phases 1–7. **Preceding phase:** Phase 7 formally accepted by
-the owner on 2026-11-27. **Implementation status:** IMPLEMENTED on 2026-11-27 under the owner's explicit instruction to
-begin Phase 8; see `PHASE_8_IMPLEMENTATION_REPORT.md`.
+the owner on 2026-11-27. **Implementation status:** IMPLEMENTED and owner-verified; see `PHASE_8_IMPLEMENTATION_REPORT.md` and
+`PHASE_8_ACCEPTANCE.md` for the owner-reported verification and acceptance record.
 
 ## 1. Objective
 
@@ -235,5 +235,6 @@ The client must not choose the member identity. Anonymous reads must not create 
 - The existing V1 `campaign_events` table and constraints are expected to support the approved event contract; no
   migration is presumed.
 - Phase 9 analytics consumes the authoritative records created by Phase 8 and the existing Phase 6/7 tables.
-- The owner explicitly instructed Phase 8 implementation on 2026-11-27. Implementation is delivered; verification and
-  formal owner acceptance remain required before Phase 9 can begin.
+- The owner explicitly instructed Phase 8 implementation on 2026-11-27 and formally accepted it on 2026-11-28 after
+  owner-reported verification. Phase 9 planning is documented separately in `PHASE_9_PLAN.md`; implementation requires
+  approval of that plan.

@@ -105,9 +105,23 @@ verification; see the Phase 7 implementation report.
 - [x] Bounded Admin message/publish/pause/delivery UI clarification in `PHASE_7_PLAN.md` Section 3.3 implemented.
 - [x] Owner reported Phase 7 Spring Boot startup, Maven clean verify, `npm run dev`, script automation tests, and API
   suite 23/23 PASS; Phase 7 formally accepted on 2026-11-27.
-- [x] Phase 8 implementation explicitly authorized by the owner on 2026-11-27 and delivered; verification and formal
-  owner acceptance remain pending.
+- [x] Phase 8 implementation explicitly authorized by the owner on 2026-11-27, verified, and formally accepted on
+  2026-11-28.
+- [x] Phase 9 Analytics plan drafted from PRD Sections 6.8 and 7.1–7.3 on 2026-11-28; owner approval and implementation
+  authorization remain pending.
 
-All design approval gates for the v1.5.0 baseline remain complete. Phases 1–7 are formally accepted. A dedicated
-high-contention Coupon inventory race test is not included in the accepted Phase 6 package and is tracked for Phase 10
-hardening. Phase 8 implementation is delivered and awaits owner verification/acceptance before Phase 9.
+All design approval gates for the v1.5.0 baseline remain complete. Phases 1–8 are formally accepted. A dedicated
+high-contention Coupon inventory race test is tracked for Phase 10 hardening. Phase 9 implementation remains gated on
+owner approval of `development/PHASE_9_PLAN.md` and explicit authorization.
+
+
+## 5. Phase acceptance and next planning gate (2026-11-28)
+
+- **Phase 8:** formally accepted by the owner on 2026-11-28. Owner-reported checks: Maven `clean verify`, Spring Boot
+  startup, frontend `npm run dev`, Phase 8 API verification suite `all`, and successful Member UI coupon claim. Exact
+  evidence boundary is documented in `development/PHASE_8_IMPLEMENTATION_REPORT.md` and
+  `development/PHASE_8_ACCEPTANCE.md`.
+- **Phase 9:** `development/PHASE_9_PLAN.md` drafted from PRD Sections 6.8 and 7.1–7.3. Proposed new API:
+  `GET /api/v1/admin/campaigns/{campaignId}/analytics`; proposed Admin route:
+  `/admin/campaigns/:campaignId/analytics`. The endpoint/response proposal and bounded scope require owner approval
+  before implementation. No Phase 9 application code or schema change is authorized by the planning document alone.

@@ -1,5 +1,10 @@
 # Phase 8 Acceptance Guide
 
+**Status:** ACCEPTED — owner approval recorded on 2026-11-28. The owner reported Maven `clean verify`, Spring Boot
+startup, frontend dev-server startup, the Phase 8 API verification suite (`all`), and successful Member UI coupon claim.
+See Section 6 for the exact acceptance record and verification boundary. The steps below are retained as a repeatable
+acceptance reference, not as an outstanding approval request.
+
 Use this guide to verify the Phase 8 package locally. Run the existing project from a clean checkout and retain the
 command output for owner review.
 
@@ -98,9 +103,9 @@ WHERE ce.campaign_id = '<campaign-uuid>'
   AND ce.event_type IN ('IMPRESSION', 'CLICK');
 ```
 
-## 5. Acceptance criteria
+## 5. Acceptance criteria (historical acceptance gate)
 
-Phase 8 can be owner-accepted only after:
+The following criteria defined the Phase 8 acceptance gate:
 
 - Maven clean verify and PostgreSQL integration tests pass.
 - Frontend npm test, typecheck, and production build pass.
@@ -109,3 +114,22 @@ Phase 8 can be owner-accepted only after:
 - Browser walkthrough confirms anonymous/member/admin boundaries, safe login return, claim idempotency, coupon state,
   and message/page event behavior.
 - The owner reviews the implementation report and explicitly accepts Phase 8.
+
+
+## 6. Formal owner acceptance record (2026-11-28)
+
+The owner explicitly approved Phase 8 and reported the following results:
+
+| Verification | Owner-reported result |
+|---|---|
+| `./mvnw -f backend/pom.xml clean verify` | PASS |
+| `./mvnw -f backend/pom.xml spring-boot:run` | PASS |
+| `npm run dev` | PASS |
+| `zsh scripts/api-tests/suites/phase8-member-experience-verification.zsh all` | PASS — all checks |
+| Member UI flow | PASS — coupon successfully claimed |
+
+**Decision:** Phase 8 is formally accepted and closed on 2026-11-28. Phase 9 planning is unblocked.
+
+These are owner-reported results; they were not re-executed by the assistant. The owner did not separately enumerate
+`npm test`, `npm run typecheck`, `npm run build`, or Phase 1–7 regression suite results in the acceptance message, so
+this record does not assert separate PASS results for those commands.

@@ -28,7 +28,8 @@
 | [Phase 7 Operations Runbook](development/PHASE_7_OPERATIONS.md)               | Single-instance deployment constraint and worker startup-recovery procedure                      |
 | [Phase 8 Plan](development/PHASE_8_PLAN.md)                                   | Owner-approved Member Landing Page, Coupon Claim Experience, and Engagement implementation scope |
 | [Phase 8 Implementation Report](development/PHASE_8_IMPLEMENTATION_REPORT.md) | Delivered Phase 8 implementation and verification status                                         |
-| [Phase 8 Acceptance Guide](development/PHASE_8_ACCEPTANCE.md)                 | Automated and browser acceptance walkthrough for Phase 8                                         |
+| [Phase 8 Acceptance Guide](development/PHASE_8_ACCEPTANCE.md)                 | Repeatable Phase 8 verification walkthrough and formal owner acceptance record                    |
+| [Phase 9 Plan](development/PHASE_9_PLAN.md)                                     | Draft Campaign Analytics and Coupon Reporting scope, metrics, proposed API, and approval gate     |
 | [AI Development Guidelines](development/AI_DEVELOPMENT_GUIDELINES.md)         | How future AI work must use and preserve the docs                                                |
 | [Design Decisions](OPEN_DESIGN_QUESTIONS.md)                                  | Confirmed decisions and Ready-for-Development checklist                                          |
 | [ADR directory](decisions/ADR/)                                               | Decision records and rationale                                                                   |
@@ -39,10 +40,10 @@
 - API specification, OpenAPI, database design, ERD, architecture, module design, security design, and testing strategy:
   Approved as part of the v1.5.0 baseline.
 - ADR-001 through ADR-005: Accepted as part of the v1.5.0 baseline.
-- Development guidelines and AI development guidelines: Approved and governing the project; Phases 1–7 are formally
-  owner-accepted; Phase 8 implementation is delivered and awaits verification and owner acceptance.
-- `IMPLEMENTATION_PLAN.md`: Approved; Phases 0–7 complete and owner-accepted; Phase 8 implementation delivered,
-  verification/owner acceptance pending.
+- Development guidelines and AI development guidelines: Approved and governing the project; Phases 1–8 are formally
+  owner-accepted; Phase 9 planning is drafted and awaits owner approval.
+- `IMPLEMENTATION_PLAN.md`: Approved; Phases 0–8 complete and owner-accepted; Phase 9 plan drafted and awaiting owner
+  approval before implementation.
 - `PHASE_1_IMPLEMENTATION_REPORT.md`: Phase 1 formally accepted (2026-11-26).
 - `PHASE_2_IMPLEMENTATION_REPORT.md`: Phase 2 formally accepted (2026-11-26).
 - `PHASE_3_PLAN.md`: Owner-authorized implementation baseline.
@@ -72,7 +73,8 @@ Audience Preview uses its existing API path and request/response contract.
 - `PHASE_7_PLAN.md`: Owner-authorized implementation baseline (2026-11-27); delivered scope is recorded in
   `PHASE_7_IMPLEMENTATION_REPORT.md`.
 
-- `PHASE_8_PLAN.md`: owner-approved implementation scope; Phase 8 delivered on 2026-11-27.
-- `PHASE_8_IMPLEMENTATION_REPORT.md`: records delivered backend, frontend, API, and integration-test work; local
-  verification was blocked by unavailable Maven download and absent frontend dependencies.
-- `PHASE_8_ACCEPTANCE.md`: owner verification commands, API suite setup, browser walkthrough, and acceptance criteria.
+- `PHASE_8_PLAN.md`: owner-approved implementation scope; Phase 8 formally accepted on 2026-11-28.
+- `PHASE_8_IMPLEMENTATION_REPORT.md`: records delivered work and owner-reported Maven, startup, API, and Member UI
+  verification, including the successful coupon claim.
+- `PHASE_8_ACCEPTANCE.md`: repeatable verification reference and formal owner acceptance record (2026-11-28).
+- `PHASE_9_PLAN.md`: draft Analytics and Coupon Reporting plan; implementation awaits explicit owner approval.

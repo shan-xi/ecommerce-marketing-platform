@@ -1,7 +1,6 @@
 # Testing Strategy
 
-**Status:** Approved — part of the owner-approved v1.5.0 Development Baseline. Phases 1–7 verification results are
-recorded in their implementation reports; Phase 8 test coverage is defined below and awaits owner verification.
+**Status:** Approved — part of the owner-approved v1.5.0 Development Baseline. Phases 1–8 verification and owner acceptance are recorded in their implementation reports; Phase 9 analytics verification requirements are defined below.
 
 ## 1. Test pyramid
 
@@ -199,3 +198,24 @@ campaign creation/publication, member delivery, coupon claim, duplicate claim, c
   on `LANDING_PAGE_VIEW` are rejected.
 - Phase 8 PostgreSQL integration coverage is in `CampaignExperienceIntegrationTest`; the repeatable API verification is
   `scripts/api-tests/suites/phase8-member-experience-verification.zsh`.
+
+
+### Phase 9 campaign analytics and coupon reporting coverage (planned)
+
+- Campaign target count is derived from `campaign_audience_members`; delivered count is derived from `member_messages`.
+- Impression/click/page-view event totals are counted separately from distinct-member reach/clicker/visitor metrics.
+- Unique landing visitors are restricted to the immutable campaign audience snapshot; anonymous page views are not
+  attributed and no click-to-landing conversion is calculated.
+- Successful claim totals and unique claimers are derived only from `coupon_claims`; claim attempts and failed attempts
+  are derived from server-generated `CLAIM_ATTEMPT` audit events and their allowed outcomes.
+- Coupon-level configured quantity, successful claims, remaining quantity, unique claimers, and target claim rate are
+  verified. Counter/claim-row disagreement is surfaced as an integrity failure.
+- Repeated events from one member increase event totals but not distinct-member counts. Duplicate event IDs remain
+  governed by the existing database uniqueness constraint.
+- All rates include numerator and denominator; zero denominators produce `null`/unavailable, never `0%`.
+- Independent aggregate queries/CTEs prevent fan-out multiplication across events, claims, delivery, and coupons.
+- ADMIN can read analytics; MEMBER and anonymous callers are denied. Responses expose no member IDs, raw event metadata,
+  raw claim records, idempotency keys, or other personal data.
+- Test zero-activity campaigns, zero-member targets, no-claim coupons, multiple coupons claimed by one member, all claim
+  attempt outcomes, and coupon inventory/claim-counter mismatch.
+- No date-range, attribution, export, or schema migration behavior is introduced unless separately approved.

@@ -1,6 +1,6 @@
 # Phase 8 Implementation Report — Member Landing Page, Coupon Claim Experience, and Engagement
 
-**Status:** IMPLEMENTED — OWNER VERIFICATION PENDING. **Implementation date:** 2026-11-27. **Baseline:**
+**Status:** COMPLETE — FORMALLY OWNER-ACCEPTED (2026-11-28). **Implementation date:** 2026-11-27. **Owner acceptance date:** 2026-11-28. **Baseline:**
 Owner-authorized `PHASE_8_PLAN.md`, approved v1.5.0 Design Pack, and formally accepted Phases 1–7. **Database
 migration:** None. The existing V1 schema and constraints are reused; no applied migration was edited.
 
@@ -73,24 +73,32 @@ migration:** None. The existing V1 schema and constraints are reused; no applied
 - Reviewed backend named-JDBC parameter bindings for direct `Instant` values. The claim INSERT was the remaining direct
   `Instant` binding found; other timestamp writes use `Timestamp`.
 
-## 3. Verification status
+## 3. Verification status and owner acceptance
 
-The implementation package was prepared in an environment without Docker, Maven installed locally, zsh, or frontend
-dependencies cached. After the JDBC timestamp correction, the Maven wrapper was retried for
-`CampaignExperienceIntegrationTest`; it attempted to download Maven 3.10.2 but the environment could not resolve
-`dlcdn.apache.org`. Therefore Maven compilation, PostgreSQL integration tests, the Phase 8 zsh API suite, and the full
-frontend typecheck/build could not be run here. These checks are explicitly **not claimed as passed**.
+**Owner-reported verification (2026-11-28):**
 
-Checks completed in this environment: frontend native Node test suite **16 PASS / 0 FAIL**; OpenAPI YAML parsing and the
-two new response-schema reference checks PASS; TypeScript/TSX syntax parsing **17 files / 0 syntax diagnostics**; Phase
-8 backend service/controller and integration-test Java syntax compilation against minimal API stubs PASS. The stub
-compilation is a syntax sanity check only, not a substitute for the actual Maven build or Testcontainers execution.
+- `./mvnw -f backend/pom.xml clean verify` — PASS.
+- `./mvnw -f backend/pom.xml spring-boot:run` — PASS.
+- `npm run dev` — PASS.
+- `zsh scripts/api-tests/suites/phase8-member-experience-verification.zsh all` — PASS (owner reported all checks pass).
+- Browser/UI flow — PASS; the owner confirmed a MEMBER can operate the Phase 8 UI and successfully claim a coupon.
 
-Owner verification is required using the instructions in `PHASE_8_ACCEPTANCE.md`. The API suite and integration tests
-are included in the package. Phase 1–7 regression verification remains required before owner acceptance.
+The owner explicitly approved the Phase 8 changes on 2026-11-28. Phase 8 is therefore **FORMALLY ACCEPTED** and closed.
+
+**Verification evidence boundary:** these results are recorded as reported by the owner. The assistant did not execute
+these commands in the owner's environment. The owner did not separately report `npm test`, `npm run typecheck`,
+`npm run build`, or the Phase 1–7 API regression suites in this acceptance message; this report does not mark those
+individual commands as independently verified. The successful Maven `clean verify` is recorded as the owner's backend
+build/test evidence. The original implementation-environment limitations below remain historical context, not the
+current acceptance status.
+
+Historical implementation-environment checks: frontend native Node test suite **16 PASS / 0 FAIL**; OpenAPI YAML
+parsing and response-schema reference checks PASS; TypeScript/TSX syntax parsing **17 files / 0 syntax diagnostics**;
+Java syntax compilation against minimal API stubs PASS. Stub compilation was a syntax sanity check only, not a
+substitute for Maven or Testcontainers execution; the owner subsequently supplied the Maven verification result above.
 
 ## 4. Operational constraints
 
 - Preserve the Phase 7 single-backend-instance deployment restriction.
 - Do not add or edit Flyway V1/V2 migrations for Phase 8.
-- Phase 9 analytics remains out of scope and must not begin until Phase 8 is verified and accepted.
+- Phase 9 analytics was out of scope for Phase 8. Phase 8 is now accepted; Phase 9 planning is recorded in `PHASE_9_PLAN.md` and implementation remains subject to owner approval.
