@@ -1,4 +1,4 @@
-import {useCallback, useEffect, useState} from 'react';
+import {useCallback, useEffect, useRef, useState} from 'react';
 import {AuthApiError} from '../../shared/lib/authApi';
 import {getCampaignAnalytics} from '../../shared/lib/analyticsApi';
 import type {AnalyticsRate, CampaignAnalytics} from '../../shared/types/analytics';
@@ -25,22 +25,41 @@ export function CampaignAnalyticsPage({campaignId}: { campaignId: string }) {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [status, setStatus] = useState<number | null>(null);
+    // Only the most recently started request may update this page. This also
+    // invalidates in-flight requests when the campaign changes or unmounts.
+    const requestVersion = useRef(0);
+    // Effects run after render. Hide a previous campaign's report immediately
+    // when campaignId changes, before the next request's effect starts.
+    const visibleReport = report?.campaignId === campaignId ? report : null;
     const load = useCallback(async () => {
+        const currentRequest = ++requestVersion.current;
         setLoading(true);
+        setReport(null);
         setError(null);
         setStatus(null);
         try {
-            setReport(await getCampaignAnalytics(campaignId));
+            const nextReport = await getCampaignAnalytics(campaignId);
+            if (currentRequest === requestVersion.current) {
+                setReport(nextReport);
+            }
         } catch (e) {
-            setReport(null);
-            setError(e instanceof Error ? e.message : '無法載入活動報表。');
-            setStatus(e instanceof AuthApiError ? e.status : null);
+            if (currentRequest === requestVersion.current) {
+                setReport(null);
+                setError(e instanceof Error ? e.message : '無法載入活動報表。');
+                setStatus(e instanceof AuthApiError ? e.status : null);
+            }
         } finally {
-            setLoading(false);
+            if (currentRequest === requestVersion.current) {
+                setLoading(false);
+            }
         }
     }, [campaignId]);
     useEffect(() => {
         void load();
+        return () => {
+            // Invalidate the request on campaign change and component unmount.
+            requestVersion.current += 1;
+        };
     }, [load]);
 
     return <section className="analytics-shell">
@@ -54,48 +73,51 @@ export function CampaignAnalyticsPage({campaignId}: { campaignId: string }) {
             <p>{status === 404 ? '找不到此 Campaign。' : status === 401 || status === 403 ? '此報表僅供管理員檢視。' : error}</p>
             <button type="button" onClick={() => void load()}>重新載入</button>
         </div>}
-        {!loading && report && <>
+        {!loading && visibleReport && <>
             <div className="analytics-heading">
-                <div><h3>{report.campaignName}</h3><small className="muted">{report.campaignId}</small></div>
+                <div><h3>{visibleReport.campaignName}</h3><small className="muted">{visibleReport.campaignId}</small>
+                </div>
                 <button type="button" className="secondary" onClick={() => void load()}>重新整理</button>
             </div>
-            {report.deliveredMembers === 0 && report.impressionCount === 0 && report.clickCount === 0
-                && report.landingPageViews === 0 && report.couponClaims === 0 && report.claimAttemptCount === 0
+            {visibleReport.deliveredMembers === 0 && visibleReport.impressionCount === 0 && visibleReport.clickCount === 0
+                && visibleReport.landingPageViews === 0 && visibleReport.couponClaims === 0 && visibleReport.claimAttemptCount === 0
                 && <p className="notice-message">此活動目前尚無送達、互動或領券紀錄。</p>}
             <h3>Audience & Delivery</h3>
             <div className="analytics-grid">
-                <Metric label="Target Members" value={report.targetMembers}/>
-                <Metric label="Delivered Members" value={report.deliveredMembers} rate={report.deliveryRate}
+                <Metric label="Target Members" value={visibleReport.targetMembers}/>
+                <Metric label="Delivered Members" value={visibleReport.deliveredMembers}
+                        rate={visibleReport.deliveryRate}
                         rateLabel="Delivery Rate"/>
             </div>
             <h3>Message Engagement</h3>
             <div className="analytics-grid">
-                <Metric label="Impression Count" value={report.impressionCount}/><Metric label="Unique Reach"
-                                                                                         value={report.uniqueReach}
-                                                                                         rate={report.reachRate}
-                                                                                         rateLabel="Reach Rate"/>
-                <Metric label="Click Count" value={report.clickCount}/><Metric label="Unique Clickers"
-                                                                               value={report.uniqueClickers}
-                                                                               rate={report.clickRate}
-                                                                               rateLabel="Click Rate"/>
+                <Metric label="Impression Count" value={visibleReport.impressionCount}/><Metric label="Unique Reach"
+                                                                                                value={visibleReport.uniqueReach}
+                                                                                                rate={visibleReport.reachRate}
+                                                                                                rateLabel="Reach Rate"/>
+                <Metric label="Click Count" value={visibleReport.clickCount}/><Metric label="Unique Clickers"
+                                                                                      value={visibleReport.uniqueClickers}
+                                                                                      rate={visibleReport.clickRate}
+                                                                                      rateLabel="Click Rate"/>
             </div>
             <h3>Landing Page</h3>
             <div className="analytics-grid">
-                <Metric label="Landing Page Views" value={report.landingPageViews}/>
-                <Metric label="Unique Landing Visitors" value={report.uniqueLandingVisitors}
-                        rate={report.targetLandingVisitorRate} rateLabel="Target Landing Visitor Rate"/>
+                <Metric label="Landing Page Views" value={visibleReport.landingPageViews}/>
+                <Metric label="Unique Landing Visitors" value={visibleReport.uniqueLandingVisitors}
+                        rate={visibleReport.targetLandingVisitorRate} rateLabel="Target Landing Visitor Rate"/>
             </div>
             <h3>Coupon Claims & Audit</h3>
             <div className="analytics-grid">
-                <Metric label="Successful Coupon Claims" value={report.couponClaims}/>
-                <Metric label="Unique Claimers" value={report.uniqueClaimers} rate={report.targetClaimRate}
+                <Metric label="Successful Coupon Claims" value={visibleReport.couponClaims}/>
+                <Metric label="Unique Claimers" value={visibleReport.uniqueClaimers}
+                        rate={visibleReport.targetClaimRate}
                         rateLabel="Target Claim Rate"/>
-                <Metric label="Claim Attempts" value={report.claimAttemptCount}
-                        detail={`成功 ${report.claimAttemptsByOutcome.succeeded} · 失敗 ${report.claimAttemptsByOutcome.failed} · 重播 ${report.claimAttemptsByOutcome.replayed}`}/>
-                <Metric label="Failed Claim Attempts" value={report.failedClaimAttemptCount}/>
+                <Metric label="Claim Attempts" value={visibleReport.claimAttemptCount}
+                        detail={`成功 ${visibleReport.claimAttemptsByOutcome.succeeded} · 失敗 ${visibleReport.claimAttemptsByOutcome.failed} · 重播 ${visibleReport.claimAttemptsByOutcome.replayed}`}/>
+                <Metric label="Failed Claim Attempts" value={visibleReport.failedClaimAttemptCount}/>
             </div>
             <h3>Coupon Performance</h3>
-            {report.coupons.length === 0 ? <p className="muted">此 Campaign 尚未設定優惠券。</p> :
+            {visibleReport.coupons.length === 0 ? <p className="muted">此 Campaign 尚未設定優惠券。</p> :
                 <div className="analytics-table-wrap">
                     <table className="analytics-table">
                         <thead>
@@ -108,7 +130,7 @@ export function CampaignAnalyticsPage({campaignId}: { campaignId: string }) {
                             <th>Target Claim Rate</th>
                         </tr>
                         </thead>
-                        <tbody>{report.coupons.map(c => <tr key={c.couponId}>
+                        <tbody>{visibleReport.coupons.map(c => <tr key={c.couponId}>
                             <td><strong>{c.name}</strong><small>{c.couponId}</small></td>
                             <td>{c.totalQuantity}</td>
                             <td>{c.successfulClaims}</td>
@@ -118,7 +140,7 @@ export function CampaignAnalyticsPage({campaignId}: { campaignId: string }) {
                         </tr>)}</tbody>
                     </table>
                 </div>}
-            {report.targetMembers === 0 &&
+            {visibleReport.targetMembers === 0 &&
                 <p className="notice-message">此活動目標會員數為 0；以目標會員為分母的比率顯示為不可用。</p>}
             <p className="analytics-footnote">所有指標皆為活動累計值。Landing Visitor Rate
                 為目標受眾滲透率，非點擊歸因或轉換率。</p>

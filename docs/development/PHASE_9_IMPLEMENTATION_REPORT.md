@@ -34,11 +34,20 @@ page-view visitor audience filtering, multiple coupons claimed by one member, al
 zero-activity/zero-target behavior, inventory mismatch, unknown campaign, and ADMIN/MEMBER/anonymous access boundaries.
 
 `frontend/scripts/phase9-analytics.test.mjs` covers route wiring/role gate, metric distinctions and rate display, the
-approved API path, campaign navigation, and the API suite's CSRF-helper dependency.
+approved API path, campaign navigation, the API suite's CSRF-helper dependency, and protection against stale
+asynchronous
+analytics responses when navigating between campaigns or unmounting the report page.
 
 ## 3. Execution results in the implementation environment
 
-- `node --test frontend/scripts/*.test.mjs`: **21 PASS / 0 FAIL**.
+- `node --test frontend/scripts/*.test.mjs`: **25 PASS / 0 FAIL** (re-run after the final analytics display fix on
+  2026-11-28).
+- Phase 9 review fix: analytics requests now use a monotonically increasing request version; only the latest request may
+  update report, error, status, or loading state. Effect cleanup invalidates pending requests on campaign
+  change/unmount.
+  The report is cleared at request start so a previous campaign's metrics are not displayed during the next load.
+  Rendering is additionally gated by `report.campaignId === campaignId`, preventing the previous report from appearing
+  during the render before the new effect runs.
 - ZIP source archive integrity before modification: PASS.
 - Maven compile/integration tests: **NOT RUN**. The environment has no installed Maven; the Maven wrapper attempted to
   download Maven 3.10.2 but network DNS resolution for `dlcdn.apache.org` failed (`curl: (6) Could not resolve host`).

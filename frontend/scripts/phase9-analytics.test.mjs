@@ -59,3 +59,23 @@ test('impression and landing page views remain repeatable event counts', async (
     assert.match(inbox, /const impressionSent = useRef\(false\)/);
     assert.match(landing, /const viewRecorded = useRef<string \| null>\(null\)/);
 });
+
+
+test('stale campaign analytics requests cannot overwrite the latest request', () => {
+    const page = read('../src/features/analytics/CampaignAnalyticsPage.tsx');
+    assert.match(page, /useRef/);
+    assert.match(page, /const requestVersion = useRef\(0\)/);
+    assert.match(page, /const currentRequest = \+\+requestVersion\.current/);
+    assert.match(page, /if \(currentRequest === requestVersion\.current\) \{\s*setReport\(nextReport\)/);
+    assert.match(page, /if \(currentRequest === requestVersion\.current\) \{\s*setReport\(null\);\s*setError/);
+    assert.match(page, /if \(currentRequest === requestVersion\.current\) \{\s*setLoading\(false\)/);
+    assert.match(page, /return \(\) => \{\s*\/\/ Invalidate the request[\s\S]*?requestVersion\.current \+= 1/);
+});
+
+
+test('analytics page never renders a report belonging to a previous campaign during the render before effects', () => {
+    const page = read('../src/features/analytics/CampaignAnalyticsPage.tsx');
+    assert.match(page, /const visibleReport = report\?\.campaignId === campaignId \? report : null/);
+    assert.match(page, /!loading && visibleReport && <>/);
+    assert.doesNotMatch(page, /!loading && report && <>/);
+});
