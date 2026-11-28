@@ -179,3 +179,18 @@ configured demo member. Set `PHASE8_PUBLISHED_CAMPAIGN_ID` to that campaign UUID
 checks anonymous/member reads, response privacy, role/CSRF boundaries, authenticated page-view events, inbox
 impression/click events, message ownership validation, and event idempotency. It does not claim coupons or change
 campaign lifecycle state.
+
+## Phase 9 — Campaign analytics
+
+The Phase 9 suite is read-only and requires an existing campaign UUID. It verifies ADMIN access, MEMBER/anonymous
+denial,
+response metric/rate shape, coupon summary fields, remaining-quantity arithmetic, and absence of raw member/event data.
+It does not create fixtures or mutate campaign data.
+
+```zsh
+export PHASE9_CAMPAIGN_ID="<existing-campaign-uuid>"
+zsh scripts/api-tests/suites/phase9-analytics-verification.zsh
+```
+
+Run it after the backend is started and the local demo accounts are initialized. See
+`docs/development/PHASE_9_ACCEPTANCE.md` for the complete owner walkthrough.

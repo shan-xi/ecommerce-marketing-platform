@@ -51,7 +51,7 @@ test('auth provider exposes loading, authenticated, and anonymous states', () =>
     assert.match(authProvider, /'loading' \| 'authenticated' \| 'anonymous' \| 'error'/);
 });
 test('Phase 7 Admin workspace remains available alongside Phase 8 public and Member routes', () => {
-    assert.match(appTs, /PHASE 7 \+ PHASE 8/);
+    assert.match(appTs, /PHASE 7 \+ (?:PHASE )?8(?: \+ 9)?/);
     assert.match(appTs, /LoginForm/);
     assert.match(appTs, /user\?\.role === 'ADMIN'/);
     assert.match(appTs, /user\.role === 'ADMIN' \? '\/admin'/);

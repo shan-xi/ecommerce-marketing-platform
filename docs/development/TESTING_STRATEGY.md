@@ -1,6 +1,7 @@
 # Testing Strategy
 
-**Status:** Approved — part of the owner-approved v1.5.0 Development Baseline. Phases 1–8 verification and owner acceptance are recorded in their implementation reports; Phase 9 analytics verification requirements are defined below.
+**Status:** Approved — part of the owner-approved v1.5.0 Development Baseline. Phases 1–8 verification and owner
+acceptance are recorded in their implementation reports; Phase 9 analytics verification requirements are defined below.
 
 ## 1. Test pyramid
 
@@ -199,8 +200,7 @@ campaign creation/publication, member delivery, coupon claim, duplicate claim, c
 - Phase 8 PostgreSQL integration coverage is in `CampaignExperienceIntegrationTest`; the repeatable API verification is
   `scripts/api-tests/suites/phase8-member-experience-verification.zsh`.
 
-
-### Phase 9 campaign analytics and coupon reporting coverage (planned)
+### Phase 9 campaign analytics and coupon reporting coverage
 
 - Campaign target count is derived from `campaign_audience_members`; delivered count is derived from `member_messages`.
 - Impression/click/page-view event totals are counted separately from distinct-member reach/clicker/visitor metrics.

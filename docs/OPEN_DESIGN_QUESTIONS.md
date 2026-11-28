@@ -1,7 +1,7 @@
 # Design Decisions and Ready-for-Development Checklist
 
-**Status:** Owner-approved v1.5.0 Development Baseline; Phases 1–7 formally accepted; Phase 8 implementation delivered
-and awaiting verification/owner acceptance. **Scope:**
+**Status:** Owner-approved v1.5.0 Development Baseline; Phases 1–8 formally accepted; Phase 9 implementation delivered
+and awaiting owner verification. **Scope:**
 These decisions confirm the existing MVP direction and do not authorize scope expansion.
 
 ## 1. Confirmed decisions
@@ -107,13 +107,12 @@ verification; see the Phase 7 implementation report.
   suite 23/23 PASS; Phase 7 formally accepted on 2026-11-27.
 - [x] Phase 8 implementation explicitly authorized by the owner on 2026-11-27, verified, and formally accepted on
   2026-11-28.
-- [x] Phase 9 Analytics plan drafted from PRD Sections 6.8 and 7.1–7.3 on 2026-11-28; owner approval and implementation
-  authorization remain pending.
+- [x] Phase 9 Analytics plan approved and implementation explicitly authorized by the owner on 2026-11-28;
+  implementation delivered and awaiting owner verification.
 
 All design approval gates for the v1.5.0 baseline remain complete. Phases 1–8 are formally accepted. A dedicated
-high-contention Coupon inventory race test is tracked for Phase 10 hardening. Phase 9 implementation remains gated on
-owner approval of `development/PHASE_9_PLAN.md` and explicit authorization.
-
+high-contention Coupon inventory race test is tracked for Phase 10 hardening. Phase 9 implementation is delivered and
+awaits owner verification and acceptance.
 
 ## 5. Phase acceptance and next planning gate (2026-11-28)
 
@@ -121,7 +120,6 @@ owner approval of `development/PHASE_9_PLAN.md` and explicit authorization.
   startup, frontend `npm run dev`, Phase 8 API verification suite `all`, and successful Member UI coupon claim. Exact
   evidence boundary is documented in `development/PHASE_8_IMPLEMENTATION_REPORT.md` and
   `development/PHASE_8_ACCEPTANCE.md`.
-- **Phase 9:** `development/PHASE_9_PLAN.md` drafted from PRD Sections 6.8 and 7.1–7.3. Proposed new API:
-  `GET /api/v1/admin/campaigns/{campaignId}/analytics`; proposed Admin route:
-  `/admin/campaigns/:campaignId/analytics`. The endpoint/response proposal and bounded scope require owner approval
-  before implementation. No Phase 9 application code or schema change is authorized by the planning document alone.
+- **Phase 9:** owner approved `development/PHASE_9_PLAN.md` and explicitly authorized implementation on 2026-11-28. The
+  combined ADMIN analytics endpoint and Admin route `/admin/campaigns/:campaignId/analytics` are implemented. No schema
+  change was introduced. Owner verification remains pending; see `PHASE_9_IMPLEMENTATION_REPORT.md`.

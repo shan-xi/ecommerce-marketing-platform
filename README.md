@@ -1,8 +1,8 @@
 # E-commerce Campaign & Coupon Engagement Platform
 
 **Project baseline:** v1.5.0 (owner-approved)  
-**Implementation status:** Phases 0–7 are complete and owner-accepted. Phase 8 implementation is delivered; verification
-and owner acceptance are pending.
+**Implementation status:** Phases 0–8 are complete and owner-accepted. Phase 9 implementation is delivered and awaits
+owner verification.
 
 This repository implements the approved MVP described in [`docs/PRD.md`](docs/PRD.md). The project is a modular monolith
 with one Spring Boot backend, one React + TypeScript SPA, and PostgreSQL as the source of truth.
@@ -79,9 +79,29 @@ zsh scripts/api-tests/suites/phase7-message-publication-delivery-verification.zs
 Phase 8 implementation is delivered under the owner's explicit instruction on 2026-11-27. It adds the public campaign
 landing page, member coupon claim experience and safe sign-in return flow, member inbox navigation, and idempotent
 impression/click/authenticated page-view event ingestion. No database migration or Phase 6/7 behavior change was
-introduced. **Verification and owner acceptance are pending**; follow [
-`docs/development/PHASE_8_ACCEPTANCE.md`](docs/development/PHASE_8_ACCEPTANCE.md) and review [
+introduced. **Phase 8 was formally accepted on 2026-11-28** after owner-reported Maven clean verify, backend startup,
+frontend dev startup, Phase 8 API verification `all`, and successful Member UI coupon claim. See [
+`docs/development/PHASE_8_ACCEPTANCE.md`](docs/development/PHASE_8_ACCEPTANCE.md) and [
 `docs/development/PHASE_8_IMPLEMENTATION_REPORT.md`](docs/development/PHASE_8_IMPLEMENTATION_REPORT.md).
+
+## Phase 9 — Campaign Analytics and Coupon Reporting
+
+Phase 9 implements the owner-approved campaign-lifetime analytics report. ADMIN users can open
+`/admin/campaigns/:campaignId/analytics` or use the analytics link from a selected published campaign. The read-only
+API is `GET /api/v1/admin/campaigns/{campaignId}/analytics`; it reports audience, delivery, engagement, landing-page,
+successful claim, claim-attempt, and per-coupon metrics. Counts and distinct-member counts remain separate, rates
+include
+numerator/denominator and use `null` for zero denominators, and coupon inventory counters are checked against successful
+claim rows. No schema migration was introduced. Implementation is delivered but owner verification remains pending;
+follow [`docs/development/PHASE_9_IMPLEMENTATION_REPORT.md`](docs/development/PHASE_9_IMPLEMENTATION_REPORT.md) and
+[`docs/development/PHASE_9_ACCEPTANCE.md`](docs/development/PHASE_9_ACCEPTANCE.md).
+
+Run the non-destructive Phase 9 API verification against an existing campaign:
+
+```zsh
+export PHASE9_CAMPAIGN_ID="<campaign-uuid>"
+zsh scripts/api-tests/suites/phase9-analytics-verification.zsh
+```
 
 ## Technology versions
 
@@ -201,6 +221,9 @@ docker compose ps
 - Phase 8 implementation report: [
   `docs/development/PHASE_8_IMPLEMENTATION_REPORT.md`](docs/development/PHASE_8_IMPLEMENTATION_REPORT.md)
 - Phase 8 acceptance guide: [`docs/development/PHASE_8_ACCEPTANCE.md`](docs/development/PHASE_8_ACCEPTANCE.md)
+- Phase 9 plan/report/acceptance: [`docs/development/PHASE_9_PLAN.md`](docs/development/PHASE_9_PLAN.md), [
+  `docs/development/PHASE_9_IMPLEMENTATION_REPORT.md`](docs/development/PHASE_9_IMPLEMENTATION_REPORT.md), [
+  `docs/development/PHASE_9_ACCEPTANCE.md`](docs/development/PHASE_9_ACCEPTANCE.md)
 - Phase 7 worker deployment and recovery runbook: [
   `docs/development/PHASE_7_OPERATIONS.md`](docs/development/PHASE_7_OPERATIONS.md)
 - Phase 5 implementation report: [

@@ -1,8 +1,10 @@
 # Phase 9 Plan — Campaign Analytics and Coupon Reporting
 
-**Document status:** DRAFT — OWNER REVIEW / APPROVAL REQUIRED. **Planning date:** 2026-11-28. **Preceding phase:**
-Phase 8 formally accepted by the owner on 2026-11-28. **Implementation status:** NOT STARTED. This document defines a
-bounded implementation proposal; it is not authorization to modify application code, API contracts, or database schema.
+**Document status:** OWNER-APPROVED — IMPLEMENTATION AUTHORIZED. **Planning date:** 2026-11-28. **Preceding phase:**
+Phase 8 formally accepted by the owner on 2026-11-28. **Implementation status:** IMPLEMENTED — OWNER VERIFICATION
+PENDING. Owner approval was explicitly
+provided on 2026-11-28 with the instruction: “I approve Phase 9 plan. Start implementation strictly following related
+docs.”
 
 ## 1. Objective
 
@@ -26,10 +28,12 @@ This plan is subordinate to, and must preserve:
    proposed analytics read endpoint below is new and requires owner approval before implementation.
 4. `docs/architecture/ARCHITECTURE.md`, `docs/architecture/MODULE_DESIGN.md`, and
    `docs/architecture/SECURITY_DESIGN.md` for module boundaries and ADMIN authorization.
-5. `docs/development/TESTING_STRATEGY.md` and `docs/development/IMPLEMENTATION_PLAN.md` for verification and phase gates.
+5. `docs/development/TESTING_STRATEGY.md` and `docs/development/IMPLEMENTATION_PLAN.md` for verification and phase
+   gates.
 6. Accepted Phase 6, 7, and 8 implementation reports for claim, delivery, and event-ingestion behavior.
 
-If a discrepancy is found between the PRD, existing code, and stored data, stop and document it. Do not silently redefine
+If a discrepancy is found between the PRD, existing code, and stored data, stop and document it. Do not silently
+redefine
 a metric or alter an accepted contract.
 
 ## 3. Scope
@@ -70,11 +74,13 @@ For every campaign coupon, show:
 - Add the PRD route `/admin/campaigns/:campaignId/analytics` within the existing React SPA.
 - Add a clear entry point from the existing Campaign management UI for campaigns that can be reported.
 - Provide loading, empty/no-activity, unavailable/not-found, authorization, and retryable error states.
-- Keep the report read-only; no mutation, export, charting library, or cross-campaign dashboard is required for this phase.
+- Keep the report read-only; no mutation, export, charting library, or cross-campaign dashboard is required for this
+  phase.
 
 ### 3.2 Explicitly out of scope
 
-- Cross-campaign portfolio dashboards, date-range filtering, time-series charts, cohort analysis, attribution models, and
+- Cross-campaign portfolio dashboards, date-range filtering, time-series charts, cohort analysis, attribution models,
+  and
   click-to-landing conversion.
 - Revenue, orders, checkout conversion, coupon redemption, refunds, or payment metrics.
 - CSV/PDF export, scheduled reports, report snapshots, caching infrastructure, background aggregation jobs, or a data
@@ -92,25 +98,25 @@ For every campaign coupon, show:
 All metrics are campaign-lifetime totals for the MVP. No date filter is introduced in this phase. Use the following
 sources and rules exactly:
 
-| Metric | Source / calculation |
-|---|---|
-| Target Members | `COUNT(*)` from `campaign_audience_members` for the campaign (one row per target member). |
-| Delivered Members | `COUNT(*)` from `member_messages` for the campaign. Do not use delivery jobs or synthetic events. |
-| Delivery Rate | Delivered Members / Target Members. |
-| Impression Count | Count `campaign_events` rows with `event_type = IMPRESSION`. |
-| Unique Reach | Distinct `member_id` among campaign IMPRESSION events. |
-| Reach Rate | Unique Reach / Target Members. |
-| Click Count | Count `campaign_events` rows with `event_type = CLICK`. |
-| Unique Clickers | Distinct `member_id` among campaign CLICK events. |
-| Click Rate | Unique Clickers / Delivered Members. |
-| Landing Page Views | Count `campaign_events` rows with `event_type = LANDING_PAGE_VIEW`. |
-| Unique Landing Visitors | Distinct members with a LANDING_PAGE_VIEW who are also in this campaign's immutable `campaign_audience_members` snapshot. |
-| Target Landing Visitor Rate | Unique Landing Visitors / Target Members. This is descriptive audience penetration, not click attribution. |
-| Coupon Claims | Count successful `coupon_claims` rows for the campaign. Never infer success from `CLAIM_ATTEMPT` events. |
-| Unique Claimers | Distinct members with at least one successful `coupon_claims` row in the campaign. |
-| Target Claim Rate | Unique Claimers / Target Members. |
-| Claim Attempt Count | Count server-generated `campaign_events` rows with `event_type = CLAIM_ATTEMPT`, including all allowed outcomes. |
-| Failed Claim Attempt Count | Claim-attempt rows whose `metadata.outcome = FAILED`. |
+| Metric                      | Source / calculation                                                                                                      |
+|-----------------------------|---------------------------------------------------------------------------------------------------------------------------|
+| Target Members              | `COUNT(*)` from `campaign_audience_members` for the campaign (one row per target member).                                 |
+| Delivered Members           | `COUNT(*)` from `member_messages` for the campaign. Do not use delivery jobs or synthetic events.                         |
+| Delivery Rate               | Delivered Members / Target Members.                                                                                       |
+| Impression Count            | Count `campaign_events` rows with `event_type = IMPRESSION`.                                                              |
+| Unique Reach                | Distinct `member_id` among campaign IMPRESSION events.                                                                    |
+| Reach Rate                  | Unique Reach / Target Members.                                                                                            |
+| Click Count                 | Count `campaign_events` rows with `event_type = CLICK`.                                                                   |
+| Unique Clickers             | Distinct `member_id` among campaign CLICK events.                                                                         |
+| Click Rate                  | Unique Clickers / Delivered Members.                                                                                      |
+| Landing Page Views          | Count `campaign_events` rows with `event_type = LANDING_PAGE_VIEW`.                                                       |
+| Unique Landing Visitors     | Distinct members with a LANDING_PAGE_VIEW who are also in this campaign's immutable `campaign_audience_members` snapshot. |
+| Target Landing Visitor Rate | Unique Landing Visitors / Target Members. This is descriptive audience penetration, not click attribution.                |
+| Coupon Claims               | Count successful `coupon_claims` rows for the campaign. Never infer success from `CLAIM_ATTEMPT` events.                  |
+| Unique Claimers             | Distinct members with at least one successful `coupon_claims` row in the campaign.                                        |
+| Target Claim Rate           | Unique Claimers / Target Members.                                                                                         |
+| Claim Attempt Count         | Count server-generated `campaign_events` rows with `event_type = CLAIM_ATTEMPT`, including all allowed outcomes.          |
+| Failed Claim Attempt Count  | Claim-attempt rows whose `metadata.outcome = FAILED`.                                                                     |
 
 For coupon-level values, scope `coupon_claims` to both campaign and coupon. A member may claim different coupons in one
 campaign; therefore the sum of per-coupon unique claimers can exceed campaign-level Unique Claimers. Remaining quantity
@@ -118,16 +124,18 @@ is `total_quantity - claimed_quantity`; the implementation must verify that the 
 rows and surface an integrity error rather than silently masking a mismatch.
 
 **Rate handling:** if the denominator is zero, return `null` (unavailable), never `0%`. Return raw numerator and
-denominator alongside each rate. Do not cap or otherwise cosmetically alter ratios; display formatting belongs to the UI.
+denominator alongside each rate. Do not cap or otherwise cosmetically alter ratios; display formatting belongs to the
+UI.
 
 **Deduplication and timestamps:** rely on the existing `(member_id, event_id)` uniqueness constraint; do not deduplicate
 again using a different rule. The PRD defines counts by persisted event records, not by client `occurred_at` windows.
 `received_at` may be used for future time slicing, but no time slicing is included now.
 
-**No attribution:** do not calculate `Unique Landing Visitors / Unique Clickers`, or describe any landing-page metric as a
+**No attribution:** do not calculate `Unique Landing Visitors / Unique Clickers`, or describe any landing-page metric as
+a
 click-through conversion. Direct authenticated visits are included. Anonymous visits are absent by design.
 
-## 5. Proposed API contract (new; approval required)
+## 5. API contract (owner-approved for implementation)
 
 Proposed read-only endpoint:
 
@@ -137,7 +145,8 @@ Proposed read-only endpoint:
 - No request body and no query parameters in the MVP.
 - Return one campaign summary object and a deterministic list of coupon summaries.
 - Reuse the repository's standard success/error envelope and existing not-found behavior for an unknown campaign.
-- Do not expose member-level identifiers, raw events, event metadata, raw claim rows, idempotency keys, or personal data.
+- Do not expose member-level identifiers, raw events, event metadata, raw claim rows, idempotency keys, or personal
+  data.
 
 Proposed response shape (illustrative field names; finalize in OpenAPI after owner approval):
 
@@ -177,9 +186,9 @@ Proposed response shape (illustrative field names; finalize in OpenAPI after own
 }
 ```
 
-The shape is a proposal, not an existing contract. Owner approval of this plan authorizes this bounded endpoint shape to
-be finalized consistently in `API_SPECIFICATION.md` and `openapi.yaml` during implementation. Any material deviation
-requires renewed approval.
+The response shape above is the approved bounded contract and is finalized in `API_SPECIFICATION.md` and `openapi.yaml`.
+The implementation uses one endpoint with coupon summaries embedded in `coupons`; it does not add a separate coupon
+analytics endpoint. Any material deviation requires renewed approval.
 
 ## 6. Backend design and query safety
 
@@ -220,7 +229,8 @@ requires renewed approval.
 - PostgreSQL integration tests seed known audience, inbox, event, claim, and coupon rows and assert every metric against
   independently calculated expected values.
 - Tests prove event totals and distinct-member totals differ correctly when one member emits repeated events.
-- Tests prove delivery is derived from `member_messages`, successful claims from `coupon_claims`, and claim attempts from
+- Tests prove delivery is derived from `member_messages`, successful claims from `coupon_claims`, and claim attempts
+  from
   server-generated audit events; a failed/replayed attempt never increments successful claims.
 - Tests prove Unique Landing Visitors includes only audience-snapshot members with authenticated page views; direct
   visits are included, anonymous visits cannot appear, and no click-to-landing conversion is returned.
@@ -249,7 +259,7 @@ requires renewed approval.
 ## 9. Deliverables
 
 - `analytics` backend module and tests.
-- Proposed Admin analytics GET endpoint and synchronized API/OpenAPI documentation.
+- ADMIN analytics GET endpoint and synchronized API/OpenAPI documentation.
 - Admin campaign analytics page and navigation entry.
 - Repeatable `phase9-analytics-verification.zsh` API suite with deterministic, non-destructive read assertions where
   possible (test fixture creation/cleanup must be explicit if needed).
@@ -258,14 +268,17 @@ requires renewed approval.
 
 ## 10. Dependencies, risks, and approval gate
 
-- Phase 8 is formally owner-accepted on 2026-11-28; Phase 9 planning may proceed.
-- Phase 9 implementation is blocked until the owner approves this plan and explicitly authorizes implementation.
-- Main correctness risk is aggregate fan-out from joining multiple one-to-many tables; independent aggregate queries/CTEs
+- Phase 8 is formally owner-accepted on 2026-11-28; Phase 9 plan and implementation were explicitly authorized by the
+  owner on 2026-11-28.
+- Owner approved this plan and explicitly authorized implementation on 2026-11-28. Implementation has been delivered
+  within this scope; owner verification remains pending.
+- Main correctness risk is aggregate fan-out from joining multiple one-to-many tables; independent aggregate
+  queries/CTEs
   and fixture tests are mandatory.
-- Main semantic risk is confusing events, people, successful claims, and claim attempts; UI labels and tests must preserve
+- Main semantic risk is confusing events, people, successful claims, and claim attempts; UI labels and tests must
+  preserve
   the PRD definitions.
 - Performance risk is unbounded event scans; scope every query by campaign and inspect plans before schema changes.
 - The Phase 7 single-backend-instance operational constraint remains unchanged.
 
-**Requested owner decision:** approve or request changes to `PHASE_9_PLAN.md`. Approval authorizes the proposed bounded
-read endpoint and Admin reporting UI described here; implementation begins only after explicit authorization.
+**Owner decision:** APPROVED on 2026-11-28. Implementation is authorized strictly within the scope above.

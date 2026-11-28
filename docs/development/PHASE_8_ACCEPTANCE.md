@@ -63,13 +63,18 @@ runs as part of Maven `verify` and requires Docker/Testcontainers.
    second claim.
 6. Sign in as `member.two@example.test` (not in the test campaign snapshot unless the campaign explicitly includes
    them). Confirm explicit not-eligible state even when stock remains.
-7. Open `/member/messages`. Scroll a delivered message card at least halfway into view and confirm one IMPRESSION event.
-   Click `查看活動`; confirm a CLICK event is submitted and the campaign landing page opens.
-8. Sign in as ADMIN and open the public campaign URL. Confirm public content remains visible but no MEMBER
+7. Open `/member/messages`. Scroll a delivered message card at least halfway into view and confirm one IMPRESSION event
+   for that inbox-page visit. Re-enter or reload the inbox and confirm another IMPRESSION may be recorded for the same
+   member; Unique Reach must remain one.
+   Click `查看活動`; confirm the CLICK request completes before navigation and the campaign landing page opens. Repeat
+   the action and confirm Click Count can increase while Unique Clickers remains one.
+8. As the authenticated MEMBER, open/reload the same campaign landing page more than once. Confirm each landing-page
+   component mount may add one LANDING_PAGE_VIEW, while Unique Landing Visitors remains one for that member.
+9. Sign in as ADMIN and open the public campaign URL. Confirm public content remains visible but no MEMBER
    eligibility/claim state is exposed and ADMIN cannot submit engagement events.
-9. For a published PAUSED campaign or campaign whose `endsAt` has passed, confirm the public page remains readable, all
-   new claims are unavailable, and no claim request succeeds.
-10. Open a DRAFT campaign URL. Confirm the public endpoint returns the documented not-found behavior.
+10. For a published PAUSED campaign or campaign whose `endsAt` has passed, confirm the public page remains readable, all
+    new claims are unavailable, and no claim request succeeds.
+11. Open a DRAFT campaign URL. Confirm the public endpoint returns the documented not-found behavior.
 
 ## 4. Database checks (optional, useful for event deduplication)
 
@@ -115,18 +120,17 @@ The following criteria defined the Phase 8 acceptance gate:
   and message/page event behavior.
 - The owner reviews the implementation report and explicitly accepts Phase 8.
 
-
 ## 6. Formal owner acceptance record (2026-11-28)
 
 The owner explicitly approved Phase 8 and reported the following results:
 
-| Verification | Owner-reported result |
-|---|---|
-| `./mvnw -f backend/pom.xml clean verify` | PASS |
-| `./mvnw -f backend/pom.xml spring-boot:run` | PASS |
-| `npm run dev` | PASS |
-| `zsh scripts/api-tests/suites/phase8-member-experience-verification.zsh all` | PASS — all checks |
-| Member UI flow | PASS — coupon successfully claimed |
+| Verification                                                                 | Owner-reported result              |
+|------------------------------------------------------------------------------|------------------------------------|
+| `./mvnw -f backend/pom.xml clean verify`                                     | PASS                               |
+| `./mvnw -f backend/pom.xml spring-boot:run`                                  | PASS                               |
+| `npm run dev`                                                                | PASS                               |
+| `zsh scripts/api-tests/suites/phase8-member-experience-verification.zsh all` | PASS — all checks                  |
+| Member UI flow                                                               | PASS — coupon successfully claimed |
 
 **Decision:** Phase 8 is formally accepted and closed on 2026-11-28. Phase 9 planning is unblocked.
 

@@ -497,6 +497,13 @@ message.
 | Claim Attempt Count        | Number of server-generated `CLAIM_ATTEMPT` audit events, including succeeded, failed, and replayed requests    |
 | Failed Claim Attempt Count | Number of `CLAIM_ATTEMPT` audit events with `metadata.outcome = FAILED`                                        |
 
+**Repeat-event behavior:** `Impression Count` and `Landing Page Views` are event totals, not once-per-member counters.
+The current client records at most one impression for each delivered message card during a single inbox component mount
+when it becomes at least 50% visible, and at most one landing-page view for each campaign landing-page component mount
+for an authenticated MEMBER. Re-entering/remounting the inbox or landing page (including a browser reload) can therefore
+record another event for the same member. `Unique Reach` and `Unique Landing Visitors` remain distinct-member counts and
+do not increase for repeat events by the same member.
+
 ### 7.2 MVP Rates and Attribution Limits
 
 The report shows the numerator and denominator alongside each rate:
@@ -1021,11 +1028,12 @@ approved the complete Design Pack. Phases 1 and 2 — Repository and Database Fo
 2026-11-26. Phases 3–6 — Identity and Security, Member and Audience, Campaign Draft Management, and Coupon Configuration
 and Claim Backend — were formally accepted by the owner on 2026-11-27; see their phase implementation reports. Phase 6
 acceptance records the owner-reported backend startup, Maven clean verify, frontend tests/typecheck/build/dev, Phase 6
-API verification, and Admin Coupon create/edit checks. A dedicated high-contention Coupon inventory race test is not
-included in the accepted package and is tracked for Phase 10 hardening. Phase 7 — Message, Publication Orchestration,
-and Delivery is documented in `docs/development/PHASE_7_PLAN.md` as a draft for owner review; implementation is not
-authorized until the owner approves the plan and explicitly authorizes development. These status updates do not change
-the approved product scope or requirements.
+API verification, and Admin Coupon create/edit checks. A dedicated high-contention Coupon inventory race test is tracked
+for Phase 10 hardening. Phase 7 — Message, Publication Orchestration, and Delivery — was formally accepted on
+2026-11-27. Phase 8 — Member Campaign Experience — was formally accepted on 2026-11-28. Phase 9 — Campaign Analytics
+and Coupon Reporting — was explicitly approved and authorized for implementation on 2026-11-28; its implementation
+report records delivered scope and the remaining owner verification gate. These status updates do not change the
+approved product scope or requirements.
 
 The v1.5.0 PRD, API/OpenAPI, Database/ERD, Architecture/Module Design, Security Design, Testing Strategy, accepted ADRs,
 and Implementation Plan together form the authoritative MVP Development Baseline. No separate TDD is required to start

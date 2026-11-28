@@ -72,8 +72,7 @@
 - `RecordLandingPageView`
 - `RecordEngagementEvent`
 - `RecordClaimAttemptAudit` (invoked by coupon claim orchestration; server-side only)
-- `GetCampaignAnalytics`
-- `GetCouponAnalytics`
+- `GetCampaignAnalytics` (returns campaign summary and its coupon-level summaries in one bounded read model)
 
 ## 4. Publication orchestration
 

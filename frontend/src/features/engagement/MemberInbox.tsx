@@ -4,6 +4,7 @@ import {getMemberInbox, type MemberMessage, recordCampaignEvent} from '../../sha
 function InboxCard({message}: { message: MemberMessage }) {
     const element = useRef<HTMLElement | null>(null);
     const impressionSent = useRef(false);
+    const [opening, setOpening] = useState(false);
     useEffect(() => {
         const node = element.current;
         if (!node || typeof IntersectionObserver === 'undefined') return;
@@ -18,9 +19,20 @@ function InboxCard({message}: { message: MemberMessage }) {
         return () => observer.disconnect();
     }, [message.campaignId, message.id]);
 
-    function openCampaign() {
-        void recordCampaignEvent(message.campaignId, 'CLICK', message.id).catch(() => undefined);
-        window.location.assign(`/campaigns/${message.campaignId}`);
+    async function openCampaign() {
+        if (opening) return;
+        setOpening(true);
+        try {
+            // Do not navigate away while the click event is still waiting for CSRF
+            // initialization or the event API response. This prevents the browser
+            // from unloading the page before the analytics request is dispatched.
+            await recordCampaignEvent(message.campaignId, 'CLICK', message.id);
+        } catch (error) {
+            // Navigation must remain available even if analytics collection fails.
+            console.error('Unable to record campaign click:', error);
+        } finally {
+            window.location.assign(`/campaigns/${message.campaignId}`);
+        }
     }
 
     return <article className="inbox-card" ref={(node) => {
@@ -29,7 +41,8 @@ function InboxCard({message}: { message: MemberMessage }) {
         <div><p
             className="card-label">{message.campaignName} · {new Date(message.deliveredAt).toLocaleString('zh-TW')}</p>
             <h3>{message.title}</h3><p>{message.body}</p></div>
-        <button type="button" onClick={openCampaign}>查看活動</button>
+        <button type="button" onClick={() => void openCampaign()}
+                disabled={opening}>{opening ? '開啟中…' : '查看活動'}</button>
     </article>;
 }
 

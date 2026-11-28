@@ -6,8 +6,10 @@ import {AudienceAdmin} from '../features/audience/AudienceAdmin';
 import {CampaignAdmin} from '../features/campaign/CampaignAdmin';
 import {CampaignLandingPage} from '../features/engagement/CampaignLandingPage';
 import {MemberInbox} from '../features/engagement/MemberInbox';
+import {CampaignAnalyticsPage} from '../features/analytics/CampaignAnalyticsPage';
 
 type ConnectionState = 'checking' | 'connected' | 'unavailable';
+const analyticsRoute = (path: string) => path.match(/^\/admin\/campaigns\/([0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})\/analytics$/i);
 const campaignRoute = (path: string) => path.match(/^\/campaigns\/([0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})$/i);
 
 function safeCampaignReturn(path: string | null) {
@@ -59,14 +61,15 @@ export function App() {
 
     const campaign = campaignRoute(route);
     const isLogin = route === '/login';
-    const isAdminRoute = route === '/admin' || route === '/admin/audience' || route === '/admin/campaigns';
+    const analytics = analyticsRoute(route);
+    const isAdminRoute = route === '/admin' || route === '/admin/audience' || route === '/admin/campaigns' || Boolean(analytics);
     return <main className="page-shell">
         {!campaign && <section className="hero" aria-labelledby="page-title">
-            <p className="eyebrow">PHASE 7 + PHASE 8 · MEMBER CAMPAIGN EXPERIENCE</p>
+            <p className="eyebrow">PHASE 7 + 8 + 9 · CAMPAIGN EXPERIENCE & ANALYTICS</p>
             <h1 id="page-title">行銷活動與優惠券平台</h1>
             <p className="subtitle">E-commerce Campaign &amp; Coupon Engagement Platform</p>
             <p className="intro">Phase 7 Publish、Pause 與 Delivery Status，加上 Phase 8
-                公開活動頁面、會員優惠券領取與活動互動追蹤。</p>
+                公開活動頁面、會員優惠券領取、活動互動追蹤與管理員成效分析。</p>
         </section>}
         {(!campaign && !isLogin) && <section className="status-card" aria-live="polite">
             <div>
@@ -85,6 +88,7 @@ export function App() {
             <nav className="route-nav" aria-label="會員功能"><a href="/member/messages">會員訊息匣</a></nav>}
         {(route === '/admin' || route === '/admin/audience') && user?.role === 'ADMIN' && <AudienceAdmin/>}
         {route === '/admin/campaigns' && user?.role === 'ADMIN' && <CampaignAdmin/>}
+        {analytics && user?.role === 'ADMIN' && <CampaignAnalyticsPage campaignId={analytics[1]}/>}
         {campaign && <CampaignLandingPage campaignId={campaign[1]}/>}
         {route === '/member/messages' && user?.role === 'MEMBER' && <MemberInbox/>}
         {route === '/member/messages' && user?.role !== 'MEMBER' &&
@@ -93,7 +97,7 @@ export function App() {
         {route === '/' && user?.role === 'MEMBER' &&
             <section className="experience-shell"><h2>會員專區</h2><p>前往會員訊息匣查看已送達的活動訊息。</p><a
                 href="/member/messages">開啟會員訊息匣</a></section>}
-        <footer className="footer"><span>Development baseline: v1.5.0 · Phase 8</span><span>Backend · Spring Boot / Frontend · React + TypeScript</span>
+        <footer className="footer"><span>Development baseline: v1.5.0 · Phase 9</span><span>Backend · Spring Boot / Frontend · React + TypeScript</span>
         </footer>
     </main>;
 }

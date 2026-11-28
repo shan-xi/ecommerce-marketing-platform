@@ -353,10 +353,9 @@ and successful claim is derived from `coupon_claims`; neither needs a duplicate 
 
 ## 12. Admin analytics APIs
 
-| Method | Path                                              | Purpose                           |
-|--------|---------------------------------------------------|-----------------------------------|
-| GET    | `/admin/campaigns/{campaignId}/analytics`         | Campaign funnel metrics           |
-| GET    | `/admin/campaigns/{campaignId}/coupons/analytics` | Coupon-level claims and inventory |
+| Method | Path                                      | Purpose                                              |
+|--------|-------------------------------------------|------------------------------------------------------|
+| GET    | `/admin/campaigns/{campaignId}/analytics` | Campaign metrics and embedded coupon-level reporting |
 
 Metrics must distinguish total event counts from distinct-member counts. Definitions: Delivered Count = member_messages
 rows; Impression/Click/Landing Page View counts = matching campaign_events rows; Unique Reach/Clickers = distinct member
@@ -367,6 +366,13 @@ Target, Reach Rate = Unique Reach / Target, Click Rate = Unique Clickers / Deliv
 Unique target-snapshot visitors / Target, and Target Claim Rate = Unique Claimers / Target. Do not calculate
 Clicker-to-Landing-Visitor conversion because landing pages allow direct public entry and anonymous views are not
 tracked. If a denominator is zero, the rate is `null`/unavailable, not `0%`.
+
+The response includes `campaignId`, `campaignName`, all campaign totals and distinct-member counts,
+`claimAttemptsByOutcome` (`succeeded`, `failed`, `replayed`), and a deterministic `coupons` array. Each coupon includes
+`couponId`, `name`, `totalQuantity`, `successfulClaims`, `remainingQuantity`, `uniqueClaimers`, and `targetClaimRate`.
+Every rate is an object with `numerator`, `denominator`, and nullable `value`. Coupon `claimed_quantity` must equal the
+corresponding `coupon_claims` row count; otherwise the API fails closed with `ANALYTICS_INTEGRITY_ERROR` (500). The
+endpoint is read-only, ADMIN-only, has no query parameters, and does not require CSRF.
 
 ## 13. HTTP status and error mapping
 
@@ -379,7 +385,7 @@ tracked. If a denominator is zero, the rate is `null`/unavailable, not `0%`.
 |  409 | State conflict or business invariant                      | `CAMPAIGN_NOT_PUBLISHABLE`, `CAMPAIGN_INACTIVE`, `MEMBER_NOT_ELIGIBLE`, `COUPON_OUTSIDE_VALIDITY`, `COUPON_SOLD_OUT`, `CLAIM_ALREADY_EXISTS`, `IDEMPOTENCY_KEY_CONFLICT`, `DELIVERY_JOB_NOT_RETRYABLE` |
 |  422 | Semantically invalid business input (optional convention) | `INVALID_CAMPAIGN_PERIOD`                                                                                                                                                                              |
 |  429 | Rate limit exceeded, if enabled                           | `RATE_LIMITED`                                                                                                                                                                                         |
-|  500 | Unexpected server failure                                 | `INTERNAL_ERROR`                                                                                                                                                                                       |
+|  500 | Unexpected server failure / analytics integrity mismatch  | `INTERNAL_ERROR`, `ANALYTICS_INTEGRITY_ERROR`                                                                                                                                                          |
 
 Use one consistent mapping across controllers. Avoid returning 200 for failed business operations.
 

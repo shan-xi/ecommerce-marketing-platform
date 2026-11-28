@@ -224,6 +224,9 @@ export function CampaignAdmin() {
                     </li>)}</ul>
                 </div>}</form>
         </div>
+        {selected && selected.status !== 'DRAFT' &&
+            <p className="analytics-entry"><a href={`/admin/campaigns/${selected.id}/analytics`}>查看 Campaign Analytics
+                →</a></p>}
         {selected && <><CampaignCoupons campaignId={selected.id}
                                         editable={selected.status === 'DRAFT'}/><CampaignLifecycle
             campaignId={selected.id} campaignStatus={selected.status} onUpdated={async () => {

@@ -821,3 +821,139 @@ h1 {
         width: 100%;
     }
 }
+
+/* Phase 9 campaign analytics */
+.analytics-shell {
+    display: grid;
+    gap: 18px;
+    margin-top: 24px;
+}
+
+.analytics-heading {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.analytics-heading h2, .analytics-heading h3 {
+    margin: 0 0 6px;
+}
+
+.analytics-shell > h3 {
+    margin: 8px 0 -8px;
+}
+
+.analytics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: 12px;
+}
+
+.analytics-metric {
+    display: grid;
+    gap: 7px;
+    padding: 16px;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    background: #fff;
+}
+
+.analytics-metric > span {
+    color: #64748b;
+    font-size: 13px;
+}
+
+.analytics-metric > strong {
+    color: #172033;
+    font-size: 28px;
+    line-height: 1.15;
+}
+
+.analytics-metric > small {
+    color: #64748b;
+    font-size: 12px;
+}
+
+.analytics-rate {
+    display: grid;
+    gap: 2px;
+    color: #334155;
+    font-size: 13px;
+    font-weight: 650;
+}
+
+.analytics-rate small {
+    color: #64748b;
+    font-size: 11px;
+    font-weight: 400;
+}
+
+.analytics-table-wrap {
+    overflow-x: auto;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    background: #fff;
+}
+
+.analytics-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 760px;
+}
+
+.analytics-table th, .analytics-table td {
+    padding: 12px 14px;
+    border-bottom: 1px solid #e2e8f0;
+    text-align: left;
+    white-space: nowrap;
+}
+
+.analytics-table th {
+    background: #f8fafc;
+    color: #475569;
+    font-size: 12px;
+}
+
+.analytics-table td {
+    color: #172033;
+    font-size: 13px;
+}
+
+.analytics-table td:first-child {
+    white-space: normal;
+}
+
+.analytics-table td:first-child small {
+    display: block;
+    max-width: 230px;
+    overflow-wrap: anywhere;
+    color: #64748b;
+}
+
+.analytics-footnote {
+    color: #64748b;
+    font-size: 12px;
+}
+
+.analytics-entry a, .secondary-link {
+    display: inline-flex;
+    align-items: center;
+    padding: 9px 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    color: #1d4ed8;
+    text-decoration: none;
+    font-size: 13px;
+}
+
+@media (max-width: 640px) {
+    .analytics-metric > strong {
+        font-size: 24px;
+    }
+
+    .analytics-heading {
+        flex-direction: column;
+    }
+}

@@ -2,7 +2,8 @@
 
 **Document status:** COMPLETE — FORMALLY OWNER-ACCEPTED (2026-11-28). **Planning baseline:**
 Owner-approved v1.5.0 Design Pack and formally accepted Phases 1–7. **Preceding phase:** Phase 7 formally accepted by
-the owner on 2026-11-27. **Implementation status:** IMPLEMENTED and owner-verified; see `PHASE_8_IMPLEMENTATION_REPORT.md` and
+the owner on 2026-11-27. **Implementation status:** IMPLEMENTED and owner-verified; see
+`PHASE_8_IMPLEMENTATION_REPORT.md` and
 `PHASE_8_ACCEPTANCE.md` for the owner-reported verification and acceptance record.
 
 ## 1. Objective

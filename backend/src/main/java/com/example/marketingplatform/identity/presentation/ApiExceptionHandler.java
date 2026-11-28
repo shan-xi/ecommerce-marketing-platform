@@ -1,5 +1,7 @@
 package com.example.marketingplatform.identity.presentation;
 
+import com.example.marketingplatform.analytics.application.CampaignAnalyticsIntegrityException;
+import com.example.marketingplatform.analytics.application.CampaignAnalyticsService;
 import com.example.marketingplatform.audience.application.AudienceSegmentService;
 import com.example.marketingplatform.audience.domain.InvalidAudienceRuleException;
 import com.example.marketingplatform.campaign.application.CampaignService;
@@ -42,11 +44,17 @@ public class ApiExceptionHandler {
     }
 
     @ExceptionHandler({AudienceSegmentService.AudienceResourceNotFoundException.class, MemberProfileService.MemberProfileNotFoundException.class,
-            CampaignService.CampaignNotFoundException.class, CouponService.NotFound.class, CampaignExperienceService.ResourceNotFound.class})
+            CampaignService.CampaignNotFoundException.class, CouponService.NotFound.class, CampaignExperienceService.ResourceNotFound.class, CampaignAnalyticsService.CampaignAnalyticsNotFoundException.class})
     public ProblemDetail resourceNotFound(RuntimeException ex) {
         return problem(HttpStatus.NOT_FOUND, "Resource not found", "RESOURCE_NOT_FOUND", "The requested resource does not exist or is not visible.");
     }
 
+
+    @ExceptionHandler(CampaignAnalyticsIntegrityException.class)
+    public ProblemDetail analyticsIntegrity(CampaignAnalyticsIntegrityException ex) {
+        return problem(HttpStatus.INTERNAL_SERVER_ERROR, "Analytics integrity failure", "ANALYTICS_INTEGRITY_ERROR",
+                "Coupon inventory counters do not agree with successful claim records. Contact an administrator.");
+    }
 
     @ExceptionHandler(Phase7Service.Conflict.class)
     public ProblemDetail phase7Conflict(Phase7Service.Conflict ex) {

@@ -1,6 +1,7 @@
 # Phase 8 Implementation Report — Member Landing Page, Coupon Claim Experience, and Engagement
 
-**Status:** COMPLETE — FORMALLY OWNER-ACCEPTED (2026-11-28). **Implementation date:** 2026-11-27. **Owner acceptance date:** 2026-11-28. **Baseline:**
+**Status:** COMPLETE — FORMALLY OWNER-ACCEPTED (2026-11-28). **Implementation date:** 2026-11-27. **Owner acceptance
+date:** 2026-11-28. **Baseline:**
 Owner-authorized `PHASE_8_PLAN.md`, approved v1.5.0 Design Pack, and formally accepted Phases 1–7. **Database
 migration:** None. The existing V1 schema and constraints are reused; no applied migration was edited.
 
@@ -101,4 +102,5 @@ substitute for Maven or Testcontainers execution; the owner subsequently supplie
 
 - Preserve the Phase 7 single-backend-instance deployment restriction.
 - Do not add or edit Flyway V1/V2 migrations for Phase 8.
-- Phase 9 analytics was out of scope for Phase 8. Phase 8 is now accepted; Phase 9 planning is recorded in `PHASE_9_PLAN.md` and implementation remains subject to owner approval.
+- Phase 9 analytics was out of scope for Phase 8. Phase 8 is accepted; Phase 9 planning and implementation are recorded
+  in `PHASE_9_PLAN.md` and `PHASE_9_IMPLEMENTATION_REPORT.md` after explicit owner authorization on 2026-11-28.

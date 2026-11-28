@@ -524,19 +524,61 @@ paths:
     parameters:
       - $ref: '#/components/parameters/CampaignId'
     get:
-      summary: Get campaign metrics
-      description: Delivered from member_messages; engagement totals from campaign_events; unique landing visitors are audience-snapshot members with authenticated page views; successful claims/claimers from coupon_claims; claim attempts are separate audit counts. Rates are delivery/target, reach/target, click/delivered, target landing visitors/target, and target claimers/target. No click-to-landing attribution rate is reported.
+      summary: Get campaign and coupon analytics
+      description: >-
+        ADMIN-only campaign-lifetime report. Target is campaign_audience_members; delivered is member_messages;
+        event totals and distinct members are separate; successful claims are coupon_claims; claim attempts are
+        server-generated CLAIM_ATTEMPT events. Unique landing visitors are restricted to the immutable target
+        audience. Zero-denominator rates have a null value. No click-to-landing attribution is reported.
+        Coupon claimed_quantity must match successful coupon_claims rows or the request fails with
+        ANALYTICS_INTEGRITY_ERROR.
       security: [ { accessCookie: [ ] } ]
       responses:
-        '200': { description: Campaign metrics with totals and distinct-member counts. }
-  /admin/campaigns/{campaignId}/coupons/analytics:
-    parameters:
-      - $ref: '#/components/parameters/CampaignId'
-    get:
-      summary: Get coupon-level claim analytics
-      security: [ { accessCookie: [ ] } ]
-      responses:
-        '200': { description: Coupon quantity, claims, remaining quantity, and unique claimers. }
+        '200':
+          description: Campaign metrics and deterministic coupon summaries.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [ data ]
+                properties:
+                  data:
+                    type: object
+                    required: [ campaignId, campaignName, targetMembers, deliveredMembers, deliveryRate, impressionCount, uniqueReach, reachRate, clickCount, uniqueClickers, clickRate, landingPageViews, uniqueLandingVisitors, targetLandingVisitorRate, couponClaims, uniqueClaimers, targetClaimRate, claimAttemptCount, failedClaimAttemptCount, claimAttemptsByOutcome, coupons ]
+                    properties:
+                      campaignId: { type: string, format: uuid }
+                      campaignName: { type: string }
+                      targetMembers: { type: integer, minimum: 0 }
+                      deliveredMembers: { type: integer, minimum: 0 }
+                      deliveryRate: { $ref: '#/components/schemas/AnalyticsRate' }
+                      impressionCount: { type: integer, minimum: 0 }
+                      uniqueReach: { type: integer, minimum: 0 }
+                      reachRate: { $ref: '#/components/schemas/AnalyticsRate' }
+                      clickCount: { type: integer, minimum: 0 }
+                      uniqueClickers: { type: integer, minimum: 0 }
+                      clickRate: { $ref: '#/components/schemas/AnalyticsRate' }
+                      landingPageViews: { type: integer, minimum: 0 }
+                      uniqueLandingVisitors: { type: integer, minimum: 0 }
+                      targetLandingVisitorRate: { $ref: '#/components/schemas/AnalyticsRate' }
+                      couponClaims: { type: integer, minimum: 0 }
+                      uniqueClaimers: { type: integer, minimum: 0 }
+                      targetClaimRate: { $ref: '#/components/schemas/AnalyticsRate' }
+                      claimAttemptCount: { type: integer, minimum: 0 }
+                      failedClaimAttemptCount: { type: integer, minimum: 0 }
+                      claimAttemptsByOutcome:
+                        type: object
+                        required: [ succeeded, failed, replayed ]
+                        properties:
+                          succeeded: { type: integer, minimum: 0 }
+                          failed: { type: integer, minimum: 0 }
+                          replayed: { type: integer, minimum: 0 }
+                      coupons:
+                        type: array
+                        items: { $ref: '#/components/schemas/CampaignCouponAnalytics' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { description: Unexpected failure or coupon inventory/claim integrity mismatch. }
 components:
   securitySchemes:
     accessCookie:
@@ -567,6 +609,24 @@ components:
       required: true
       schema: { type: string }
   schemas:
+    AnalyticsRate:
+      type: object
+      required: [ numerator, denominator, value ]
+      properties:
+        numerator: { type: integer, minimum: 0 }
+        denominator: { type: integer, minimum: 0 }
+        value: { type: [ number, 'null' ], minimum: 0 }
+    CampaignCouponAnalytics:
+      type: object
+      required: [ couponId, name, totalQuantity, successfulClaims, remainingQuantity, uniqueClaimers, targetClaimRate ]
+      properties:
+        couponId: { type: string, format: uuid }
+        name: { type: string }
+        totalQuantity: { type: integer, minimum: 0 }
+        successfulClaims: { type: integer, minimum: 0 }
+        remainingQuantity: { type: integer, minimum: 0 }
+        uniqueClaimers: { type: integer, minimum: 0 }
+        targetClaimRate: { $ref: '#/components/schemas/AnalyticsRate' }
     CurrentUserEnvelope:
       type: object
       properties:

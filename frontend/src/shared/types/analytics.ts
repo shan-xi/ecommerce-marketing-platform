@@ -1,0 +1,33 @@
+export type AnalyticsRate = { numerator: number; denominator: number; value: number | null };
+export type CampaignAnalyticsCoupon = {
+    couponId: string;
+    name: string;
+    totalQuantity: number;
+    successfulClaims: number;
+    remainingQuantity: number;
+    uniqueClaimers: number;
+    targetClaimRate: AnalyticsRate;
+};
+export type CampaignAnalytics = {
+    campaignId: string;
+    campaignName: string;
+    targetMembers: number;
+    deliveredMembers: number;
+    deliveryRate: AnalyticsRate;
+    impressionCount: number;
+    uniqueReach: number;
+    reachRate: AnalyticsRate;
+    clickCount: number;
+    uniqueClickers: number;
+    clickRate: AnalyticsRate;
+    landingPageViews: number;
+    uniqueLandingVisitors: number;
+    targetLandingVisitorRate: AnalyticsRate;
+    couponClaims: number;
+    uniqueClaimers: number;
+    targetClaimRate: AnalyticsRate;
+    claimAttemptCount: number;
+    failedClaimAttemptCount: number;
+    claimAttemptsByOutcome: { succeeded: number; failed: number; replayed: number };
+    coupons: CampaignAnalyticsCoupon[];
+};
