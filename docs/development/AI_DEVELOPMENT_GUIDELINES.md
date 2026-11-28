@@ -1,11 +1,10 @@
 # AI Development Guidelines
 
 **Status:** Approved operating contract for AI-assisted implementation under v1.5.0.  
-**Current instruction:** Phases 1–4 are formally accepted by the owner (Phase 4 accepted on 2026-11-27).
-`docs/development/PHASE_5_PLAN.md` is a draft for owner review only; do not implement Phase 5 until the owner approves
-the plan and explicitly instructs implementation to begin. Follow the approved sequencing: Phase 4 delivers the core
-Audience evaluator and reusable-segment preview; the existing campaign-scoped audience-preview endpoint is integrated
-in Phase 5 after Campaign read access exists.
+**Current instruction:** Phases 0–9 are formally owner-accepted. Phase 10 implementation was explicitly authorized
+by the owner on 2026-11-28 based on `phase10-ready-to-develop`. Its delivered artifacts and remaining owner-run
+verification are recorded in `PHASE_10_IMPLEMENTATION_REPORT.md` and `PHASE_10_ACCEPTANCE.md`. Do not mark Phase 10
+accepted until the owner runs/reviews the required evidence and explicitly accepts it.
 
 ## 1. Required reading order
 

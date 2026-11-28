@@ -110,12 +110,12 @@ verification; see the Phase 7 implementation report.
 - [x] Phase 9 Analytics plan approved and implementation explicitly authorized by the owner on 2026-11-28;
   implementation delivered, verified by the owner, and formally accepted on 2026-11-28.
 - [x] Owner confirmed Phase 9 testing completed successfully and approved the Phase 9 changes on 2026-11-28.
-- [ ] Phase 10 Hardening and Delivery plan reviewed and approved by the owner.
-- [ ] Phase 10 implementation explicitly authorized by the owner.
+- [x] Phase 10 Hardening and Delivery plan approved by explicit implementation instruction on 2026-11-28.
+- [x] Phase 10 implementation explicitly authorized by the owner on 2026-11-28.
 
-All design approval gates for the v1.5.0 baseline remain complete. Phases 1–9 are formally accepted. A dedicated
-high-contention Coupon inventory race test remains tracked for Phase 10 hardening. Phase 10 planning is awaiting owner
-approval; implementation is not authorized.
+All design approval gates for the v1.5.0 baseline remain complete. Phases 1–9 are formally accepted. Phase 10 was
+authorized on 2026-11-28; the dedicated Coupon concurrency tests and verification documentation are delivered. Owner-run
+verification and formal Phase 10 acceptance remain pending.
 
 ## 5. Phase acceptance and next planning gate (2026-11-28)
 
@@ -129,3 +129,12 @@ approval; implementation is not authorized.
   2026-11-28; see `PHASE_9_IMPLEMENTATION_REPORT.md` and `PHASE_9_ACCEPTANCE.md`.
 - **Phase 10:** proposed hardening and delivery-readiness scope is documented in `development/PHASE_10_PLAN.md`.
   Owner approval and explicit implementation authorization are pending.
+
+## Phase 10 authorization and delivery status (2026-11-28)
+
+- The owner explicitly instructed implementation based on the `phase10-ready-to-develop` package, approving the
+  Phase 10 plan and authorizing implementation.
+- The dedicated PostgreSQL Coupon concurrency integration test and Phase 10 acceptance/implementation documents are
+  delivered.
+- Environment-dependent verification and formal owner acceptance remain pending; see
+  `development/PHASE_10_IMPLEMENTATION_REPORT.md` and `development/PHASE_10_ACCEPTANCE.md`.

@@ -96,7 +96,6 @@ remain available as a repeatable verification reference.
 - Phase 7's single-backend-instance operational constraint remains unchanged.
 - No schema migration was created; no existing migration was modified.
 
-
 ## 6. Formal acceptance record
 
 - **Decision:** Accepted by the owner.

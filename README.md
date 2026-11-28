@@ -1,8 +1,8 @@
 # E-commerce Campaign & Coupon Engagement Platform
 
 **Project baseline:** v1.5.0 (owner-approved)  
-**Implementation status:** Phases 0–9 are complete and owner-accepted. Phase 10 is in planning and awaits owner
-approval; implementation has not been authorized.
+**Implementation status:** Phases 0–9 are complete and owner-accepted. Phase 10 implementation artifacts are delivered;
+owner-run verification and formal acceptance are pending.
 
 This repository implements the approved MVP described in [`docs/PRD.md`](docs/PRD.md). The project is a modular monolith
 with one Spring Boot backend, one React + TypeScript SPA, and PostgreSQL as the source of truth.
@@ -50,7 +50,8 @@ zsh scripts/api-tests/suites/phase6-coupon-claim-verification.zsh
 
 The owner accepted Phase 6 on 2026-11-27 after reporting successful backend startup, Maven clean verify, frontend
 tests/typecheck/build/dev, Phase 6 API verification, and Admin Coupon create/edit UI. A dedicated high-contention Coupon
-inventory race test is not included in this package and is tracked for Phase 10 hardening. See [
+inventory race test is implemented in Phase 10 as a repeated PostgreSQL integration test; owner-run execution remains
+pending. See [
 `docs/development/PHASE_6_PLAN.md`](docs/development/PHASE_6_PLAN.md) and [
 `docs/development/PHASE_6_IMPLEMENTATION_REPORT.md`](docs/development/PHASE_6_IMPLEMENTATION_REPORT.md).
 
@@ -92,8 +93,10 @@ API is `GET /api/v1/admin/campaigns/{campaignId}/analytics`; it reports audience
 successful claim, claim-attempt, and per-coupon metrics. Counts and distinct-member counts remain separate, rates
 include
 numerator/denominator and use `null` for zero denominators, and coupon inventory counters are checked against successful
-claim rows. No schema migration was introduced. Implementation was formally accepted on 2026-11-28 after the owner confirmed successful Phase 9 testing and approved
-the changes. See [`docs/development/PHASE_9_IMPLEMENTATION_REPORT.md`](docs/development/PHASE_9_IMPLEMENTATION_REPORT.md)
+claim rows. No schema migration was introduced. Implementation was formally accepted on 2026-11-28 after the owner
+confirmed successful Phase 9 testing and approved
+the changes. See [
+`docs/development/PHASE_9_IMPLEMENTATION_REPORT.md`](docs/development/PHASE_9_IMPLEMENTATION_REPORT.md)
 and [`docs/development/PHASE_9_ACCEPTANCE.md`](docs/development/PHASE_9_ACCEPTANCE.md).
 
 Run the non-destructive Phase 9 API verification against an existing campaign:
@@ -103,15 +106,20 @@ export PHASE9_CAMPAIGN_ID="<campaign-uuid>"
 zsh scripts/api-tests/suites/phase9-analytics-verification.zsh
 ```
 
-## Phase 10 — Hardening and Delivery Readiness (Planning)
+## Phase 10 — Hardening and Delivery Readiness (Implementation Delivered)
 
-Phase 10 is planned to harden the accepted MVP without expanding its product scope. Proposed work includes a dedicated
-high-contention Coupon inventory race test (previously deferred from Phase 6), cross-phase regression and end-to-end
-verification, security-boundary checks, and reproducible local setup/operations documentation. The plan explicitly
-preserves the approved modular-monolith architecture, PostgreSQL source of truth, and Phase 7 single-backend-instance
-deployment constraint. No Redis, Kafka, microservices, schema redesign, or new product feature is proposed. The plan
-awaits owner approval; implementation requires a separate explicit authorization. See
-[`docs/development/PHASE_10_PLAN.md`](docs/development/PHASE_10_PLAN.md).
+Phase 10 was authorized by the owner on 2026-11-28. The implementation adds repeated PostgreSQL concurrency coverage
+for limited coupon inventory, same-key idempotent replay, and same-member uniqueness. It also adds a repeatable
+acceptance guide for Phase 4–9 API regression, security checks, browser E2E, and operational readiness.
+
+The implementation preserves the approved modular-monolith architecture, PostgreSQL source of truth, and Phase 7
+single-backend-instance deployment constraint. No Redis, Kafka, microservices, schema migration, API contract change,
+or new product feature was introduced.
+
+Owner verification and formal acceptance remain pending because the implementation environment did not provide Docker
+or outbound dependency downloads. Run the commands in
+[`docs/development/PHASE_10_ACCEPTANCE.md`](docs/development/PHASE_10_ACCEPTANCE.md) and review
+[`docs/development/PHASE_10_IMPLEMENTATION_REPORT.md`](docs/development/PHASE_10_IMPLEMENTATION_REPORT.md).
 
 ## Technology versions
 
@@ -190,8 +198,11 @@ development only; override datasource settings through environment variables in 
 From the repository root:
 
 ```bash
+# Phase 10 dedicated PostgreSQL coupon concurrency tests (Docker required)
+./mvnw -f backend/pom.xml -Dtest=CouponConcurrencyIntegrationTest test
+
 # Backend tests and package
-./mvnw -f backend/pom.xml verify
+./mvnw -f backend/pom.xml clean verify
 
 # Frontend checks
 cd frontend
@@ -234,7 +245,9 @@ docker compose ps
 - Phase 9 plan/report/acceptance: [`docs/development/PHASE_9_PLAN.md`](docs/development/PHASE_9_PLAN.md), [
   `docs/development/PHASE_9_IMPLEMENTATION_REPORT.md`](docs/development/PHASE_9_IMPLEMENTATION_REPORT.md), [
   `docs/development/PHASE_9_ACCEPTANCE.md`](docs/development/PHASE_9_ACCEPTANCE.md)
-- Phase 10 hardening plan (awaiting approval): [`docs/development/PHASE_10_PLAN.md`](docs/development/PHASE_10_PLAN.md)
+- Phase 10 plan/report/acceptance: [`docs/development/PHASE_10_PLAN.md`](docs/development/PHASE_10_PLAN.md), [
+  `docs/development/PHASE_10_IMPLEMENTATION_REPORT.md`](docs/development/PHASE_10_IMPLEMENTATION_REPORT.md), [
+  `docs/development/PHASE_10_ACCEPTANCE.md`](docs/development/PHASE_10_ACCEPTANCE.md)
 - Phase 7 worker deployment and recovery runbook: [
   `docs/development/PHASE_7_OPERATIONS.md`](docs/development/PHASE_7_OPERATIONS.md)
 - Phase 5 implementation report: [
@@ -279,3 +292,14 @@ zsh scripts/api-tests/suites/phase5-campaign-verification.zsh
 The suite creates a uniquely named audience segment and campaign verification draft because this phase has no delete
 endpoint. API response files are stored with restrictive permissions under `/tmp/marketing-platform-api-test/`.
 See `docs/development/PHASE_5_IMPLEMENTATION_REPORT.md` for implementation scope and owner verification checklist.
+
+## Backend verification
+
+Run the backend verification from the repository root with a clean build:
+
+```zsh
+zsh scripts/dev/verify-backend.zsh
+```
+
+This executes `./mvnw -f backend/pom.xml clean verify` to ensure tests compile against the current main sources,
+rather than stale Maven output from a previous checkout.

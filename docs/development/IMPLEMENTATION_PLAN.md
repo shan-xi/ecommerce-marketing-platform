@@ -1,7 +1,7 @@
 # Implementation Plan
 
-**Status:** Approved — v1.5.0 baseline accepted; Phases 0–9 complete and formally owner-accepted; Phase 10 plan drafted and
-awaiting owner review/approval. **Scope:**
+**Status:** Approved — v1.5.0 baseline accepted; Phases 0–9 complete and formally owner-accepted; Phase 10
+implementation delivered and awaiting owner verification/acceptance. **Scope:**
 Deliver the
 approved MVP in incremental, verifiable phases.
 
@@ -30,8 +30,8 @@ approved MVP in incremental, verifiable phases.
   `PHASE_5_PLAN.md` and `PHASE_5_IMPLEMENTATION_REPORT.md`.
 - **Phase 6 — Coupon configuration and claim backend:** COMPLETE and formally owner-accepted on 2026-11-27 after
   owner-reported backend, frontend, API, and Admin Coupon UI verification. See `PHASE_6_PLAN.md` and
-  `PHASE_6_IMPLEMENTATION_REPORT.md`. A dedicated high-contention Coupon inventory race test is tracked for Phase 10
-  hardening.
+  `PHASE_6_IMPLEMENTATION_REPORT.md`. The dedicated high-contention Coupon inventory race test was delivered in Phase
+  10; owner-run execution is pending.
 - **Phase 7 — Message, publication orchestration, and delivery:** COMPLETE and formally owner-accepted on 2026-11-27.
   Owner reported Spring Boot startup, Maven clean verify, `npm run dev`, script automation tests, and API verification
   (23 PASS, 0 FAIL). The final review corrections (removing `SKIP LOCKED`, documenting the single-instance constraint,
@@ -42,8 +42,9 @@ approved MVP in incremental, verifiable phases.
   coupon claim. See `PHASE_8_IMPLEMENTATION_REPORT.md` and `PHASE_8_ACCEPTANCE.md`.
 - **Phase 9 — Analytics:** COMPLETE — formally owner-accepted on 2026-11-28 after the owner confirmed successful
   Phase 9 testing and approved the changes. See `PHASE_9_IMPLEMENTATION_REPORT.md` and `PHASE_9_ACCEPTANCE.md`.
-- **Phase 10 — Hardening and delivery:** plan drafted on 2026-11-28; awaiting owner review and approval. No Phase 10
-  implementation is authorized by this planning document. See `PHASE_10_PLAN.md`.
+- **Phase 10 — Hardening and delivery:** owner-authorized on 2026-11-28. Implementation artifacts are delivered;
+  owner-run verification and formal acceptance remain pending. See `PHASE_10_PLAN.md`,
+  `PHASE_10_IMPLEMENTATION_REPORT.md`, and `PHASE_10_ACCEPTANCE.md`.
 - Phase 4 acceptance enabled Phase 5 planning; the owner explicitly approved the Phase 5 plan and authorized
   implementation on 2026-11-27. Phase 5 acceptance enabled Phase 6 planning; the owner explicitly authorized Phase 6
   implementation and approved its bounded Admin coupon UI clarification on 2026-11-27. The owner accepted Phase 6 on
@@ -58,11 +59,11 @@ approved MVP in incremental, verifiable phases.
 | 3. Identity and security                            | Login, JWT cookies, refresh rotation, logout, roles, CSRF                                                                           | Auth endpoints, token-family persistence, CSRF config, frontend auth flow                                                                                  | **Complete and owner-accepted (2026-11-27):** backend 30 tests pass; API suite 26/26; frontend 8/8, typecheck/build pass; browser auth/session/role checks pass.                                                                                                                                        |
 | 4. Member and audience                              | Member profile, audience rule validation/evaluation, reusable segments, reusable-segment preview                                    | Audience use cases and APIs, admin audience UI, canonical field/operator validator; evaluator supports Segment Rules + Campaign Rules composition          | Full matrix tests pass; AND/NULL behavior correct; reusable-segment preview count/sample correct; composition semantics tested. Campaign-scoped preview integration is deferred to Phase 5. Snapshot persistence remains Phase 7.                                                                       |
 | 5. Campaign draft management                        | Draft create/edit/list/detail, campaign read model, lifecycle validation, campaign-scoped audience preview                          | Campaign CRUD APIs and admin screens; fixed landing-page content fields; existing campaign audience-preview API integrated with Phase 4 Audience evaluator | **Complete and owner-accepted (2026-11-27):** Maven verify/startup, frontend install/tests/typecheck/build/dev, API suite 29/29, Audience composition, Campaign UI flow, and boundary tests all passed; no publish endpoint/worker                                                                      |
-| 6. Coupon configuration and claim backend           | Coupon CRUD/configuration, inventory reservation, claim transaction, claim list                                                     | Coupon APIs, atomic claim service, idempotency, server-side claim audit, Admin Campaign workspace coupon UI                                                | **Complete and owner-accepted (2026-11-27):** owner reported backend startup/Maven verify, frontend tests/typecheck/build/dev, Phase 6 API suite, and Admin Coupon create/edit UI all passing. Dedicated high-contention Coupon race coverage is tracked for Phase 10.                                  |
+| 6. Coupon configuration and claim backend           | Coupon CRUD/configuration, inventory reservation, claim transaction, claim list                                                     | Coupon APIs, atomic claim service, idempotency, server-side claim audit, Admin Campaign workspace coupon UI                                                | **Complete and owner-accepted (2026-11-27):** owner reported backend startup/Maven verify, frontend tests/typecheck/build/dev, Phase 6 API suite, and Admin Coupon create/edit UI all passing. Dedicated high-contention Coupon race coverage is delivered in Phase 10; owner-run execution is pending. |
 | 7. Message, publication orchestration, and delivery | Single message configuration, publish, immutable snapshot, delivery job/worker/retry, member inbox APIs, bounded Admin lifecycle UI | Message APIs, publish/pause orchestration, snapshot + job transaction, batch worker, delivery status/manual retry, inbox APIs, Admin controls              | **Complete and owner-accepted (2026-11-27):** owner reported Spring Boot startup, Maven clean verify, `npm run dev`, script automation tests, and Phase 7 API suite 23/23 PASS. Final code-review corrections are included. Deployment is limited to one backend instance; see `PHASE_7_OPERATIONS.md`. |
 | 8. Landing page and engagement                      | Public landing page, member claim UI, impression/click/page-view events                                                             | Landing route, eligibility/claim states, sign-in return flow, event ingestion                                                                              | **COMPLETE — owner-accepted (2026-11-28):** owner reported Maven clean verify, backend startup, frontend dev startup, Phase 8 API suite `all`, and successful Member coupon claim. See Phase 8 report/acceptance.                                                                                       |
-| 9. Analytics                                        | Campaign-level metrics and coupon-level reporting per PRD Sections 6.8 and 7                                                        | Analytics query/API, Admin campaign analytics page, coupon report, API verification suite                                                                  | **COMPLETE — owner-accepted (2026-11-28):** owner confirmed Phase 9 testing completed successfully and approved the changes. |
-| 10. Hardening and delivery                          | Coupon inventory contention, cross-phase regression/E2E, security boundaries, operational readiness, reproducible demo              | Dedicated concurrency tests, end-to-end verification, regression/security checks, runbook and documentation updates                                      | Proposed exit criteria in `PHASE_10_PLAN.md`; requires plan approval and explicit implementation authorization before work begins. |
+| 9. Analytics                                        | Campaign-level metrics and coupon-level reporting per PRD Sections 6.8 and 7                                                        | Analytics query/API, Admin campaign analytics page, coupon report, API verification suite                                                                  | **COMPLETE — owner-accepted (2026-11-28):** owner confirmed Phase 9 testing completed successfully and approved the changes.                                                                                                                                                                            |
+| 10. Hardening and delivery                          | Coupon inventory contention, cross-phase regression/E2E, security boundaries, operational readiness, reproducible demo              | Dedicated concurrency tests, end-to-end verification, regression/security checks, runbook and documentation updates                                        | Implementation delivered; owner verification pending (2026-11-28). See Phase 10 implementation report and acceptance guide.                                                                                                                                                                             |
 
 ## 3. Phase details and dependencies
 
@@ -189,8 +190,8 @@ passing.
 - Add database uniqueness, idempotency replay, and server-generated claim-attempt audit behavior.
 - Owner-reported verification passed: backend startup, Maven clean verify, frontend tests/typecheck/build/dev, Phase 6
   API suite, and Admin Coupon UI create/edit.
-- Dedicated high-contention last-inventory Coupon race test is not included in this package and is tracked for Phase 10
-  hardening.
+- Dedicated high-contention last-inventory Coupon race coverage is delivered in Phase 10; owner-run execution is
+  pending.
 
 ### Phase 7 — Message, publication, and delivery
 
@@ -260,8 +261,8 @@ UI flow, and boundary tests; see `PHASE_5_IMPLEMENTATION_REPORT.md`.
 The owner explicitly approved `PHASE_6_PLAN.md`, authorized Phase 6 implementation, and approved the bounded Admin
 coupon-configuration UI clarification on 2026-11-27. On 2026-11-27, the owner explicitly accepted the delivered Phase 6
 changes after reporting successful backend startup, Maven clean verify, frontend tests/typecheck/build/dev, Phase 6 API
-verification, and Admin Coupon create/edit UI. A dedicated high-contention Coupon race test is not present in the
-accepted package and is tracked for Phase 10 hardening. Phase 7 was formally accepted on 2026-11-27; see
+verification, and Admin Coupon create/edit UI. A dedicated high-contention Coupon race test was subsequently delivered
+in Phase 10. Phase 7 was formally accepted on 2026-11-27; see
 `PHASE_7_IMPLEMENTATION_REPORT.md`. Phase 8 was formally accepted on 2026-11-28; see
 `PHASE_8_IMPLEMENTATION_REPORT.md` and `PHASE_8_ACCEPTANCE.md`.
 
@@ -279,3 +280,9 @@ No attribution, date-range reporting, exports, new event types, or schema migrat
 
 The owner approved `PHASE_9_PLAN.md` and explicitly authorized implementation on 2026-11-28. The owner confirmed
 successful Phase 9 testing and approved the changes on 2026-11-28. No schema migration was introduced.
+
+The owner explicitly authorized Phase 10 implementation on 2026-11-28 by requesting implementation based on the
+`phase10-ready-to-develop` package. The concurrency integration tests and verification/operations documentation are
+delivered. Maven/Testcontainers and frontend dependency verification could not be executed in the implementation
+environment because Docker is unavailable and outbound dependency downloads are blocked; see
+`PHASE_10_IMPLEMENTATION_REPORT.md`. Phase 10 remains pending owner-run verification and formal acceptance.

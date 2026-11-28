@@ -1,13 +1,13 @@
 # Phase 10 Plan — Hardening and Delivery Readiness
 
-**Status:** DRAFT — AWAITING OWNER REVIEW AND APPROVAL  
+**Status:** IMPLEMENTATION DELIVERED — OWNER VERIFICATION PENDING  
 **Prepared:** 2026-11-28  
 **Baseline:** Owner-approved v1.5.0; Phases 0–9 formally accepted  
 **Scope authority:** Approved PRD, architecture, API/OpenAPI, database design, security design, testing strategy,
 accepted ADRs, and the accepted Phase 1–9 implementation.
 
-> This document is a proposal only. It does not authorize implementation. Work may begin only after the owner
-> explicitly approves this plan and separately authorizes Phase 10 implementation.
+> Owner authorization: The owner explicitly instructed implementation based on the `phase10-ready-to-develop` package on
+> 2026-11-28. This instruction approves this plan and authorizes Phase 10 implementation within the scope below.
 
 ## 1. Objective
 
@@ -15,6 +15,7 @@ Harden the accepted MVP and establish a reproducible, verifiable delivery baseli
 scope or changing approved business behavior.
 
 Phase 10 focuses on:
+
 1. proving Coupon inventory and per-member claim correctness under concurrent requests;
 2. running cross-phase regression and end-to-end campaign journey verification;
 3. verifying security and authorization boundaries across the delivered workflows;
@@ -39,7 +40,8 @@ Phase 10 focuses on:
 
 ### Out of scope
 
-- New product features, campaign types, coupon types, attribution models, exports, dashboards beyond the accepted report,
+- New product features, campaign types, coupon types, attribution models, exports, dashboards beyond the accepted
+  report,
   or changes to approved business rules.
 - Redis, Kafka, microservices, distributed locks, a new queue, or other new infrastructure.
 - Multi-instance backend/worker deployment or changes to Phase 7 delivery ownership/recovery.
@@ -73,6 +75,7 @@ Proposed scenarios:
    mechanism.
 
 Implementation guidance:
+
 - Prefer a deterministic backend integration test using the existing PostgreSQL test infrastructure and bounded
   executor/latch coordination.
 - Use independent transactions/connections for competing requests.
@@ -94,6 +97,7 @@ Verify the existing MVP journey end to end:
    inventory metrics.
 
 Regression must include:
+
 - existing phase API suites (Phases 4–9) where applicable;
 - backend Maven `clean verify`;
 - frontend automated tests, typecheck, and production build;
@@ -142,15 +146,15 @@ Verify the already-approved security design; do not redefine it.
 
 ## 4. Proposed deliverables
 
-| Deliverable | Description |
-|---|---|
+| Deliverable                         | Description                                                                                     |
+|-------------------------------------|-------------------------------------------------------------------------------------------------|
 | Coupon concurrency integration test | Reproducible race coverage for limited inventory, duplicate requests, and per-member uniqueness |
-| Cross-phase regression result | Backend/frontend and existing phase API suite results |
-| End-to-end verification | Repeatable ADMIN-to-MEMBER campaign journey checks |
-| Security regression result | Role, CSRF, cookie/session, and ownership-boundary checks |
-| Operations/documentation updates | Verified clean setup, test commands, limitations, and troubleshooting |
-| Phase 10 implementation report | Actual delivered changes, test evidence, limitations, and owner acceptance |
-| Phase 10 acceptance guide | Repeatable verification steps and formal acceptance record |
+| Cross-phase regression result       | Backend/frontend and existing phase API suite results                                           |
+| End-to-end verification             | Repeatable ADMIN-to-MEMBER campaign journey checks                                              |
+| Security regression result          | Role, CSRF, cookie/session, and ownership-boundary checks                                       |
+| Operations/documentation updates    | Verified clean setup, test commands, limitations, and troubleshooting                           |
+| Phase 10 implementation report      | Actual delivered changes, test evidence, limitations, and owner acceptance                      |
+| Phase 10 acceptance guide           | Repeatable verification steps and formal acceptance record                                      |
 
 ## 5. Proposed exit criteria
 
@@ -174,14 +178,14 @@ for owner approval before expanding scope.
 
 ## 6. Dependencies and execution order
 
-1. Owner approves this Phase 10 plan.
-2. Owner explicitly authorizes Phase 10 implementation.
-3. Inspect existing Coupon claim transaction and test fixtures before writing concurrency tests.
-4. Implement and stabilize Coupon concurrency coverage.
-5. Run cross-phase regression and end-to-end verification.
-6. Run security regression and operational/documentation review.
-7. Fix only defects within the approved scope; seek separate approval for scope changes.
-8. Publish implementation report and acceptance guide for owner verification.
+1. Owner approval and implementation authorization were granted on 2026-11-28.
+2. Inspect existing Coupon claim transaction and test fixtures before writing concurrency tests.
+3. Implement Coupon concurrency coverage.
+4. Prepare cross-phase regression and end-to-end verification steps.
+5. Prepare security regression and operational/documentation verification.
+6. Fix only defects within the approved scope; seek separate approval for scope changes.
+7. Publish implementation report and acceptance guide for owner verification.
+8. Owner runs environment-dependent checks and reviews the evidence.
 9. Owner formally accepts Phase 10.
 
 ## 7. Decisions intentionally left unchanged
@@ -198,6 +202,7 @@ for owner approval before expanding scope.
 ## 8. Approval record
 
 - **Plan prepared:** 2026-11-28.
-- **Owner plan approval:** Pending.
-- **Owner implementation authorization:** Pending.
-- **Implementation status:** Not started; not authorized.
+- **Owner plan approval:** Approved by explicit implementation instruction on 2026-11-28.
+- **Owner implementation authorization:** Granted on 2026-11-28.
+- **Implementation status:** Code and documentation delivered; owner-environment verification and formal acceptance
+  remain pending.
