@@ -1,9 +1,11 @@
 # System Architecture
 
 **Status:** Approved — part of the owner-approved v1.5.0 Development Baseline  
-**Applies to:** MVP described in `docs/PRD.md`  
-**Implementation:** Phase 1 repository foundation complete and owner-accepted (2026-11-26); business capabilities remain
-unimplemented pending their respective phase authorizations
+**Applies to:** MVP described in `../prd/prd-mvp/PRD.md`  
+**Implementation:** Phases 1–9 business capabilities are represented in the delivered source tree and have
+corresponding owner-accepted phase records; Phase 10 hardening is owner-accepted (2026-11-28). The Phase 10
+acceptance record still lists environment-dependent verification as open because Maven/PostgreSQL/frontend
+verification could not run in that implementation environment.
 
 ## 1. Goals
 

@@ -152,7 +152,7 @@ export PHASE6_ACTIVE_COUPON_ALT_ID="<another-coupon-uuid>"
 The DRAFT test creates one coupon and leaves it on the supplied disposable campaign. The claim test creates one
 successful claim for the configured test member and leaves that claim in the database. Concurrency, final-inventory
 race, audit-row inspection, and failure rollback still require the PostgreSQL integration fixtures described in
-`docs/development/PHASE_6_PLAN.md`; this HTTP suite does not replace those tests.
+`../../docs/prd-mvp/development`; this HTTP suite does not replace those tests.
 
 ## Phase 7 Message, Publication, and Delivery API verification
 
@@ -193,4 +193,4 @@ zsh scripts/api-tests/suites/phase9-analytics-verification.zsh
 ```
 
 Run it after the backend is started and the local demo accounts are initialized. See
-`docs/development/PHASE_9_ACCEPTANCE.md` for the complete owner walkthrough.
+`../../docs/prd-mvp/development` for the complete owner walkthrough.

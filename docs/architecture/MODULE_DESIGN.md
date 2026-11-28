@@ -10,7 +10,7 @@
 | `member`     | Member profile and seeded targeting attributes                            | Member profile lookup, member administration/seed access                                        | Authentication token lifecycle               |
 | `audience`   | Rule definitions, reusable segments, evaluation, snapshots                | Preview audience, save segment, resolve/snapshot audience                                       | Campaign lifecycle decisions                 |
 | `campaign`   | Campaign details, status, publication lifecycle                           | Create/update/list/publish/pause campaign, campaign read model                                  | Coupon inventory mutation                    |
-| `messaging`  | One campaign message, member inbox, delivery jobs and retry state         | Configure campaign message, list inbox, inspect delivery, initiate delivery, retry a failed job | Campaign audience rule evaluation            |
+| `message`    | One campaign message, member inbox, delivery jobs and retry state         | Configure campaign message, list inbox, inspect delivery, initiate delivery, retry a failed job | Campaign audience rule evaluation            |
 | `coupon`     | Campaign coupon configuration, inventory, claims                          | Add/update coupons, claim coupon, list member claims                                            | Analytics event counts as ownership truth    |
 | `engagement` | Client event validation/deduplication and server-side claim audit records | Record impression/click/page-view events and claim-attempt audit                                | Coupon claim transaction and claim ownership |
 | `analytics`  | Read models and metric aggregation                                        | Campaign and coupon reports                                                                     | Write-side ownership of campaign/claim data  |
@@ -126,17 +126,24 @@ serializing pause against in-flight claims. Lock order is campaign row before co
 ## 7. Suggested package layout
 
 ```text
-com.example.campaign/
+com.example.marketingplatform/
   identity/
     domain/ application/ infrastructure/ presentation/
   member/
+    application/ infrastructure/ presentation/
   audience/
+    domain/ application/ infrastructure/ presentation/
   campaign/
-  messaging/
+    domain/ application/ infrastructure/ presentation/
+  message/
+    application/ infrastructure/ presentation/
   coupon/
+    application/ infrastructure/ presentation/
   engagement/
+    application/ presentation/
   analytics/
-  shared/
+    application/ infrastructure/ presentation/
+  config/
 ```
 
 Within each module, use only the layers needed. Avoid empty abstractions and excessive interfaces for trivial code;

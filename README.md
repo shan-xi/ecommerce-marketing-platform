@@ -4,33 +4,34 @@
 **Implementation status:** Phases 0–10 are complete and owner-accepted. Phase 10 environment-dependent verification
 follow-ups remain explicitly open; unrun checks are not represented as passed.
 
-This repository implements the approved MVP described in [`docs/PRD.md`](docs/PRD.md). The project is a modular monolith
+This repository implements the approved MVP described in [`docs/prd/prd-mvp/PRD.md`](docs/prd/prd-mvp/PRD.md). The project is a
+modular monolith
 with one Spring Boot backend, one React + TypeScript SPA, and PostgreSQL as the source of truth.
 
 ## Current implementation status
 
 **Phase 1 — Repository Foundation: COMPLETE and owner-accepted (2026-11-26).** The backend and frontend scaffolds, local
 PostgreSQL service, Actuator health endpoints, and frontend-to-backend health shell were verified by the owner. See [
-`docs/development/PHASE_1_IMPLEMENTATION_REPORT.md`](docs/development/PHASE_1_IMPLEMENTATION_REPORT.md).
+`docs/prd/prd-mvp/development`](docs/prd/prd-mvp/development/phase-01/PHASE_1_IMPLEMENTATION_REPORT.md).
 
 **Phase 2 — Database Foundation: COMPLETE and owner-accepted (2026-11-26).** The owner verified PostgreSQL 18.7, Flyway
 V1/V2, all 12 business tables, seed data, constraints/indexes, 15 backend tests, and frontend regression checks (4
 tests, typecheck, and build). See [
-`docs/development/PHASE_2_IMPLEMENTATION_REPORT.md`](docs/development/PHASE_2_IMPLEMENTATION_REPORT.md).
+`docs/prd/prd-mvp/development`](docs/prd/prd-mvp/development/phase-02/PHASE_2_IMPLEMENTATION_REPORT.md).
 
 **Phase 3 — Identity and Security: COMPLETE and owner-accepted (2026-11-27).** Login, JWT cookie authentication,
 refresh rotation, logout, CSRF, CORS, role boundaries, frontend session-state handling, and security lifecycle
 regression
 tests passed owner verification. See [
-`docs/development/PHASE_3_IMPLEMENTATION_REPORT.md`](docs/development/PHASE_3_IMPLEMENTATION_REPORT.md).
+`docs/prd/prd-mvp/development`](docs/prd/prd-mvp/development/phase-03/PHASE_3_IMPLEMENTATION_REPORT.md).
 
 **Phase 4 — Member and Audience: COMPLETE and owner-accepted (2026-11-27).** Implements authenticated member
 profile lookup, the canonical audience rule validator/evaluator, reusable segment create/list/detail/update APIs,
 reusable-segment preview, AND composition support, and the Admin audience UI. Owner-run backend, frontend, runtime, and
 27-assertion API verification passed. Phase 5 now integrates the campaign-scoped audience preview using the saved
 campaign configuration. See
-[`docs/development/PHASE_4_PLAN.md`](docs/development/PHASE_4_PLAN.md) and
-[`docs/development/PHASE_4_IMPLEMENTATION_REPORT.md`](docs/development/PHASE_4_IMPLEMENTATION_REPORT.md).
+[`docs/prd/prd-mvp/development`](docs/prd/prd-mvp/development/phase-04/PHASE_4_PLAN.md) and
+[`docs/prd/prd-mvp/development`](docs/prd/prd-mvp/development/phase-04/PHASE_4_IMPLEMENTATION_REPORT.md).
 
 ## Phase 6 — Coupon Configuration and Claim Backend
 
@@ -52,8 +53,8 @@ The owner accepted Phase 6 on 2026-11-27 after reporting successful backend star
 tests/typecheck/build/dev, Phase 6 API verification, and Admin Coupon create/edit UI. A dedicated high-contention Coupon
 inventory race test is implemented in Phase 10 as a repeated PostgreSQL integration test; owner-run execution remains
 pending. See [
-`docs/development/PHASE_6_PLAN.md`](docs/development/PHASE_6_PLAN.md) and [
-`docs/development/PHASE_6_IMPLEMENTATION_REPORT.md`](docs/development/PHASE_6_IMPLEMENTATION_REPORT.md).
+`docs/prd/prd-mvp/development`](docs/prd/prd-mvp/development/phase-06/PHASE_6_PLAN.md) and [
+`docs/prd/prd-mvp/development`](docs/prd/prd-mvp/development/phase-06/PHASE_6_IMPLEMENTATION_REPORT.md).
 
 ## Phase 7 — Message, Publication Orchestration, and Delivery
 
@@ -64,8 +65,8 @@ approved V1 schema already contains the message, audience snapshot, delivery job
 implementation on 2026-11-27 and formally accepted Phase 7 on 2026-11-27 after reporting Spring Boot startup, Maven
 clean verify, `npm run dev`, script automation tests, and Phase 7 API verification (23 PASS, 0 FAIL). Final code-review
 corrections are included in the accepted package. See [
-`docs/development/PHASE_7_PLAN.md`](docs/development/PHASE_7_PLAN.md) and [
-`docs/development/PHASE_7_IMPLEMENTATION_REPORT.md`](docs/development/PHASE_7_IMPLEMENTATION_REPORT.md).
+`docs/prd/prd-mvp/development`](docs/prd/prd-mvp/development/phase-07/PHASE_7_PLAN.md) and [
+`docs/prd/prd-mvp/development`](docs/prd/prd-mvp/development/phase-07/PHASE_7_IMPLEMENTATION_REPORT.md).
 
 Run the Phase 7 lifecycle API suite against a fresh disposable DRAFT campaign with a valid audience and at least one
 Coupon. The suite publishes and pauses the campaign, so do not reuse a campaign that must remain editable or active:
@@ -82,8 +83,8 @@ landing page, member coupon claim experience and safe sign-in return flow, membe
 impression/click/authenticated page-view event ingestion. No database migration or Phase 6/7 behavior change was
 introduced. **Phase 8 was formally accepted on 2026-11-28** after owner-reported Maven clean verify, backend startup,
 frontend dev startup, Phase 8 API verification `all`, and successful Member UI coupon claim. See [
-`docs/development/PHASE_8_ACCEPTANCE.md`](docs/development/PHASE_8_ACCEPTANCE.md) and [
-`docs/development/PHASE_8_IMPLEMENTATION_REPORT.md`](docs/development/PHASE_8_IMPLEMENTATION_REPORT.md).
+`docs/prd/prd-mvp/development`](docs/prd/prd-mvp/development/phase-08/PHASE_8_ACCEPTANCE.md) and [
+`docs/prd/prd-mvp/development`](docs/prd/prd-mvp/development/phase-08/PHASE_8_IMPLEMENTATION_REPORT.md).
 
 ## Phase 9 — Campaign Analytics and Coupon Reporting
 
@@ -96,8 +97,8 @@ numerator/denominator and use `null` for zero denominators, and coupon inventory
 claim rows. No schema migration was introduced. Implementation was formally accepted on 2026-11-28 after the owner
 confirmed successful Phase 9 testing and approved
 the changes. See [
-`docs/development/PHASE_9_IMPLEMENTATION_REPORT.md`](docs/development/PHASE_9_IMPLEMENTATION_REPORT.md)
-and [`docs/development/PHASE_9_ACCEPTANCE.md`](docs/development/PHASE_9_ACCEPTANCE.md).
+`docs/prd/prd-mvp/development`](docs/prd/prd-mvp/development/phase-09/PHASE_9_IMPLEMENTATION_REPORT.md)
+and [`docs/prd/prd-mvp/development`](docs/prd/prd-mvp/development/phase-09/PHASE_9_ACCEPTANCE.md).
 
 Run the non-destructive Phase 9 API verification against an existing campaign:
 
@@ -120,12 +121,12 @@ The owner formally accepted the delivered Phase 10 modifications on 2026-11-28 a
 acceptance retains explicit verification follow-ups: Docker/Maven/Testcontainers and frontend dependency-based checks
 could not all be executed in the implementation environment, and API regression, browser E2E, and clean-environment
 operational checks remain unverified. Acceptance does not represent those checks as passed. Run the commands in
-[`docs/development/PHASE_10_ACCEPTANCE.md`](docs/development/PHASE_10_ACCEPTANCE.md) and record actual results; see
-[`docs/development/PHASE_10_IMPLEMENTATION_REPORT.md`](docs/development/PHASE_10_IMPLEMENTATION_REPORT.md).
+[`docs/prd/prd-mvp/development`](docs/prd/prd-mvp/development/phase-10/PHASE_10_ACCEPTANCE.md) and record actual results; see
+[`docs/prd/prd-mvp/development`](docs/prd/prd-mvp/development/phase-10/PHASE_10_IMPLEMENTATION_REPORT.md).
 
 ## Technology versions
 
-See [`docs/development/PHASE_1_IMPLEMENTATION_REPORT.md`](docs/development/PHASE_1_IMPLEMENTATION_REPORT.md) for the
+See [`docs/prd/prd-mvp/development`](docs/prd/prd-mvp/development/phase-01/PHASE_1_IMPLEMENTATION_REPORT.md) for the
 exact versions and selection rationale.
 
 ## Prerequisites
@@ -191,7 +192,7 @@ exactly one backend application instance/replica. Startup recovery resets all `P
 running multiple instances can reset jobs owned by another live worker. Multi-instance deployment is unsupported until a
 separately approved worker-ownership design is implemented. If startup recovery fails, the application aborts startup;
 check PostgreSQL availability/permissions and restart the single instance after resolving the cause. See [
-`docs/development/PHASE_7_OPERATIONS.md`](docs/development/PHASE_7_OPERATIONS.md) for the recovery runbook. Use the
+`docs/prd/prd-mvp/development`](docs/prd/prd-mvp/development/phase-07/PHASE_7_OPERATIONS.md) for the recovery runbook. Use the
 `.env.example` values for local
 development only; override datasource settings through environment variables in other environments.
 
@@ -227,48 +228,49 @@ docker compose ps
 
 ## Project documentation
 
-- Product scope and acceptance: [`docs/PRD.md`](docs/PRD.md)
+- Product scope and acceptance: [`docs/prd/prd-mvp/PRD.md`](docs/prd/prd-mvp/PRD.md)
 - Architecture: [`docs/architecture/ARCHITECTURE.md`](docs/architecture/ARCHITECTURE.md)
 - Module boundaries: [`docs/architecture/MODULE_DESIGN.md`](docs/architecture/MODULE_DESIGN.md)
 - API contract: [`docs/api/API_SPECIFICATION.md`](docs/api/API_SPECIFICATION.md) and [
   `docs/api/openapi.yaml`](docs/api/openapi.yaml)
 - Database design: [`docs/database/DATABASE_DESIGN.md`](docs/database/DATABASE_DESIGN.md) and [
   `docs/database/ERD.md`](docs/database/ERD.md)
-- Phase plan: [`docs/development/IMPLEMENTATION_PLAN.md`](docs/development/IMPLEMENTATION_PLAN.md)
+- Phase plan: [`docs/prd/prd-mvp/development`](docs/prd/prd-mvp/development/IMPLEMENTATION_PLAN.md)
 - Phase 6 implementation report: [
-  `docs/development/PHASE_6_IMPLEMENTATION_REPORT.md`](docs/development/PHASE_6_IMPLEMENTATION_REPORT.md)
-- Phase 6 plan: [`docs/development/PHASE_6_PLAN.md`](docs/development/PHASE_6_PLAN.md)
+  `docs/prd/prd-mvp/development`](docs/prd/prd-mvp/development/phase-06/PHASE_6_IMPLEMENTATION_REPORT.md)
+- Phase 6 plan: [`docs/prd/prd-mvp/development`](docs/prd/prd-mvp/development/phase-06/PHASE_6_PLAN.md)
 - Phase 7 implementation and verification report: [
-  `docs/development/PHASE_7_IMPLEMENTATION_REPORT.md`](docs/development/PHASE_7_IMPLEMENTATION_REPORT.md)
-- Phase 8 implementation plan: [`docs/development/PHASE_8_PLAN.md`](docs/development/PHASE_8_PLAN.md)
+  `docs/prd/prd-mvp/development`](docs/prd/prd-mvp/development/phase-07/PHASE_7_IMPLEMENTATION_REPORT.md)
+- Phase 8 implementation plan: [`docs/prd/prd-mvp/development`](docs/prd/prd-mvp/development/phase-08/PHASE_8_PLAN.md)
 - Phase 8 implementation report: [
-  `docs/development/PHASE_8_IMPLEMENTATION_REPORT.md`](docs/development/PHASE_8_IMPLEMENTATION_REPORT.md)
-- Phase 8 acceptance guide: [`docs/development/PHASE_8_ACCEPTANCE.md`](docs/development/PHASE_8_ACCEPTANCE.md)
-- Phase 9 plan/report/acceptance: [`docs/development/PHASE_9_PLAN.md`](docs/development/PHASE_9_PLAN.md), [
-  `docs/development/PHASE_9_IMPLEMENTATION_REPORT.md`](docs/development/PHASE_9_IMPLEMENTATION_REPORT.md), [
-  `docs/development/PHASE_9_ACCEPTANCE.md`](docs/development/PHASE_9_ACCEPTANCE.md)
-- Phase 10 plan/report/acceptance: [`docs/development/PHASE_10_PLAN.md`](docs/development/PHASE_10_PLAN.md), [
-  `docs/development/PHASE_10_IMPLEMENTATION_REPORT.md`](docs/development/PHASE_10_IMPLEMENTATION_REPORT.md), [
-  `docs/development/PHASE_10_ACCEPTANCE.md`](docs/development/PHASE_10_ACCEPTANCE.md)
+  `docs/prd/prd-mvp/development`](docs/prd/prd-mvp/development/phase-08/PHASE_8_IMPLEMENTATION_REPORT.md)
+- Phase 8 acceptance guide: [`docs/prd/prd-mvp/development`](docs/prd/prd-mvp/development/phase-08/PHASE_8_ACCEPTANCE.md)
+- Phase 9 plan/report/acceptance: [`docs/prd/prd-mvp/development`](docs/prd/prd-mvp/development/phase-09/PHASE_9_PLAN.md), [
+  `docs/prd/prd-mvp/development`](docs/prd/prd-mvp/development/phase-09/PHASE_9_IMPLEMENTATION_REPORT.md), [
+  `docs/prd/prd-mvp/development`](docs/prd/prd-mvp/development/phase-09/PHASE_9_ACCEPTANCE.md)
+- Phase 10 plan/report/acceptance: [`docs/prd/prd-mvp/development`](docs/prd/prd-mvp/development/phase-10/PHASE_10_PLAN.md), [
+  `docs/prd/prd-mvp/development`](docs/prd/prd-mvp/development/phase-10/PHASE_10_IMPLEMENTATION_REPORT.md), [
+  `docs/prd/prd-mvp/development`](docs/prd/prd-mvp/development/phase-10/PHASE_10_ACCEPTANCE.md)
 - Phase 7 worker deployment and recovery runbook: [
-  `docs/development/PHASE_7_OPERATIONS.md`](docs/development/PHASE_7_OPERATIONS.md)
+  `docs/prd/prd-mvp/development`](docs/prd/prd-mvp/development/phase-07/PHASE_7_OPERATIONS.md)
 - Phase 5 implementation report: [
-  `docs/development/PHASE_5_IMPLEMENTATION_REPORT.md`](docs/development/PHASE_5_IMPLEMENTATION_REPORT.md)
+  `docs/prd/prd-mvp/development`](docs/prd/prd-mvp/development/phase-05/PHASE_5_IMPLEMENTATION_REPORT.md)
 - Phase 4 implementation report: [
-  `docs/development/PHASE_4_IMPLEMENTATION_REPORT.md`](docs/development/PHASE_4_IMPLEMENTATION_REPORT.md)
+  `docs/prd/prd-mvp/development`](docs/prd/prd-mvp/development/phase-04/PHASE_4_IMPLEMENTATION_REPORT.md)
 - Phase 3 implementation report: [
-  `docs/development/PHASE_3_IMPLEMENTATION_REPORT.md`](docs/development/PHASE_3_IMPLEMENTATION_REPORT.md)
+  `docs/prd/prd-mvp/development`](docs/prd/prd-mvp/development/phase-03/PHASE_3_IMPLEMENTATION_REPORT.md)
 - Phase 4 plan (owner-approved and implementation authorized): [
-  `docs/development/PHASE_4_PLAN.md`](docs/development/PHASE_4_PLAN.md)
+  `docs/prd/prd-mvp/development`](docs/prd/prd-mvp/development/phase-04/PHASE_4_PLAN.md)
 - Phase 5 plan (owner-approved; implementation report and acceptance pending): [
-  `docs/development/PHASE_5_PLAN.md`](docs/development/PHASE_5_PLAN.md)
-- Phase 3 plan and implementation report: [`docs/development/PHASE_3_PLAN.md`](docs/development/PHASE_3_PLAN.md)
+  `docs/prd/prd-mvp/development`](docs/prd/prd-mvp/development/phase-05/PHASE_5_PLAN.md)
+- Phase 3 plan and implementation report: [
+  `docs/prd/prd-mvp/development`](docs/prd/prd-mvp/development/phase-03/PHASE_3_PLAN.md)
 - AI development protocol: [
-  `docs/development/AI_DEVELOPMENT_GUIDELINES.md`](docs/development/AI_DEVELOPMENT_GUIDELINES.md)
+  `docs/prd/prd-mvp/development`](docs/prd/prd-mvp/development/AI_DEVELOPMENT_GUIDELINES.md)
 - Phase 1 report: [
-  `docs/development/PHASE_1_IMPLEMENTATION_REPORT.md`](docs/development/PHASE_1_IMPLEMENTATION_REPORT.md)
+  `docs/prd/prd-mvp/development`](docs/prd/prd-mvp/development/phase-01/PHASE_1_IMPLEMENTATION_REPORT.md)
 - Phase 2 report: [
-  `docs/development/PHASE_2_IMPLEMENTATION_REPORT.md`](docs/development/PHASE_2_IMPLEMENTATION_REPORT.md)
+  `docs/prd/prd-mvp/development`](docs/prd/prd-mvp/development/phase-02/PHASE_2_IMPLEMENTATION_REPORT.md)
 
 ## Development rules
 
@@ -293,7 +295,7 @@ zsh scripts/api-tests/suites/phase5-campaign-verification.zsh
 
 The suite creates a uniquely named audience segment and campaign verification draft because this phase has no delete
 endpoint. API response files are stored with restrictive permissions under `/tmp/marketing-platform-api-test/`.
-See `docs/development/PHASE_5_IMPLEMENTATION_REPORT.md` for implementation scope and owner verification checklist.
+See `docs/prd/prd-mvp/development` for implementation scope and owner verification checklist.
 
 ## Backend verification
 
