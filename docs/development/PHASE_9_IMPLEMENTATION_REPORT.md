@@ -1,6 +1,6 @@
 # Phase 9 Implementation Report — Campaign Analytics and Coupon Reporting
 
-**Status:** IMPLEMENTED — OWNER VERIFICATION PENDING  
+**Status:** COMPLETE — FORMALLY OWNER-ACCEPTED (2026-11-28)  
 **Owner authorization:** 2026-11-28  
 **Baseline:** `ecommerce-marketing-platform-v0.1.0-phase8-ready-develop.zip`  
 **Scope authority:** `PHASE_9_PLAN.md`, approved PRD v1.5.0, API/security/database design.
@@ -58,7 +58,7 @@ analytics responses when navigating between campaigns or unmounting the report p
 No backend test, frontend build, or runtime API test is represented as passing until executed in the owner's
 environment.
 
-## 4. Owner verification required
+## 4. Owner verification and acceptance
 
 From the project root:
 
@@ -85,9 +85,9 @@ export PHASE9_CAMPAIGN_ID="<published-or-existing-campaign-uuid>"
 zsh scripts/api-tests/suites/phase9-analytics-verification.zsh
 ```
 
-Then sign in as ADMIN, open Campaigns, select a published/paused campaign, and use **查看 Campaign Analytics**. Verify a
-campaign with multiple coupons and known claims, and a zero-activity/zero-target campaign. Phase 9 remains pending owner
-acceptance until these checks pass.
+Then sign in as ADMIN, open Campaigns, select a published/paused campaign, and use **查看 Campaign Analytics**. The
+owner has since confirmed successful Phase 9 testing and formally accepted the changes on 2026-11-28. The steps above
+remain available as a repeatable verification reference.
 
 ## 5. Known operational notes
 
@@ -95,3 +95,13 @@ acceptance until these checks pass.
   continue.
 - Phase 7's single-backend-instance operational constraint remains unchanged.
 - No schema migration was created; no existing migration was modified.
+
+
+## 6. Formal acceptance record
+
+- **Decision:** Accepted by the owner.
+- **Date:** 2026-11-28.
+- **Owner statement:** Phase 9 testing completed; Phase 9 changes approved.
+- **Status transition:** `IMPLEMENTED — OWNER VERIFICATION PENDING` → `COMPLETE — FORMALLY OWNER-ACCEPTED`.
+- **Next phase:** Phase 10 planning may proceed. Phase 10 implementation still requires a separate explicit
+  authorization after its plan is reviewed and approved.

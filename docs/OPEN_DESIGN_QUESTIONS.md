@@ -1,7 +1,7 @@
 # Design Decisions and Ready-for-Development Checklist
 
-**Status:** Owner-approved v1.5.0 Development Baseline; Phases 1–8 formally accepted; Phase 9 implementation delivered
-and awaiting owner verification. **Scope:**
+**Status:** Owner-approved v1.5.0 Development Baseline; Phases 1–9 formally accepted; Phase 10 plan drafted and
+awaiting owner approval. **Scope:**
 These decisions confirm the existing MVP direction and do not authorize scope expansion.
 
 ## 1. Confirmed decisions
@@ -108,11 +108,14 @@ verification; see the Phase 7 implementation report.
 - [x] Phase 8 implementation explicitly authorized by the owner on 2026-11-27, verified, and formally accepted on
   2026-11-28.
 - [x] Phase 9 Analytics plan approved and implementation explicitly authorized by the owner on 2026-11-28;
-  implementation delivered and awaiting owner verification.
+  implementation delivered, verified by the owner, and formally accepted on 2026-11-28.
+- [x] Owner confirmed Phase 9 testing completed successfully and approved the Phase 9 changes on 2026-11-28.
+- [ ] Phase 10 Hardening and Delivery plan reviewed and approved by the owner.
+- [ ] Phase 10 implementation explicitly authorized by the owner.
 
-All design approval gates for the v1.5.0 baseline remain complete. Phases 1–8 are formally accepted. A dedicated
-high-contention Coupon inventory race test is tracked for Phase 10 hardening. Phase 9 implementation is delivered and
-awaits owner verification and acceptance.
+All design approval gates for the v1.5.0 baseline remain complete. Phases 1–9 are formally accepted. A dedicated
+high-contention Coupon inventory race test remains tracked for Phase 10 hardening. Phase 10 planning is awaiting owner
+approval; implementation is not authorized.
 
 ## 5. Phase acceptance and next planning gate (2026-11-28)
 
@@ -120,6 +123,9 @@ awaits owner verification and acceptance.
   startup, frontend `npm run dev`, Phase 8 API verification suite `all`, and successful Member UI coupon claim. Exact
   evidence boundary is documented in `development/PHASE_8_IMPLEMENTATION_REPORT.md` and
   `development/PHASE_8_ACCEPTANCE.md`.
-- **Phase 9:** owner approved `development/PHASE_9_PLAN.md` and explicitly authorized implementation on 2026-11-28. The
-  combined ADMIN analytics endpoint and Admin route `/admin/campaigns/:campaignId/analytics` are implemented. No schema
-  change was introduced. Owner verification remains pending; see `PHASE_9_IMPLEMENTATION_REPORT.md`.
+- **Phase 9:** owner approved `development/PHASE_9_PLAN.md` and explicitly authorized implementation on 2026-11-28.
+  The combined ADMIN analytics endpoint and Admin route `/admin/campaigns/:campaignId/analytics` are implemented. No
+  schema change was introduced. The owner confirmed successful Phase 9 testing and formally accepted the changes on
+  2026-11-28; see `PHASE_9_IMPLEMENTATION_REPORT.md` and `PHASE_9_ACCEPTANCE.md`.
+- **Phase 10:** proposed hardening and delivery-readiness scope is documented in `development/PHASE_10_PLAN.md`.
+  Owner approval and explicit implementation authorization are pending.

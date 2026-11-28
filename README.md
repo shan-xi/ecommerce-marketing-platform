@@ -1,8 +1,8 @@
 # E-commerce Campaign & Coupon Engagement Platform
 
 **Project baseline:** v1.5.0 (owner-approved)  
-**Implementation status:** Phases 0–8 are complete and owner-accepted. Phase 9 implementation is delivered and awaits
-owner verification.
+**Implementation status:** Phases 0–9 are complete and owner-accepted. Phase 10 is in planning and awaits owner
+approval; implementation has not been authorized.
 
 This repository implements the approved MVP described in [`docs/PRD.md`](docs/PRD.md). The project is a modular monolith
 with one Spring Boot backend, one React + TypeScript SPA, and PostgreSQL as the source of truth.
@@ -92,9 +92,9 @@ API is `GET /api/v1/admin/campaigns/{campaignId}/analytics`; it reports audience
 successful claim, claim-attempt, and per-coupon metrics. Counts and distinct-member counts remain separate, rates
 include
 numerator/denominator and use `null` for zero denominators, and coupon inventory counters are checked against successful
-claim rows. No schema migration was introduced. Implementation is delivered but owner verification remains pending;
-follow [`docs/development/PHASE_9_IMPLEMENTATION_REPORT.md`](docs/development/PHASE_9_IMPLEMENTATION_REPORT.md) and
-[`docs/development/PHASE_9_ACCEPTANCE.md`](docs/development/PHASE_9_ACCEPTANCE.md).
+claim rows. No schema migration was introduced. Implementation was formally accepted on 2026-11-28 after the owner confirmed successful Phase 9 testing and approved
+the changes. See [`docs/development/PHASE_9_IMPLEMENTATION_REPORT.md`](docs/development/PHASE_9_IMPLEMENTATION_REPORT.md)
+and [`docs/development/PHASE_9_ACCEPTANCE.md`](docs/development/PHASE_9_ACCEPTANCE.md).
 
 Run the non-destructive Phase 9 API verification against an existing campaign:
 
@@ -102,6 +102,16 @@ Run the non-destructive Phase 9 API verification against an existing campaign:
 export PHASE9_CAMPAIGN_ID="<campaign-uuid>"
 zsh scripts/api-tests/suites/phase9-analytics-verification.zsh
 ```
+
+## Phase 10 — Hardening and Delivery Readiness (Planning)
+
+Phase 10 is planned to harden the accepted MVP without expanding its product scope. Proposed work includes a dedicated
+high-contention Coupon inventory race test (previously deferred from Phase 6), cross-phase regression and end-to-end
+verification, security-boundary checks, and reproducible local setup/operations documentation. The plan explicitly
+preserves the approved modular-monolith architecture, PostgreSQL source of truth, and Phase 7 single-backend-instance
+deployment constraint. No Redis, Kafka, microservices, schema redesign, or new product feature is proposed. The plan
+awaits owner approval; implementation requires a separate explicit authorization. See
+[`docs/development/PHASE_10_PLAN.md`](docs/development/PHASE_10_PLAN.md).
 
 ## Technology versions
 
@@ -224,6 +234,7 @@ docker compose ps
 - Phase 9 plan/report/acceptance: [`docs/development/PHASE_9_PLAN.md`](docs/development/PHASE_9_PLAN.md), [
   `docs/development/PHASE_9_IMPLEMENTATION_REPORT.md`](docs/development/PHASE_9_IMPLEMENTATION_REPORT.md), [
   `docs/development/PHASE_9_ACCEPTANCE.md`](docs/development/PHASE_9_ACCEPTANCE.md)
+- Phase 10 hardening plan (awaiting approval): [`docs/development/PHASE_10_PLAN.md`](docs/development/PHASE_10_PLAN.md)
 - Phase 7 worker deployment and recovery runbook: [
   `docs/development/PHASE_7_OPERATIONS.md`](docs/development/PHASE_7_OPERATIONS.md)
 - Phase 5 implementation report: [

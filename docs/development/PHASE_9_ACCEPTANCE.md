@@ -1,6 +1,10 @@
 # Phase 9 Acceptance Guide — Campaign Analytics and Coupon Reporting
 
-**Status:** OWNER VERIFICATION PENDING. This is a repeatable acceptance guide, not a record of acceptance.
+**Status:** COMPLETE — FORMALLY OWNER-ACCEPTED (2026-11-28).
+
+This guide remains a repeatable verification reference. The owner confirmed successful completion of Phase 9 testing
+and explicitly approved the changes on 2026-11-28. Individual command output and numerical test counts were not supplied
+in the approval message and are intentionally not fabricated.
 
 ## 1. Automated verification
 
@@ -47,7 +51,6 @@ metadata.
 
 ## 3. Acceptance decision
 
-Owner acceptance requires successful backend Maven verification, frontend test/typecheck/build, Phase 9 API
-verification, and browser walkthrough. After verification, update this guide and `PHASE_9_IMPLEMENTATION_REPORT.md` with
-the owner's actual results and acceptance date, then mark Phase 9 complete in `IMPLEMENTATION_PLAN.md` and
-`docs/README.md`.
+**Accepted by owner on 2026-11-28.** The owner reported that Phase 9 testing was complete and approved the Phase 9
+changes. The project status documents have been updated accordingly. This record does not assert test counts that were
+not included in the owner's confirmation.
